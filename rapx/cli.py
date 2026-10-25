@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import re
+import time
 import typer
 from rich.console import Console
 
 from rapx.config import ROOT_DIR, load_config
-from rapx.pipeline import STAGES_ORDER, run_full_pipeline
+from rapx.pipeline import STAGES_ORDER, format_elapsed, run_full_pipeline
 
 app = typer.Typer(
     name="rapx",
@@ -27,7 +28,13 @@ def spike() -> None:
     """Run Phase 0 access spike (Argon text, Argon audio input, Lyria track, HyperFrames 5s render)."""
     from rapx.stages.spike import run_phase0_spike
 
-    run_phase0_spike()
+    t0 = time.perf_counter()
+    console.print("[bold cyan]rapx spike[/bold cyan]: starting Phase 0 access spike...")
+    try:
+        run_phase0_spike()
+    finally:
+        elapsed = time.perf_counter() - t0
+        console.print(f"[bold magenta]⏱ Total command time (rapx spike): {format_elapsed(elapsed)}[/bold magenta]")
 
 
 @app.command()
@@ -37,11 +44,16 @@ def make(
     force: bool = typer.Option(False, "--force", help="Ignore stage cache and recompute all stages"),
 ) -> None:
     """Run the full 11-stage rapx pipeline for a concept -> runs/<run_id>/final.mp4."""
+    t0 = time.perf_counter()
     cfg = load_config()
     rid = run_id or _slugify(concept)
     run_dir = ROOT_DIR / cfg.pipeline.runs_dir / rid
     console.print(f"[bold cyan]rapx make[/bold cyan]: {concept} -> runs/{rid}/")
-    run_full_pipeline(run_dir, concept=concept, from_stage="outline", force=force, cfg=cfg)
+    try:
+        run_full_pipeline(run_dir, concept=concept, from_stage="outline", force=force, cfg=cfg)
+    finally:
+        elapsed = time.perf_counter() - t0
+        console.print(f"[bold magenta]⏱ Total command time (rapx make): {format_elapsed(elapsed)}[/bold magenta]")
 
 
 @app.command()
@@ -54,6 +66,7 @@ def rerun(
     ),
 ) -> None:
     """Rerun an existing run starting from a specific stage (reusing earlier cached artifacts)."""
+    t0 = time.perf_counter()
     cfg = load_config()
     run_dir = ROOT_DIR / cfg.pipeline.runs_dir / run_id
     if not run_dir.exists():
@@ -64,7 +77,13 @@ def rerun(
         )
 
     console.print(f"[bold cyan]rapx rerun[/bold cyan]: {run_id} --from {from_stage}")
-    run_full_pipeline(run_dir, concept=None, from_stage=from_stage, force=False, cfg=cfg)
+    try:
+        run_full_pipeline(run_dir, concept=None, from_stage=from_stage, force=False, cfg=cfg)
+    finally:
+        elapsed = time.perf_counter() - t0
+        console.print(
+            f"[bold magenta]⏱ Total command time (rapx rerun --from {from_stage}): {format_elapsed(elapsed)}[/bold magenta]"
+        )
 
 
 @app.command(name="eval")
@@ -75,7 +94,12 @@ def run_eval(
     """Run evals/concepts.yaml and print a score table."""
     from rapx.stages.eval_runner import run_eval_suite
 
-    run_eval_suite(limit=limit, force=force)
+    t0 = time.perf_counter()
+    try:
+        run_eval_suite(limit=limit, force=force)
+    finally:
+        elapsed = time.perf_counter() - t0
+        console.print(f"[bold magenta]⏱ Total command time (rapx eval): {format_elapsed(elapsed)}[/bold magenta]")
 
 
 if __name__ == "__main__":

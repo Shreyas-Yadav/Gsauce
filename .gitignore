@@ -15,7 +15,5 @@ build/
 **/.hyperframes/
 **/node_modules/
 
-# Large media outputs in runs (keep JSON reports/evals inspectable)
-runs/**/*.mp3
-runs/**/*.mp4
-runs/**/*.wav
+# Run output data (ignored in git, kept on disk)
+runs/

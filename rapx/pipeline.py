@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import time
 from rich.console import Console
 from rich.table import Table
 
@@ -12,7 +13,6 @@ from rapx.schemas import (
     LyricsArtifact,
     OutlineArtifact,
     RunMetricsArtifact,
-    VerifyArtifact,
 )
 from rapx.stages.align import run_align
 from rapx.stages.audio import run_audio
@@ -41,6 +41,15 @@ STAGES_ORDER = [
     "render",
     "critique",
 ]
+
+
+def format_elapsed(seconds: float) -> str:
+    """Format elapsed seconds as e.g. '45.23s' or '3m 12.40s (192.40s)'."""
+    if seconds < 60.0:
+        return f"{seconds:.2f}s"
+    mins = int(seconds // 60)
+    rem = seconds - mins * 60
+    return f"{mins}m {rem:05.2f}s ({seconds:.2f}s)"
 
 
 def print_run_metrics_table(run_dir: Path) -> None:
@@ -80,7 +89,7 @@ def print_run_metrics_table(run_dir: Path) -> None:
         "[bold]TOTAL[/bold]",
         "",
         "",
-        f"[bold]{m.total_latency_ms:,} ms[/bold]",
+        f"[bold]{m.total_latency_ms:,} ms ({format_elapsed(m.total_latency_ms / 1000.0)})[/bold]",
         "",
         "",
         f"[bold green]${m.total_estimated_cost_usd:.4f}[/bold green]",
@@ -124,67 +133,89 @@ def run_full_pipeline(
 
     # Stage 1: outline
     if start_idx <= 0:
+        t_s = time.perf_counter()
         console.print("[bold cyan][1/11] Stage: outline[/bold cyan]")
         run_outline(run_dir, concept, cfg, client, force=_should_force(0))
+        console.print(f"  [dim]⏱ outline finished in {format_elapsed(time.perf_counter() - t_s)}[/dim]")
 
     # Stage 2: lyrics
     if start_idx <= 1:
+        t_s = time.perf_counter()
         console.print("[bold cyan][2/11] Stage: lyrics[/bold cyan]")
         run_lyrics(run_dir, cfg, client, force=_should_force(1))
+        console.print(f"  [dim]⏱ lyrics finished in {format_elapsed(time.perf_counter() - t_s)}[/dim]")
 
     # Stage 3 & 4: verify + fix
     if start_idx <= 3:
+        t_s = time.perf_counter()
         console.print("[bold cyan][3/11] Stage: verify[/bold cyan]")
         verify_res = run_verify(run_dir)
+        console.print(f"  [dim]⏱ verify finished in {format_elapsed(time.perf_counter() - t_s)}[/dim]")
         if not verify_res.passed or start_idx == 3:
+            t_f = time.perf_counter()
             console.print("[bold yellow][4/11] Stage: fix (retrying failing bars)[/bold yellow]")
             _, verify_res = run_fix(run_dir, cfg, client)
+            console.print(f"  [dim]⏱ fix finished in {format_elapsed(time.perf_counter() - t_f)}[/dim]")
         else:
             console.print(f"[green][4/11] Stage: fix — skipped (verify passed with {verify_res.score:.1f})[/green]")
 
     # Stage 5: factcheck
     if start_idx <= 4:
+        t_s = time.perf_counter()
         console.print("[bold cyan][5/11] Stage: factcheck[/bold cyan]")
         run_factcheck(run_dir, cfg, client, force=_should_force(4))
+        console.print(f"  [dim]⏱ factcheck finished in {format_elapsed(time.perf_counter() - t_s)}[/dim]")
 
     # Stage 6: audio
     if start_idx <= 5:
+        t_s = time.perf_counter()
         console.print("[bold cyan][6/11] Stage: audio (Lyria 3 Pro — 3 takes)[/bold cyan]")
         run_audio(run_dir, cfg, force=_should_force(5))
+        console.print(f"  [dim]⏱ audio finished in {format_elapsed(time.perf_counter() - t_s)}[/dim]")
 
     # Stage 7: align
     if start_idx <= 6:
+        t_s = time.perf_counter()
         console.print("[bold cyan][7/11] Stage: align (Hybrid WhisperX ASR + CTC + librosa)[/bold cyan]")
         tl = run_align(run_dir, cfg, force=_should_force(6))
         console.print(
             f"  [dim]Selected:[/dim] {tl.selected_take} ({tl.duration_sec}s, {tl.bpm} BPM, "
-            f"kt_conf={tl.key_term_confidence:.3f}, drift={tl.lyric_drift_score:.3f})"
+            f"kt_conf={tl.key_term_confidence:.3f}, drift={tl.lyric_drift_score:.3f}) "
+            f"[dim]— ⏱ {format_elapsed(time.perf_counter() - t_s)}[/dim]"
         )
 
     # Stage 8: direct
     if start_idx <= 7:
+        t_s = time.perf_counter()
         console.print("[bold cyan][8/11] Stage: direct (Multimodal audio + timeline -> treatment.json)[/bold cyan]")
         run_direct(run_dir, cfg, force=_should_force(7))
+        console.print(f"  [dim]⏱ direct finished in {format_elapsed(time.perf_counter() - t_s)}[/dim]")
 
     # Stage 9: code
     if start_idx <= 8:
+        t_s = time.perf_counter()
         console.print("[bold cyan][9/11] Stage: code (HyperFrames GSAP index.html)[/bold cyan]")
         run_code(run_dir, cfg, force=_should_force(8))
+        console.print(f"  [dim]⏱ code finished in {format_elapsed(time.perf_counter() - t_s)}[/dim]")
 
     # Stage 10: render
     if start_idx <= 9:
+        t_s = time.perf_counter()
         console.print("[bold cyan][10/11] Stage: render (npx hyperframes render -> final.mp4)[/bold cyan]")
         run_render(run_dir, cfg, force=_should_force(9))
+        console.print(f"  [dim]⏱ render finished in {format_elapsed(time.perf_counter() - t_s)}[/dim]")
 
     # Stage 11: critique
     if start_idx <= 10:
+        t_s = time.perf_counter()
         console.print("[bold cyan][11/11] Stage: critique (6x6 grid multimodal QA loop)[/bold cyan]")
         critiques = run_critique_loop(run_dir, cfg, force=_should_force(10))
         if critiques:
             last_c = critiques[-1]
             console.print(
                 f"  [dim]Critique finished at round {last_c.round}:[/dim] "
-                f"score={last_c.overall_score:.1f}/100, passed={last_c.passed}"
+                f"score={last_c.overall_score:.1f}/100, passed={last_c.passed} "
+                f"[dim]— ⏱ {format_elapsed(time.perf_counter() - t_s)}[/dim]"
             )
 
     final_mp4 = run_dir / "final.mp4"

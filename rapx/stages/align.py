@@ -11,11 +11,20 @@ from __future__ import annotations
 
 from difflib import SequenceMatcher
 import json
+import logging
 import re
 import subprocess
 import time
+import warnings
 from pathlib import Path
 from typing import Any
+
+# Suppress noisy pyannote torchcodec & lightning checkpoint warnings (we decode audio via whisperx.load_audio into memory)
+warnings.filterwarnings("ignore", message=".*torchcodec is not installed correctly.*")
+warnings.filterwarnings("ignore", message=".*Lightning automatically upgraded your loaded checkpoint.*")
+logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
+logging.getLogger("lightning.pytorch").setLevel(logging.ERROR)
+logging.getLogger("whisperx.vads.pyannote").setLevel(logging.WARNING)
 
 import librosa
 import numpy as np
