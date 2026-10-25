@@ -1,0 +1,18 @@
+{
+  "name": "lost-in-translation-studio",
+  "version": "1.0.0",
+  "description": "Lost in Translation Studio — Photoshop-style frame timeline, mark-out canvas, and audio-first production UI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "animation",
+    "timeline",
+    "video-editor",
+    "canvas",
+    "studio"
+  ],
+  "author": "Atharva",
+  "license": "MIT"
+}
