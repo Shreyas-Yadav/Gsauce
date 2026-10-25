@@ -29,13 +29,14 @@ def run_factcheck(
     out_path = run_dir / "factcheck.json"
     hash_path = run_dir / ".factcheck.hash"
 
+    model_id = cfg.models.fast_llm or cfg.models.llm
     template = load_prompt("factcheck")
     prompt = (
         template.replace("{{concept}}", outline.concept)
         .replace("{{outline_json}}", outline.model_dump_json(indent=2))
         .replace("{{lyrics_json}}", lyrics.model_dump_json(indent=2))
     )
-    stage_hash = compute_stage_hash(cfg.models.llm, prompt)
+    stage_hash = compute_stage_hash(model_id, prompt)
 
     if (
         not force
@@ -48,7 +49,7 @@ def run_factcheck(
         record_stage_metric(
             run_dir,
             outline.concept,
-            StageMetric(stage="factcheck", model=cfg.models.llm, cached=True, input_hash=stage_hash),
+            StageMetric(stage="factcheck", model=model_id, cached=True, input_hash=stage_hash),
         )
         return artifact
 
@@ -60,6 +61,7 @@ def run_factcheck(
         FactCheckArtifact,
         thinking_level="low",
         input_hash=stage_hash,
+        model_override=model_id,
     )
     out_path.write_text(artifact.model_dump_json(indent=2), encoding="utf-8")
     hash_path.write_text(stage_hash, encoding="utf-8")

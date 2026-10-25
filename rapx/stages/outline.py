@@ -22,9 +22,10 @@ def run_outline(
     out_path = run_dir / "outline.json"
     hash_path = run_dir / ".outline.hash"
 
+    model_id = cfg.models.fast_llm or cfg.models.llm
     template = load_prompt("outline")
     prompt = template.replace("{{concept}}", concept)
-    stage_hash = compute_stage_hash(cfg.models.llm, prompt)
+    stage_hash = compute_stage_hash(model_id, prompt)
 
     if (
         not force
@@ -37,7 +38,7 @@ def run_outline(
         record_stage_metric(
             run_dir,
             concept,
-            StageMetric(stage="outline", model=cfg.models.llm, cached=True, input_hash=stage_hash),
+            StageMetric(stage="outline", model=model_id, cached=True, input_hash=stage_hash),
         )
         return artifact
 
@@ -49,6 +50,7 @@ def run_outline(
         OutlineArtifact,
         thinking_level="low",
         input_hash=stage_hash,
+        model_override=model_id,
     )
     out_path.write_text(artifact.model_dump_json(indent=2), encoding="utf-8")
     hash_path.write_text(stage_hash, encoding="utf-8")

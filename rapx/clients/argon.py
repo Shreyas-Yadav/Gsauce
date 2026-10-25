@@ -93,6 +93,16 @@ def _extract_json_str(raw_text: str) -> str:
     return text
 
 
+def _estimate_llm_cost(cfg: AppConfig, model_id: str, in_tok: int, out_tok: int) -> float:
+    if "flash" in model_id.lower():
+        return (in_tok / 1_000_000) * cfg.pricing.flash_input_per_1m + (
+            out_tok / 1_000_000
+        ) * cfg.pricing.flash_output_per_1m
+    return (in_tok / 1_000_000) * cfg.pricing.argon_input_per_1m + (
+        out_tok / 1_000_000
+    ) * cfg.pricing.argon_output_per_1m
+
+
 def call_argon_json(
     client: genai.Client,
     cfg: AppConfig,
@@ -103,8 +113,10 @@ def call_argon_json(
     thinking_level: str = "low",
     multimodal_parts: list[types.Part] | None = None,
     input_hash: str | None = None,
+    model_override: str | None = None,
 ) -> tuple[T, StageMetric]:
-    """Call Gemini 4 Argon (`cfg.models.llm`) and return a validated Pydantic model + StageMetric."""
+    """Call Gemini (`model_override` or `cfg.models.llm`) and return a validated Pydantic model + StageMetric."""
+    active_model = model_override or cfg.models.llm
     contents: list[object] = []
     if multimodal_parts:
         contents.extend(multimodal_parts)
@@ -112,7 +124,7 @@ def call_argon_json(
 
     t0 = time.perf_counter()
     response = client.models.generate_content(
-        model=cfg.models.llm,
+        model=active_model,
         contents=contents,
         config=types.GenerateContentConfig(
             max_output_tokens=32768,
@@ -128,9 +140,7 @@ def call_argon_json(
     out_tok = (getattr(usage, "candidates_token_count", 0) or 0) + (
         getattr(usage, "thoughts_token_count", 0) or 0
     )
-    cost = (in_tok / 1_000_000) * cfg.pricing.argon_input_per_1m + (
-        out_tok / 1_000_000
-    ) * cfg.pricing.argon_output_per_1m
+    cost = _estimate_llm_cost(cfg, active_model, in_tok, out_tok)
 
     parsed = getattr(response, "parsed", None)
     if isinstance(parsed, schema_cls):
@@ -142,7 +152,7 @@ def call_argon_json(
 
     metric = StageMetric(
         stage=stage_name,
-        model=cfg.models.llm,
+        model=active_model,
         cached=False,
         latency_ms=elapsed_ms,
         input_tokens=in_tok,
@@ -174,8 +184,10 @@ def call_argon_text(
     thinking_level: str = "low",
     multimodal_parts: list[types.Part] | None = None,
     input_hash: str | None = None,
+    model_override: str | None = None,
 ) -> tuple[str, StageMetric]:
-    """Call Gemini 4 Argon (`cfg.models.llm`) for raw text/HTML output and return (text, StageMetric)."""
+    """Call Gemini (`model_override` or `cfg.models.llm`) for raw text/HTML output and return (text, StageMetric)."""
+    active_model = model_override or cfg.models.llm
     contents: list[object] = []
     if multimodal_parts:
         contents.extend(multimodal_parts)
@@ -183,7 +195,7 @@ def call_argon_text(
 
     t0 = time.perf_counter()
     response = client.models.generate_content(
-        model=cfg.models.llm,
+        model=active_model,
         contents=contents,
         config=types.GenerateContentConfig(
             max_output_tokens=32768,
@@ -197,14 +209,12 @@ def call_argon_text(
     out_tok = (getattr(usage, "candidates_token_count", 0) or 0) + (
         getattr(usage, "thoughts_token_count", 0) or 0
     )
-    cost = (in_tok / 1_000_000) * cfg.pricing.argon_input_per_1m + (
-        out_tok / 1_000_000
-    ) * cfg.pricing.argon_output_per_1m
+    cost = _estimate_llm_cost(cfg, active_model, in_tok, out_tok)
 
     raw = response.text or ""
     metric = StageMetric(
         stage=stage_name,
-        model=cfg.models.llm,
+        model=active_model,
         cached=False,
         latency_ms=elapsed_ms,
         input_tokens=in_tok,

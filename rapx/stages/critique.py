@@ -76,9 +76,10 @@ def evaluate_video_critique(
         + f"\n\n### Treatment Reference\n```json\n{treatment.model_dump_json(indent=2)}\n```"
     )
 
+    model_id = cfg.models.fast_llm or cfg.models.llm
     video_size = video_path.stat().st_size
     stage_hash = compute_stage_hash(
-        cfg.models.llm,
+        model_id,
         prompt_text,
         [str(round_num), str(video_size), timeline.model_dump_json()],
     )
@@ -96,7 +97,7 @@ def evaluate_video_critique(
             lyrics.concept,
             StageMetric(
                 stage=f"critique_{round_num}",
-                model=cfg.models.llm,
+                model=model_id,
                 cached=True,
                 input_hash=stage_hash,
             ),
@@ -116,6 +117,7 @@ def evaluate_video_critique(
         thinking_level="low",
         multimodal_parts=[video_part],
         input_hash=stage_hash,
+        model_override=model_id,
     )
     artifact.round = round_num
 

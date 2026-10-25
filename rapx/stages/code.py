@@ -146,8 +146,11 @@ def run_code(
         .replace("{{error_feedback_block}}", feedback_block)
     )
 
+    # Use flagship model (`cfg.models.llm`) for initial codegen, and `fast_llm` (`gemini-3.8-flash`) for targeted fix iterations
+    active_model = (cfg.models.fast_llm or cfg.models.llm) if error_feedback else cfg.models.llm
+
     stage_hash = compute_stage_hash(
-        cfg.models.llm,
+        active_model,
         prompt_text,
         [treatment.model_dump_json(), timeline.model_dump_json(), error_feedback or ""],
     )
@@ -163,7 +166,7 @@ def run_code(
         record_stage_metric(
             run_dir,
             lyrics.concept,
-            StageMetric(stage=stage_label, model=cfg.models.llm, cached=True, input_hash=stage_hash),
+            StageMetric(stage=stage_label, model=active_model, cached=True, input_hash=stage_hash),
         )
         return index_path
 
@@ -175,6 +178,7 @@ def run_code(
         prompt_text,
         thinking_level="low",
         input_hash=stage_hash,
+        model_override=active_model,
     )
 
     index_path.write_text(html_code, encoding="utf-8")

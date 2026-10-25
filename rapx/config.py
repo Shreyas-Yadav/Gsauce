@@ -19,6 +19,7 @@ class GCPConfig(BaseModel):
 
 class ModelsConfig(BaseModel):
     llm: str = "gemini-4-argon"
+    fast_llm: str | None = "gemini-3.8-flash"
     music: str = "lyria-3.5"
 
 
@@ -49,6 +50,8 @@ class PipelineConfig(BaseModel):
 class PricingConfig(BaseModel):
     argon_input_per_1m: float = 2.00
     argon_output_per_1m: float = 10.00
+    flash_input_per_1m: float = 0.30
+    flash_output_per_1m: float = 2.50
     lyria_per_take: float = 0.08
 
 

@@ -63,6 +63,7 @@ def run_fix(
             prompt,
             LyricsArtifact,
             thinking_level="low",
+            model_override=cfg.models.fast_llm or cfg.models.llm,
         )
         fixed_lyrics = normalize_lyrics_bars(fixed_lyrics)
 

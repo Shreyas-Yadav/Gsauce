@@ -5,8 +5,9 @@ gcp:
   vertexai: true          # Use Vertex AI with ADC
 
 models:
-  llm: "gemini-4-argon"   # Hackathon constraint: Gemini 4 Argon for LLM steps
-  music: "lyria-3-pro-preview"  # Verified in Phase 0 ("lyria-3-pro-preview" & "lyria-3-clip-preview" work)
+  llm: "gemini-4-argon"        # Flagship reasoning model for core creative stages (lyrics, direct, initial code)
+  fast_llm: "gemini-3.8-flash" # High-speed model (128 tok/s) for outline, fix, factcheck, critique & code_critique_fix
+  music: "lyria-3-pro-preview" # Verified in Phase 0 ("lyria-3-pro-preview" & "lyria-3-clip-preview" work)
 
 audio:
   bpm: 92
@@ -30,7 +31,9 @@ pipeline:
   cache_enabled: true
 
 pricing:
-  # Gemini 4 Argon introductory pricing per 1M tokens (USD)
+  # Gemini 4 Argon & Gemini 3.8 Flash pricing per 1M tokens (USD)
   argon_input_per_1m: 2.00
   argon_output_per_1m: 10.00
+  flash_input_per_1m: 0.30
+  flash_output_per_1m: 2.50
   lyria_per_take: 0.08
