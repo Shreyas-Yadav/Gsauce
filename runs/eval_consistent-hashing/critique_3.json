@@ -1,0 +1,20 @@
+{
+  "round": 3,
+  "passed": true,
+  "overall_score": 94.5,
+  "issues": [
+    {
+      "category": "unreadable_text",
+      "timestamp_start_sec": 50.5,
+      "timestamp_end_sec": 53.0,
+      "grid_positions": [
+        "B2",
+        "B3",
+        "B4",
+        "B5"
+      ],
+      "description": "In Bar 12, the kinetic punchline banner text 'O(K / N) EFFICIENCY: ZERO CLUSTER THRASH!' slightly clips the last two characters ('NG') into 'THRASH!' or hits the right padding edge of the banner container.",
+      "concrete_fix": "Reduce the banner font-size slightly from 24px to 21px or shorten the string to 'O(K/N) EFFICIENCY: ZERO THRASH!' in the bar 12 punchline configuration."
+    }
+  ]
+}

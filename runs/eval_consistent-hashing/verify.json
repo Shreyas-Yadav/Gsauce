@@ -1,11 +1,11 @@
 {
   "passed": true,
-  "score": 99.4,
+  "score": 99.1,
   "bars": [
     {
       "bar_index": 1,
-      "text": "Modulo math on the count is a trap for the scale",
-      "syllable_count": 13,
+      "text": "Modulo routing will fail when N changes fast",
+      "syllable_count": 12,
       "end_rhyme_ok": true,
       "internal_rhyme_count": 1,
       "stress_beats_ok": true,
@@ -13,52 +13,34 @@
     },
     {
       "bar_index": 2,
-      "text": "Add a machine and the cluster will stumble and fail",
-      "syllable_count": 13,
+      "text": "Trigger a rehash and make the old caches blast",
+      "syllable_count": 12,
       "end_rhyme_ok": true,
-      "internal_rhyme_count": 9,
+      "internal_rhyme_count": 2,
       "stress_beats_ok": true,
       "errors": []
     },
     {
       "bar_index": 3,
-      "text": "Forced to rehash every item when servers are down",
-      "syllable_count": 14,
-      "end_rhyme_ok": true,
-      "internal_rhyme_count": 1,
-      "stress_beats_ok": true,
-      "errors": []
-    },
-    {
-      "bar_index": 4,
-      "text": "Waves of a cache miss are making the database drown",
-      "syllable_count": 13,
-      "end_rhyme_ok": true,
-      "internal_rhyme_count": 3,
-      "stress_beats_ok": true,
-      "errors": []
-    },
-    {
-      "bar_index": 5,
-      "text": "Build up a circular keyspace and map out the byte",
-      "syllable_count": 13,
-      "end_rhyme_ok": true,
-      "internal_rhyme_count": 1,
-      "stress_beats_ok": true,
-      "errors": []
-    },
-    {
-      "bar_index": 6,
-      "text": "Servers and data will land on the hash ring alright",
-      "syllable_count": 13,
+      "text": "Every single cache miss will shatter the state",
+      "syllable_count": 12,
       "end_rhyme_ok": true,
       "internal_rhyme_count": 4,
       "stress_beats_ok": true,
       "errors": []
     },
     {
-      "bar_index": 7,
-      "text": "Drop in a package and travel the rim like a clock",
+      "bar_index": 4,
+      "text": "Scrambling all of the keys at a massive rate",
+      "syllable_count": 12,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 5,
+      "text": "Map all the servers and keys to a circular space",
       "syllable_count": 13,
       "end_rhyme_ok": true,
       "internal_rhyme_count": 2,
@@ -66,27 +48,45 @@
       "errors": []
     },
     {
-      "bar_index": 8,
-      "text": "Sliding it clockwise until it hits first server block",
-      "syllable_count": 13,
+      "bar_index": 6,
+      "text": "Build up a hash ring locked in a fixed-size place",
+      "syllable_count": 11,
       "end_rhyme_ok": true,
       "internal_rhyme_count": 3,
       "stress_beats_ok": true,
       "errors": []
     },
     {
-      "bar_index": 9,
-      "text": "Adding a host triggers minimal movement of state",
-      "syllable_count": 13,
+      "bar_index": 7,
+      "text": "Packets walk clockwise right on the glowing rim",
+      "syllable_count": 11,
       "end_rhyme_ok": true,
       "internal_rhyme_count": 1,
       "stress_beats_ok": true,
       "errors": []
     },
     {
+      "bar_index": 8,
+      "text": "Stopping at the first node when the lights go dim",
+      "syllable_count": 11,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 0,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 9,
+      "text": "Scale up the cluster and watch how the keys stay still",
+      "syllable_count": 12,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 6,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
       "bar_index": 10,
-      "text": "Only the arc from a neighbor node shifts at a rate",
-      "syllable_count": 13,
+      "text": "Only one neighbor will split up the slice to fill",
+      "syllable_count": 12,
       "end_rhyme_ok": true,
       "internal_rhyme_count": 2,
       "stress_beats_ok": true,
@@ -94,7 +94,7 @@
     },
     {
       "bar_index": 11,
-      "text": "K over N is the fraction of keys on the flight",
+      "text": "Minimal movement of data across the wire",
       "syllable_count": 13,
       "end_rhyme_ok": true,
       "internal_rhyme_count": 0,
@@ -103,7 +103,7 @@
     },
     {
       "bar_index": 12,
-      "text": "Keeping the rest of the traffic untouched in the night",
+      "text": "Shifting just 1 over N so the speeds go higher",
       "syllable_count": 13,
       "end_rhyme_ok": true,
       "internal_rhyme_count": 3,
@@ -112,8 +112,8 @@
     },
     {
       "bar_index": 13,
-      "text": "Few physical hosts leave a gap and a spike in the heat",
-      "syllable_count": 14,
+      "text": "Few physical servers will create a wide gap",
+      "syllable_count": 12,
       "end_rhyme_ok": true,
       "internal_rhyme_count": 1,
       "stress_beats_ok": true,
@@ -121,17 +121,17 @@
     },
     {
       "bar_index": 14,
-      "text": "Leading to hotspots that hammer a server to beat",
-      "syllable_count": 13,
+      "text": "Causing a hotspot that burns up the cluster map",
+      "syllable_count": 12,
       "end_rhyme_ok": true,
-      "internal_rhyme_count": 1,
+      "internal_rhyme_count": 2,
       "stress_beats_ok": true,
       "errors": []
     },
     {
       "bar_index": 15,
-      "text": "Scatter the virtual nodes like a clone on the road",
-      "syllable_count": 13,
+      "text": "Spawn virtual nodes and scatter the labels wide",
+      "syllable_count": 12,
       "end_rhyme_ok": true,
       "internal_rhyme_count": 1,
       "stress_beats_ok": true,
@@ -139,8 +139,8 @@
     },
     {
       "bar_index": 16,
-      "text": "Slicing the circle to balance a uniform load",
-      "syllable_count": 13,
+      "text": "Uniform load with the vnodes on every side",
+      "syllable_count": 12,
       "end_rhyme_ok": true,
       "internal_rhyme_count": 0,
       "stress_beats_ok": true,

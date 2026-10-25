@@ -1,0 +1,37 @@
+{
+  "round": 2,
+  "passed": true,
+  "overall_score": 93.5,
+  "issues": [
+    {
+      "category": "unreadable_text",
+      "timestamp_start_sec": 0.0,
+      "timestamp_end_sec": 60.0,
+      "grid_positions": [
+        "D5",
+        "E2",
+        "E3",
+        "E4"
+      ],
+      "description": "The action sub-caption prompt text in the lower HUD bar (e.g., '> INJECT A 4TH SERVER SLOT INTO THE LINEAR MODULO ARRAY...') is truncated with an ellipsis ('...') and Node D's inactive telemetry readout in D5 has very low contrast when dimmed at 0%.",
+      "concrete_fix": "Allow the `.action-prompt` text container to wrap or slightly reduce its font-size/letter-spacing so the full action string fits without `text-overflow: ellipsis`, and raise the minimum opacity of inactive telemetry labels in `.meter-row` to `0.55`."
+    },
+    {
+      "category": "sync_drift",
+      "timestamp_start_sec": 57.33,
+      "timestamp_end_sec": 60.0,
+      "grid_positions": [
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "E2",
+        "E3",
+        "E4",
+        "E5"
+      ],
+      "description": "In the final 2.5 seconds (Bars 14-16), the audio track cuts off right as 'Causing' is spoken around 59.77s, compressing the visual transitions for Bars 14, 15, and 16 into less than 2.5 seconds.",
+      "concrete_fix": "Align Bar 14-16 visual state transitions evenly across the remaining tail or match the exact vocal timestamps if full audio for Bars 14-16 is present."
+    }
+  ]
+}

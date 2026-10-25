@@ -1,0 +1,1709 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1920" />
+  <title>Consistent Hashing and Virtual Nodes — HyperFrames</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    :root {
+      --bg: #070A12;
+      --primary: #00F5D4;
+      --secondary: #7B2CBF;
+      --accent: #FF2A85;
+      --amber: #FFB703;
+      --text: #F8FAFC;
+      --muted: rgba(248, 250, 252, 0.35);
+      --card-bg: rgba(10, 15, 28, 0.94);
+      --font-head: 'Space Grotesk', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 1080px;
+      height: 1920px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      overflow: hidden;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #root {
+      position: relative;
+      width: 1080px;
+      height: 1920px;
+      background: radial-gradient(circle at 50% 42%, #10172A 0%, #070A12 72%);
+      overflow: hidden;
+    }
+
+    .clip {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+      pointer-events: none;
+    }
+
+    /* Stage Wrapper */
+    #stage-inner {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+    }
+
+    /* Ambient Background Grid & Cybernetic HUD */
+    #bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(0, 245, 212, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 245, 212, 0.05) 1px, transparent 1px);
+      background-size: 54px 54px;
+      opacity: 0.7;
+    }
+
+    #bg-scanlines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0, 0, 0, 0.25) 4px
+      );
+      pointer-events: none;
+    }
+
+    #beat-flash-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 44%, rgba(0, 245, 212, 0.16), transparent 68%);
+      opacity: 0;
+    }
+
+    /* Title-Safe Border Guide (Subtle) */
+    #hud-frame {
+      position: absolute;
+      left: 108px;
+      top: 192px;
+      width: 864px;
+      height: 1536px;
+      border: 1px solid rgba(0, 245, 212, 0.14);
+      border-radius: 24px;
+      box-shadow: inset 0 0 40px rgba(0, 245, 212, 0.04);
+    }
+
+    /* 1. TOP HUD HEADER (top: 192px, height: 156px, width: 864px -> ends at y: 348px) */
+    #top-hud {
+      position: absolute;
+      left: 108px;
+      top: 192px;
+      width: 864px;
+      height: 156px;
+      background: rgba(10, 15, 28, 0.92);
+      border: 2px solid rgba(0, 245, 212, 0.35);
+      border-radius: 20px;
+      padding: 16px 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 24px rgba(0, 245, 212, 0.12);
+      z-index: 25;
+    }
+
+    .hud-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .concept-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 245, 212, 0.12);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 8px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 10px var(--primary);
+      flex-shrink: 0;
+    }
+
+    .telemetry-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .telemetry-pill {
+      background: rgba(123, 44, 191, 0.25);
+      border: 1px solid rgba(123, 44, 191, 0.7);
+      padding: 6px 14px;
+      border-radius: 8px;
+      color: #E2C6FF;
+      white-space: nowrap;
+    }
+
+    #bar-counter-pill {
+      background: rgba(255, 42, 133, 0.18);
+      border: 1px solid var(--accent);
+      color: #FF85B3;
+      white-space: nowrap;
+    }
+
+    .hud-bottom-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid rgba(248, 250, 252, 0.1);
+      padding-top: 10px;
+    }
+
+    #phase-title {
+      font-family: var(--font-head);
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #formula-readout {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--primary);
+      background: rgba(0, 245, 212, 0.1);
+      padding: 5px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 245, 212, 0.35);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Fix #1 & Fix #2: Kinetic Typography Punchline Banner sits cleanly in its dedicated lane (y: 358px..404px) between #top-hud (ends 348px) and #arena-container (starts 416px) with font-size: 21px so long strings NEVER clip or collide with arena headers */
+    #punchline-banner {
+      position: absolute;
+      left: 136px;
+      top: 360px;
+      width: 808px;
+      padding: 8px 18px;
+      background: rgba(255, 42, 133, 0.96);
+      border: 2px solid #FFFFFF;
+      border-radius: 10px;
+      text-align: center;
+      font-family: var(--font-head);
+      font-size: 21px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(255, 42, 133, 0.6);
+      z-index: 40;
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* 2. CENTER INTERACTIVE VISUAL METAPHOR ARENA (top: 416px, height: 912px, width: 864px -> ends at y: 1328px) */
+    #arena-container {
+      position: absolute;
+      left: 108px;
+      top: 416px;
+      width: 864px;
+      height: 912px;
+      background: rgba(8, 12, 24, 0.85);
+      border: 2px solid rgba(0, 245, 212, 0.28);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.8), 0 16px 40px rgba(0, 0, 0, 0.6);
+      z-index: 10;
+    }
+
+    #camera-rig {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 864px;
+      height: 912px;
+      transform-origin: 432px 440px;
+    }
+
+    /* Arena Sub-Header Banner (y: 16px..56px inside arena) */
+    #arena-top-bar {
+      position: absolute;
+      left: 24px;
+      top: 16px;
+      width: 816px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    .status-chip {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 8px;
+      background: rgba(10, 15, 28, 0.92);
+      border: 1px solid rgba(0, 245, 212, 0.4);
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    #rehash-meter-chip {
+      border-color: var(--accent);
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    /* SVG Stage inside Arena */
+    #arena-svg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 864px;
+      height: 912px;
+      z-index: 5;
+    }
+
+    /* Linear Modulo Rack Layer (Bars 1-4) */
+    #linear-scene {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 864px;
+      height: 912px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .server-slot {
+      position: absolute;
+      top: 495px;
+      width: 170px;
+      height: 225px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 3px solid var(--primary);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 0 24px rgba(0, 245, 212, 0.18);
+    }
+
+    .server-slot-header {
+      font-family: var(--font-mono);
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--primary);
+      text-align: center;
+      border-bottom: 1px solid rgba(0, 245, 212, 0.25);
+      padding-bottom: 8px;
+      white-space: nowrap;
+    }
+
+    .cache-blocks-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .cache-cell {
+      height: 36px;
+      border-radius: 6px;
+      background: rgba(0, 245, 212, 0.18);
+      border: 1px solid var(--primary);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cache-miss-stamp {
+      position: absolute;
+      left: 10px;
+      top: 86px;
+      width: 144px;
+      padding: 8px 4px;
+      background: rgba(255, 42, 133, 0.95);
+      border: 2px solid #FFF;
+      color: #FFF;
+      font-family: var(--font-mono);
+      font-size: 17px;
+      font-weight: 800;
+      text-align: center;
+      border-radius: 6px;
+      box-shadow: 0 0 20px var(--accent);
+      opacity: 0;
+      white-space: nowrap;
+    }
+
+    /* Center Math Badge / Callout inside Ring (Centered at CY=436) */
+    #ring-center-hud {
+      position: absolute;
+      left: 252px;
+      top: 326px;
+      width: 360px;
+      height: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 6;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #center-big-formula {
+      font-family: var(--font-head);
+      font-size: 56px;
+      font-weight: 800;
+      color: var(--primary);
+      text-shadow: 0 0 28px rgba(0, 245, 212, 0.6);
+      line-height: 1.05;
+      white-space: nowrap;
+    }
+
+    #center-big-formula sup {
+      font-size: 28px;
+      font-weight: 800;
+      vertical-align: super;
+      line-height: 0;
+    }
+
+    #center-sub-label {
+      font-family: var(--font-mono);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 8px;
+      background: rgba(123, 44, 191, 0.35);
+      border: 1px solid var(--secondary);
+      padding: 6px 16px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+
+    /* Bottom Load Distribution Telemetry inside Arena */
+    #arena-load-panel {
+      position: absolute;
+      left: 36px;
+      bottom: 20px;
+      width: 792px;
+      height: 128px;
+      background: rgba(10, 15, 28, 0.94);
+      border: 1px solid rgba(0, 245, 212, 0.3);
+      border-radius: 16px;
+      padding: 12px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 15;
+    }
+
+    .load-panel-header {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: rgba(248, 250, 252, 0.75);
+      white-space: nowrap;
+    }
+
+    .load-bars-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      height: 60px;
+    }
+
+    .load-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .load-col-top {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .load-track {
+      width: 100%;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 9px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .load-fill {
+      height: 100%;
+      width: 33.3%;
+      background: var(--primary);
+      border-radius: 9px;
+      box-shadow: 0 0 12px var(--primary);
+    }
+
+    /* 3. BOTTOM KARAOKE CAPTION BOX (top: 1350px, height: 360px, width: 864px) */
+    #caption-box {
+      position: absolute;
+      left: 108px;
+      top: 1350px;
+      width: 864px;
+      height: 360px;
+      background: var(--card-bg);
+      border: 2px solid rgba(0, 245, 212, 0.4);
+      border-radius: 24px;
+      padding: 26px 34px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.75), 0 0 30px rgba(0, 245, 212, 0.14);
+      z-index: 25;
+    }
+
+    .caption-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid rgba(248, 250, 252, 0.12);
+      padding-bottom: 12px;
+    }
+
+    #action-verb-ticker {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 560px;
+    }
+
+    #rhyme-badge {
+      font-family: var(--font-mono);
+      font-size: 17px;
+      font-weight: 800;
+      color: #FFF;
+      background: var(--secondary);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 5px 16px;
+      border-radius: 8px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    #lyrics-stage {
+      position: relative;
+      width: 100%;
+      height: 210px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .bar-lyric-group {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      align-content: center;
+      gap: 12px 16px;
+      opacity: 0;
+      visibility: hidden;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .lyric-word {
+      font-family: var(--font-head);
+      font-size: 50px;
+      line-height: 1.24;
+      font-weight: 800;
+      color: var(--muted);
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .lyric-word.key-term {
+      border-bottom: 4px solid var(--primary);
+    }
+
+    .lyric-word.hit-word {
+      text-decoration: underline wavy var(--accent);
+    }
+
+    .caption-progress-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    #caption-progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      box-shadow: 0 0 14px var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="60.0" data-width="1080" data-height="1920" data-resolution="portrait">
+    <!-- Audio Track -->
+    <audio id="bgm" class="clip" src="assets/selected_take.mp3" data-start="0" data-duration="60.0" data-volume="1" data-track-index="0"></audio>
+
+    <!-- Main Visual Clip -->
+    <div id="visual-clip" class="clip" data-start="0" data-duration="60.0" data-track-index="1">
+      <div id="stage-inner">
+        <!-- Background Elements -->
+        <div id="bg-grid"></div>
+        <div id="beat-flash-overlay"></div>
+        <div id="bg-scanlines"></div>
+        <div id="hud-frame"></div>
+
+        <!-- ZONE 1: TOP HUD HEADER (top: 192px, height: 156px -> ends at 348px) -->
+        <div id="top-hud">
+          <div class="hud-top-row">
+            <div class="concept-badge">
+              <div class="pulse-dot" id="hud-pulse-dot"></div>
+              <span>CONSISTENT HASHING &amp; VNODES</span>
+            </div>
+            <div class="telemetry-group">
+              <div class="telemetry-pill">92.29 BPM</div>
+              <div class="telemetry-pill" id="bar-counter-pill">BAR 01 / 16</div>
+            </div>
+          </div>
+          <div class="hud-bottom-row">
+            <div id="phase-title">1. MODULO N ROUTING COLLISION</div>
+            <div id="formula-readout">slot = hash(key) % 3</div>
+          </div>
+        </div>
+
+        <!-- KINETIC TYPOGRAPHY PUNCHLINE BANNER (top: 360px, height: ~42px -> sits cleanly above #arena-container at 416px) -->
+        <div id="punchline-banner">MODULO FAIL: 90% KEYS SCRAMBLED!</div>
+
+        <!-- ZONE 2: CENTER INTERACTIVE VISUAL METAPHOR ARENA (top: 416px, height: 912px) -->
+        <div id="arena-container">
+          <div id="arena-top-bar">
+            <div class="status-chip" id="topology-chip">TOPOLOGY: LINEAR ARRAY (N=3)</div>
+            <div class="status-chip" id="rehash-meter-chip">KEY REHASH: 0%</div>
+          </div>
+
+          <div id="camera-rig">
+            <!-- Linear Server Slots (Bars 1-4) -->
+            <div id="linear-scene">
+              <div id="linear-slots-wrap">
+                <div class="server-slot" id="slot-0" style="left: 52px;">
+                  <div class="server-slot-header">SERVER 0</div>
+                  <div class="cache-blocks-grid">
+                    <div class="cache-cell" id="cell-0-0">K1</div>
+                    <div class="cache-cell" id="cell-0-1">K4</div>
+                    <div class="cache-cell" id="cell-0-2">K7</div>
+                    <div class="cache-cell" id="cell-0-3">K10</div>
+                  </div>
+                  <div class="cache-miss-stamp" id="miss-0">CACHE MISS</div>
+                </div>
+
+                <div class="server-slot" id="slot-1" style="left: 248px;">
+                  <div class="server-slot-header">SERVER 1</div>
+                  <div class="cache-blocks-grid">
+                    <div class="cache-cell" id="cell-1-0">K2</div>
+                    <div class="cache-cell" id="cell-1-1">K5</div>
+                    <div class="cache-cell" id="cell-1-2">K8</div>
+                    <div class="cache-cell" id="cell-1-3">K11</div>
+                  </div>
+                  <div class="cache-miss-stamp" id="miss-1">CACHE MISS</div>
+                </div>
+
+                <div class="server-slot" id="slot-2" style="left: 444px;">
+                  <div class="server-slot-header">SERVER 2</div>
+                  <div class="cache-blocks-grid">
+                    <div class="cache-cell" id="cell-2-0">K3</div>
+                    <div class="cache-cell" id="cell-2-1">K6</div>
+                    <div class="cache-cell" id="cell-2-2">K9</div>
+                    <div class="cache-cell" id="cell-2-3">K12</div>
+                  </div>
+                  <div class="cache-miss-stamp" id="miss-2">CACHE MISS</div>
+                </div>
+
+                <div class="server-slot" id="slot-3" style="left: 640px; opacity: 0; border-color: #FF2A85;">
+                  <div class="server-slot-header" style="color: #FF2A85;">SERVER 3 (NEW)</div>
+                  <div class="cache-blocks-grid">
+                    <div class="cache-cell" id="cell-3-0">--</div>
+                    <div class="cache-cell" id="cell-3-1">--</div>
+                    <div class="cache-cell" id="cell-3-2">--</div>
+                    <div class="cache-cell" id="cell-3-3">--</div>
+                  </div>
+                  <div class="cache-miss-stamp" id="miss-3">CACHE MISS</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Central Ring Readout Badge (Fix #5: Clean HTML <sup>32</sup> instead of mismatched Unicode superscript) -->
+            <div id="ring-center-hud">
+              <div id="center-big-formula">[0, 2<sup>32</sup>-1]</div>
+              <div id="center-sub-label">UNIT CIRCLE KEY SPACE</div>
+            </div>
+
+            <!-- Interactive SVG Diagram (Routing Lines, Hash Ring, Nodes, Keys, Vnodes) -->
+            <svg id="arena-svg" viewBox="0 0 864 912" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <filter id="neon-glow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="6" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+                <filter id="crimson-glow" x="-40%" y="-40%" width="180%" height="180%">
+                  <feGaussianBlur stdDeviation="10" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <!-- Linear Routing Spaghetti Lines (Bars 1-4) -->
+              <g id="svg-linear-routes"></g>
+
+              <!-- Hash Ring Assembly (Bars 5-16), centered at CX=432, CY=436, R=232 -->
+              <g id="svg-ring-group" opacity="0">
+                <!-- Fix #7: Continuous rotating outer compass & inner dashed ring so instrumental bridges never freeze -->
+                <circle id="polar-grid-1" cx="432" cy="436" r="292" fill="none" stroke="rgba(0, 245, 212, 0.16)" stroke-width="2" stroke-dasharray="10 14" />
+                <circle id="polar-grid-2" cx="432" cy="436" r="176" fill="none" stroke="rgba(123, 44, 191, 0.28)" stroke-width="2" stroke-dasharray="6 10" />
+
+                <!-- Degree Tick Labels (Spaced cleanly outside ring R=232; top rim is at y=436-232=204) -->
+                <!-- Fix #4 & #5: Top label at y=86 with clean <tspan> superscript, LOCK 0° badge at y=118..150, well above top rim y=204 and away from any key/vnode -->
+                <g id="degree-ticks" font-family="JetBrains Mono" font-size="15" font-weight="700" fill="#00F5D4" text-anchor="middle">
+                  <g id="ring-top-label">
+                    <rect x="344" y="68" width="176" height="28" rx="6" fill="#070A12" stroke="rgba(0,245,212,0.4)" stroke-width="1.5" />
+                    <text x="432" y="87" id="tick-0">0 / 2<tspan baseline-shift="super" font-size="11">32</tspan>-1 (0°)</text>
+                  </g>
+                  <text x="722" y="441" id="tick-90">90°</text>
+                  <text x="432" y="724" id="tick-180">180°</text>
+                  <text x="142" y="441" id="tick-270">270°</text>
+                </g>
+
+                <!-- Main Glowing Hash Ring Track (r=232, C=1457.7) -->
+                <circle id="hash-ring-base" cx="432" cy="436" r="232" fill="none" stroke="rgba(0, 245, 212, 0.2)" stroke-width="14" />
+                <circle id="hash-ring-active" cx="432" cy="436" r="232" fill="none" stroke="#00F5D4" stroke-width="8" stroke-dasharray="1458" stroke-dashoffset="1458" transform="rotate(-90 432 436)" filter="url(#neon-glow)" />
+
+                <!-- Continuous Orbital Data Pulse Ring (Fix #7: keeps ring alive during instrumental breaths) -->
+                <circle id="orbital-pulse-ring" cx="432" cy="436" r="232" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-dasharray="45 319.5" stroke-dashoffset="0" opacity="0.55" filter="url(#neon-glow)" />
+
+                <!-- Highlight Slice Arc (For Clockwise Walk, 1/N Split, & 290° Hotspot Gap) -->
+                <circle id="highlight-arc" cx="432" cy="436" r="232" fill="none" stroke="#FF2A85" stroke-width="16" stroke-dasharray="400 1458" stroke-dashoffset="0" transform="rotate(-90 432 436)" opacity="0" filter="url(#crimson-glow)" />
+
+                <!-- Fix #4: Top Boundary Lock Clamp (#lock-badge) positioned at y=114..146, cleanly above top rim (y=204) with zero overlap with keys or vnodes -->
+                <g id="top-boundary-clamp" opacity="0">
+                  <rect id="lock-badge" x="380" y="112" width="104" height="32" rx="8" fill="#070A12" stroke="#00F5D4" stroke-width="2.5" />
+                  <text x="432" y="133" font-family="JetBrains Mono" font-size="14" font-weight="800" fill="#00F5D4" text-anchor="middle">LOCK 0°</text>
+                  <line x1="432" y1="144" x2="432" y2="196" stroke="#00F5D4" stroke-width="3" stroke-dasharray="4 3" />
+                  <circle cx="432" cy="204" r="6" fill="#00F5D4" />
+                </g>
+
+                <!-- Virtual Node Tokens Group (Bars 15-16) -->
+                <g id="svg-vnodes-layer" opacity="0"></g>
+
+                <!-- Physical Server Nodes on Ring (A, B, C, D) -->
+                <g id="svg-physical-nodes"></g>
+
+                <!-- Orbiting Data Key Orbs (K1..K8) -->
+                <g id="svg-ring-keys"></g>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Bottom Real-Time Server Load Telemetry -->
+          <div id="arena-load-panel">
+            <div class="load-panel-header">
+              <span>CLUSTER LOAD DISTRIBUTION METER</span>
+              <span id="load-balance-status" style="color: #00F5D4;">STATE: BALANCED (33% EACH)</span>
+            </div>
+            <div class="load-bars-row">
+              <div class="load-col">
+                <div class="load-col-top">
+                  <span style="color:#00F5D4;">NODE A</span>
+                  <span id="load-pct-a">33%</span>
+                </div>
+                <div class="load-track"><div class="load-fill" id="load-bar-a"></div></div>
+              </div>
+              <div class="load-col">
+                <div class="load-col-top">
+                  <span style="color:#A855F7;">NODE B</span>
+                  <span id="load-pct-b">33%</span>
+                </div>
+                <div class="load-track"><div class="load-fill" id="load-bar-b" style="background:#A855F7;"></div></div>
+              </div>
+              <div class="load-col">
+                <div class="load-col-top">
+                  <span style="color:#FF2A85;">NODE C</span>
+                  <span id="load-pct-c">33%</span>
+                </div>
+                <div class="load-track"><div class="load-fill" id="load-bar-c" style="background:#FF2A85;"></div></div>
+              </div>
+              <div class="load-col" id="load-col-d" style="opacity: 0.35;">
+                <div class="load-col-top">
+                  <span style="color:#FFB703;">NODE D</span>
+                  <span id="load-pct-d">0%</span>
+                </div>
+                <div class="load-track"><div class="load-fill" id="load-bar-d" style="background:#FFB703; width:0%;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ZONE 3: BOTTOM KARAOKE CAPTION BOX (top: 1350px, height: 360px) -->
+        <div id="caption-box">
+          <div class="caption-meta-row">
+            <div id="action-verb-ticker">&gt; INJECT 4TH SERVER SLOT &amp; FRACTURE MODULO ROUTING</div>
+            <div id="rhyme-badge">POINT 1 // RHYME A</div>
+          </div>
+
+          <div id="lyrics-stage"></div>
+
+          <div class="caption-progress-track">
+            <div id="caption-progress-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TIMELINE_DATA = {"bpm": 92.29, "duration_sec": 60.0, "beats": [0.604, 1.254, 1.881, 2.531, 3.181, 3.831, 4.481, 5.132, 5.782, 6.455, 7.082, 7.709, 8.382, 9.009, 9.66, 10.286, 10.983, 11.633, 12.283, 12.934, 13.56, 14.211, 14.861, 15.511, 16.161, 16.834, 17.461, 18.112, 18.762, 19.435, 20.062, 20.712, 21.362, 22.013, 22.663, 23.313, 23.963, 24.613, 25.263, 25.89, 26.54, 27.191, 27.841, 28.491, 29.141, 29.814, 30.441, 31.092, 31.742, 32.392, 33.019, 33.692, 34.342, 34.992, 35.643, 36.293, 36.92, 37.593, 38.22, 38.87, 39.52, 40.194, 40.821, 41.471, 42.121, 42.771, 43.398, 43.955, 44.582, 45.209, 45.859, 46.51, 47.183, 47.81, 48.483, 49.133, 49.76, 50.411, 51.084, 51.734, 52.361, 52.988, 53.568, 54.149, 54.776, 55.426, 56.076, 56.703, 57.377, 58.027, 58.677, 59.304], "downbeats": [2.531, 5.132, 7.709, 10.286, 12.934, 15.511, 18.112, 20.712, 23.313, 25.89, 28.491, 31.092, 33.692, 36.293, 38.87, 41.471, 43.955, 46.51, 49.133, 51.734, 54.149, 56.703, 59.304]};
+    const BARS_DATA = [{"index": 1, "text": "Modulo routing will fail when N changes fast", "point_order": 1, "key_terms": ["modulo", "N changes"], "start": 2.5, "end": 7.421, "action_verb": "Inject a 4th server slot into the linear modulo array and fracture the routing lines", "visual_hit_word": "fail", "visual_hit_time_sec": 4.34, "camera_move": "Push in on the `hash(key) % N` formula banner as N flips from 3 to 4", "kinetic_punchline": true, "protagonist_state": "Linear 3-node modulo rack abruptly expanding to 4 nodes with misaligned routing arrows", "secondary_offbeat_element": "Server slot borders flash warning magenta on beats 2 and 4", "words": [{"w": "Modulo", "start": 2.5, "end": 3.08}, {"w": "routing", "start": 3.16, "end": 3.44}, {"w": "will", "start": 3.46, "end": 4.02}, {"w": "fail", "start": 4.34, "end": 4.7}, {"w": "when", "start": 4.94, "end": 5.721}, {"w": "N", "start": 6.361, "end": 6.411}, {"w": "changes", "start": 6.681, "end": 7.021}, {"w": "fast", "start": 7.081, "end": 7.421}]}, {"index": 2, "text": "Trigger a rehash and make the old caches blast", "point_order": 1, "key_terms": ["rehash"], "start": 7.701, "end": 12.622, "action_verb": "Detonate the cached key blocks inside all 4 linear server slots", "visual_hit_word": "rehash", "visual_hit_time_sec": 10.32, "camera_move": "Rapid zoom-out with screen shake on the cache blast", "kinetic_punchline": false, "protagonist_state": "All 4 linear server caches glowing crimson and ejecting their stored key blocks", "secondary_offbeat_element": "Percentage counter spiking toward 90% rehashed keys on offbeats", "words": [{"w": "Trigger", "start": 7.701, "end": 8.161}, {"w": "a", "start": 8.701, "end": 8.961}, {"w": "rehash", "start": 10.321, "end": 11.121}, {"w": "and", "start": 11.181, "end": 11.261}, {"w": "make", "start": 11.281, "end": 11.421}, {"w": "the", "start": 11.481, "end": 11.601}, {"w": "old", "start": 11.681, "end": 11.821}, {"w": "caches", "start": 11.881, "end": 12.202}, {"w": "blast", "start": 12.262, "end": 12.622}]}, {"index": 3, "text": "Every single cache miss will shatter the state", "point_order": 1, "key_terms": ["cache miss"], "start": 12.962, "end": 15.002, "action_verb": "Shatter the translucent cache shield and drop red CACHE MISS stamps over every slot", "visual_hit_word": "shatter", "visual_hit_time_sec": 14.2, "camera_move": "Dutch-angle tilt right as fragments scatter", "kinetic_punchline": true, "protagonist_state": "Shattered linear cache layer with exposed red error indicators on every server node", "secondary_offbeat_element": "Database overload meter pulsing red on beats 2 and 4", "words": [{"w": "Every", "start": 12.962, "end": 13.162}, {"w": "single", "start": 13.202, "end": 13.482}, {"w": "cache", "start": 13.542, "end": 13.842}, {"w": "miss", "start": 13.862, "end": 14.002}, {"w": "will", "start": 14.022, "end": 14.162}, {"w": "shatter", "start": 14.202, "end": 14.522}, {"w": "the", "start": 14.542, "end": 14.622}, {"w": "state", "start": 14.682, "end": 15.002}]}, {"index": 4, "text": "Scrambling all of the keys at a massive rate", "point_order": 1, "key_terms": [], "start": 15.402, "end": 17.722, "action_verb": "Scramble 12 glowing key orbs in chaotic criss-crossing trajectories across all servers", "visual_hit_word": "Scrambling", "visual_hit_time_sec": 15.4, "camera_move": "Pull back to wide view showing tangled routing spaghetti", "kinetic_punchline": false, "protagonist_state": "Tangled web of 12 key paths crossing simultaneously between all linear nodes", "secondary_offbeat_element": "Chaotic bezier routing curves flashing white on offbeats", "words": [{"w": "Scrambling", "start": 15.402, "end": 16.062}, {"w": "all", "start": 16.202, "end": 16.342}, {"w": "of", "start": 16.382, "end": 16.432}, {"w": "the", "start": 16.482, "end": 16.562}, {"w": "keys", "start": 16.622, "end": 16.902}, {"w": "at", "start": 16.962, "end": 17.042}, {"w": "a", "start": 17.062, "end": 17.112}, {"w": "massive", "start": 17.122, "end": 17.422}, {"w": "rate", "start": 17.502, "end": 17.722}]}, {"index": 5, "text": "Map all the servers and keys to a circular space", "point_order": 2, "key_terms": ["key space"], "start": 18.102, "end": 20.623, "action_verb": "Bend the linear number line into a 360-degree glowing circular key space", "visual_hit_word": "circular", "visual_hit_time_sec": 19.88, "camera_move": "Smooth orbital rotation as the line closes into a circle", "kinetic_punchline": false, "protagonist_state": "Linear track curving smoothly into a closed neon ring with 3 server nodes and 6 key dots", "secondary_offbeat_element": "Degree tick marks (0\u00b0, 90\u00b0, 180\u00b0, 270\u00b0) pulsing cyan on offbeats", "words": [{"w": "Map", "start": 18.102, "end": 18.382}, {"w": "all", "start": 18.442, "end": 18.582}, {"w": "the", "start": 18.603, "end": 18.663}, {"w": "servers", "start": 18.743, "end": 19.063}, {"w": "and", "start": 19.103, "end": 19.203}, {"w": "keys", "start": 19.243, "end": 19.543}, {"w": "to", "start": 19.583, "end": 19.723}, {"w": "a", "start": 19.763, "end": 19.823}, {"w": "circular", "start": 19.883, "end": 20.303}, {"w": "space", "start": 20.323, "end": 20.623}]}, {"index": 6, "text": "Build up a hash ring locked in a fixed-size place", "point_order": 2, "key_terms": ["hash ring"], "start": 20.703, "end": 25.804, "action_verb": "Lock the `[0, 2^32 - 1]` boundary clamp at the top of the neon Hash Ring", "visual_hit_word": "ring", "visual_hit_time_sec": 21.7, "camera_move": "Center lock-on zoom emphasizing the rigid circular architecture", "kinetic_punchline": true, "protagonist_state": "Solidified cyan Hash Ring locked in center frame with Server A, B, and C anchored on the rim", "secondary_offbeat_element": "Fixed-size boundary brackets `[0 ... 2^32-1]` pulsing on beats 2 and 4", "words": [{"w": "Build", "start": 20.703, "end": 20.983}, {"w": "up", "start": 21.083, "end": 21.163}, {"w": "a", "start": 21.243, "end": 21.293}, {"w": "hash", "start": 21.343, "end": 21.623}, {"w": "ring", "start": 21.703, "end": 21.923}, {"w": "locked", "start": 21.963, "end": 22.203}, {"w": "in", "start": 22.243, "end": 22.323}, {"w": "a", "start": 22.363, "end": 22.413}, {"w": "fixed-size", "start": 22.483, "end": 24.983}, {"w": "place", "start": 25.564, "end": 25.804}]}, {"index": 7, "text": "Packets walk clockwise right on the glowing rim", "point_order": 2, "key_terms": ["clockwise"], "start": 25.864, "end": 28.124, "action_verb": "March 3 glowing data packets clockwise along the upper-right arc of the ring", "visual_hit_word": "clockwise", "visual_hit_time_sec": 26.48, "camera_move": "Track clockwise along the ring rim following the lead packet", "kinetic_punchline": false, "protagonist_state": "Hash ring with glowing directional arc trails guiding keys K1, K2, K3 clockwise", "secondary_offbeat_element": "Comet trail sparks behind each walking packet pulsing on offbeats", "words": [{"w": "Packets", "start": 25.864, "end": 26.184}, {"w": "walk", "start": 26.224, "end": 26.464}, {"w": "clockwise", "start": 26.484, "end": 27.004}, {"w": "right", "start": 27.044, "end": 27.204}, {"w": "on", "start": 27.244, "end": 27.344}, {"w": "the", "start": 27.364, "end": 27.424}, {"w": "glowing", "start": 27.444, "end": 27.784}, {"w": "rim", "start": 27.864, "end": 28.124}]}, {"index": 8, "text": "Stopping at the first node when the lights go dim", "point_order": 2, "key_terms": ["node"], "start": 28.424, "end": 31.064, "action_verb": "Dock the traveling packet into the first encountered server node and dim the trailing arc", "visual_hit_word": "node", "visual_hit_time_sec": 29.42, "camera_move": "Zoom in tight on Node B absorbing the packet with a neon halo", "kinetic_punchline": false, "protagonist_state": "Packets snugly docked at their clockwise target nodes while ambient ring lights dim cleanly", "secondary_offbeat_element": "Node B confirmation checkmark ring pulsing emerald on beats 2 and 4", "words": [{"w": "Stopping", "start": 28.424, "end": 28.784}, {"w": "at", "start": 28.844, "end": 28.924}, {"w": "the", "start": 28.964, "end": 29.024}, {"w": "first", "start": 29.104, "end": 29.364}, {"w": "node", "start": 29.424, "end": 29.684}, {"w": "when", "start": 29.764, "end": 29.924}, {"w": "the", "start": 29.944, "end": 30.004}, {"w": "lights", "start": 30.084, "end": 30.344}, {"w": "go", "start": 30.424, "end": 30.664}, {"w": "dim", "start": 30.724, "end": 31.064}]}, {"index": 9, "text": "Scale up the cluster and watch how the keys stay still", "point_order": 3, "key_terms": ["scale up"], "start": 33.585, "end": 36.465, "action_verb": "Insert new Server Node D onto the ring while 80% of existing keys stay frozen in place", "visual_hit_word": "still", "visual_hit_time_sec": 36.06, "camera_move": "Steady wide hero shot of the cluster ring so viewer sees stationary keys", "kinetic_punchline": false, "protagonist_state": "4-node Hash Ring where Nodes A, B, C and their keys remain completely still as Node D appears", "secondary_offbeat_element": "Padlock icons over stationary keys pulsing cyan on beats 2 and 4", "words": [{"w": "Scale", "start": 33.585, "end": 33.885}, {"w": "up", "start": 33.905, "end": 33.985}, {"w": "the", "start": 34.025, "end": 34.085}, {"w": "cluster", "start": 34.145, "end": 34.625}, {"w": "and", "start": 34.685, "end": 34.765}, {"w": "watch", "start": 34.825, "end": 35.125}, {"w": "how", "start": 35.165, "end": 35.285}, {"w": "the", "start": 35.325, "end": 35.405}, {"w": "keys", "start": 35.465, "end": 35.705}, {"w": "stay", "start": 35.745, "end": 36.025}, {"w": "still", "start": 36.065, "end": 36.465}]}, {"index": 10, "text": "Only one neighbor will split up the slice to fill", "point_order": 3, "key_terms": ["neighbor"], "start": 38.926, "end": 41.486, "action_verb": "Split the single arc slice between Node C and Node A so Node D claims half the keys", "visual_hit_word": "split", "visual_hit_time_sec": 40.09, "camera_move": "Push in on the top-left quadrant where the slice divides cleanly in two", "kinetic_punchline": false, "protagonist_state": "One specific ring sector divided into two equal glowing arcs between Node D and its clockwise neighbor", "secondary_offbeat_element": "Neighbor node C handoff indicator blinking magenta on offbeats", "words": [{"w": "Only", "start": 38.926, "end": 39.126}, {"w": "one", "start": 39.306, "end": 39.426}, {"w": "neighbor", "start": 39.506, "end": 39.786}, {"w": "will", "start": 39.826, "end": 40.066}, {"w": "split", "start": 40.086, "end": 40.346}, {"w": "up", "start": 40.366, "end": 40.446}, {"w": "the", "start": 40.486, "end": 40.566}, {"w": "slice", "start": 40.606, "end": 40.926}, {"w": "to", "start": 40.966, "end": 41.086}, {"w": "fill", "start": 41.146, "end": 41.486}]}, {"index": 11, "text": "Minimal movement of data across the wire", "point_order": 3, "key_terms": ["minimal movement"], "start": 44.046, "end": 46.707, "action_verb": "Glide just 2 key orbs across a single short wire arc into Node D", "visual_hit_word": "Minimal", "visual_hit_time_sec": 44.05, "camera_move": "Smooth lateral pan following the short 2-key transfer wire", "kinetic_punchline": false, "protagonist_state": "Calm Hash Ring with a single thin cyan transfer bridge moving 2 keys while all other arcs sleep", "secondary_offbeat_element": "Network bandwidth gauge staying low and green on beats 2 and 4", "words": [{"w": "Minimal", "start": 44.046, "end": 44.507}, {"w": "movement", "start": 44.547, "end": 45.027}, {"w": "of", "start": 45.067, "end": 45.127}, {"w": "data", "start": 45.187, "end": 45.527}, {"w": "across", "start": 45.727, "end": 46.107}, {"w": "the", "start": 46.127, "end": 46.267}, {"w": "wire", "start": 46.327, "end": 46.707}]}, {"index": 12, "text": "Shifting just 1 over N so the speeds go higher", "point_order": 3, "key_terms": ["1 over N"], "start": 49.207, "end": 51.888, "action_verb": "Project a glowing `1 / N` badge in the ring center and accelerate the orbit ring", "visual_hit_word": "N", "visual_hit_time_sec": 50.53, "camera_move": "Punch-in zoom on the central `1/N` mathematical core", "kinetic_punchline": true, "protagonist_state": "High-speed luminous Hash Ring displaying `K/N` minimal key movement badge in the center", "secondary_offbeat_element": "Throughput speedometer needle bouncing upward on beats 2 and 4", "words": [{"w": "Shifting", "start": 49.207, "end": 49.527}, {"w": "just", "start": 49.567, "end": 49.807}, {"w": "1", "start": 49.947, "end": 50.067}, {"w": "over", "start": 50.107, "end": 50.307}, {"w": "N", "start": 50.527, "end": 50.627}, {"w": "so", "start": 50.667, "end": 50.827}, {"w": "the", "start": 50.847, "end": 50.927}, {"w": "speeds", "start": 50.967, "end": 51.288}, {"w": "go", "start": 51.328, "end": 51.488}, {"w": "higher", "start": 51.528, "end": 51.888}]}, {"index": 13, "text": "Few physical servers will create a wide gap", "point_order": 4, "key_terms": [], "start": 54.588, "end": 57.328, "action_verb": "Cluster 2 physical nodes close together to expose a massive 290-degree empty gap on the ring", "visual_hit_word": "gap", "visual_hit_time_sec": 57.01, "camera_move": "Wide overhead pull-back revealing the lopsided, unbalanced ring geometry", "kinetic_punchline": false, "protagonist_state": "Unbalanced Hash Ring with only 2 clustered nodes and a vast unguarded arc accumulating keys", "secondary_offbeat_element": "Arc degree span callout (`290\u00b0 GAP`) flashing amber on offbeats", "words": [{"w": "Few", "start": 54.588, "end": 54.788}, {"w": "physical", "start": 54.888, "end": 55.448}, {"w": "servers", "start": 55.508, "end": 55.848}, {"w": "will", "start": 55.868, "end": 56.048}, {"w": "create", "start": 56.068, "end": 56.448}, {"w": "a", "start": 56.568, "end": 56.618}, {"w": "wide", "start": 56.688, "end": 56.948}, {"w": "gap", "start": 57.008, "end": 57.328}]}, {"index": 14, "text": "Causing a hotspot that burns up the cluster map", "point_order": 4, "key_terms": ["hotspot"], "start": 59.769, "end": 60.0, "action_verb": "Ignite Node A in blazing crimson as 90% of ring keys funnel into a single hotspot", "visual_hit_word": "Causing", "visual_hit_time_sec": 57.4, "camera_move": "Aggressive zoom-in on the overheating hotspot node with thermal distortion", "kinetic_punchline": true, "protagonist_state": "Node A burning bright crimson under a pileup of 15 keys while Node B sits idle and cold", "secondary_offbeat_element": "CPU temperature gauge flashing 99% RED on beats 2 and 4", "words": [{"w": "Causing", "start": 59.769, "end": 60.0}]}, {"index": 15, "text": "Spawn virtual nodes and scatter the labels wide", "point_order": 4, "key_terms": ["virtual nodes"], "start": 58.65, "end": 59.35, "action_verb": "Multiply each physical server into 4 color-coded Virtual Node badges (`A1..A4`, `B1..B4`) and scatter them around the ring", "visual_hit_word": "virtual", "visual_hit_time_sec": 58.85, "camera_move": "Snap zoom out to full ring as vnode tokens fan out like a kaleidoscope", "kinetic_punchline": false, "protagonist_state": "Hash Ring populated with 12 interleaved cyan, purple, and magenta vnode tokens spaced evenly", "secondary_offbeat_element": "Vnode replica labels (`#1`, `#2`, `#3`) twinkling on offbeats", "words": []}, {"index": 16, "text": "Uniform load with the vnodes on every side", "point_order": 4, "key_terms": ["uniform load", "vnodes"], "start": 59.35, "end": 60.05, "action_verb": "Balance all load meters to an equal 33% height inside the evenly partitioned vnode ring", "visual_hit_word": "Uniform", "visual_hit_time_sec": 59.45, "camera_move": "Majestic slow pull-back to a centered hero lockup of the balanced cluster", "kinetic_punchline": true, "protagonist_state": "Perfectly symmetrical Consistent Hash Ring with interleaved Virtual Nodes and uniform key distribution", "secondary_offbeat_element": "Equalized load bars (`33% | 33% | 33%`) pulsing cyan in unison on the final beat", "words": []}];
+
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const CX = 432;
+    const CY = 436;
+    const R_RING = 232;
+
+    function polarToXY(angleDeg, radius) {
+      const rad = ((angleDeg - 90) * Math.PI) / 180;
+      return {
+        x: CX + radius * Math.cos(rad),
+        y: CY + radius * Math.sin(rad)
+      };
+    }
+
+    // 1. Build Linear Routing Lines & Emitters (Bars 1-4)
+    const linearRoutesGroup = document.getElementById("svg-linear-routes");
+    const linearLines = [];
+    const linearOrbs = [];
+
+    for (let i = 0; i < 12; i++) {
+      const startX = 95 + i * 61;
+      const startY = 185;
+      const slotIdx3 = i % 3;
+      const endX3 = 137 + slotIdx3 * 196;
+      const endY = 492;
+
+      const line = document.createElementNS(SVG_NS, "line");
+      line.setAttribute("id", `lin-route-${i}`);
+      line.setAttribute("x1", startX);
+      line.setAttribute("y1", startY);
+      line.setAttribute("x2", endX3);
+      line.setAttribute("y2", endY);
+      line.setAttribute("stroke", "#00F5D4");
+      line.setAttribute("stroke-width", "3");
+      line.setAttribute("stroke-dasharray", "6 4");
+      line.setAttribute("opacity", "0.75");
+      linearRoutesGroup.appendChild(line);
+      linearLines.push({ el: line, startX, startY, endX3, endY });
+
+      const orbG = document.createElementNS(SVG_NS, "g");
+      orbG.setAttribute("id", `lin-orb-${i}`);
+
+      const circle = document.createElementNS(SVG_NS, "circle");
+      circle.setAttribute("cx", startX);
+      circle.setAttribute("cy", startY);
+      circle.setAttribute("r", "18");
+      circle.setAttribute("fill", "#070A12");
+      circle.setAttribute("stroke", "#00F5D4");
+      circle.setAttribute("stroke-width", "3");
+
+      const txt = document.createElementNS(SVG_NS, "text");
+      txt.setAttribute("x", startX);
+      txt.setAttribute("y", startY + 5);
+      txt.setAttribute("font-family", "JetBrains Mono");
+      txt.setAttribute("font-size", "13");
+      txt.setAttribute("font-weight", "800");
+      txt.setAttribute("fill", "#F8FAFC");
+      txt.setAttribute("text-anchor", "middle");
+      txt.textContent = `K${i + 1}`;
+
+      orbG.appendChild(circle);
+      orbG.appendChild(txt);
+      linearRoutesGroup.appendChild(orbG);
+      linearOrbs.push(orbG);
+    }
+
+    // 2. Build Physical Server Nodes on Ring (A, B, C, D)
+    const physNodesGroup = document.getElementById("svg-physical-nodes");
+    const serverConfigs = [
+      { id: "node-A", label: "NODE A", angle: 35, color: "#00F5D4" },
+      { id: "node-B", label: "NODE B", angle: 150, color: "#A855F7" },
+      { id: "node-C", label: "NODE C", angle: 260, color: "#FF2A85" },
+      { id: "node-D", label: "NODE D", angle: 325, color: "#FFB703" }
+    ];
+
+    const physNodeEls = {};
+    serverConfigs.forEach((cfg) => {
+      const pos = polarToXY(cfg.angle, R_RING);
+      const g = document.createElementNS(SVG_NS, "g");
+      g.setAttribute("id", cfg.id);
+      if (cfg.id === "node-D") {
+        g.setAttribute("opacity", "0");
+      }
+
+      const halo = document.createElementNS(SVG_NS, "circle");
+      halo.setAttribute("id", `${cfg.id}-halo`);
+      halo.setAttribute("cx", pos.x);
+      halo.setAttribute("cy", pos.y);
+      halo.setAttribute("r", "34");
+      halo.setAttribute("fill", "none");
+      halo.setAttribute("stroke", cfg.color);
+      halo.setAttribute("stroke-width", "3");
+      halo.setAttribute("opacity", "0.45");
+
+      const core = document.createElementNS(SVG_NS, "circle");
+      core.setAttribute("id", `${cfg.id}-core`);
+      core.setAttribute("cx", pos.x);
+      core.setAttribute("cy", pos.y);
+      core.setAttribute("r", "23");
+      core.setAttribute("fill", "#070A12");
+      core.setAttribute("stroke", cfg.color);
+      core.setAttribute("stroke-width", "5");
+
+      const label = document.createElementNS(SVG_NS, "text");
+      label.setAttribute("id", `${cfg.id}-label`);
+      label.setAttribute("x", pos.x);
+      label.setAttribute("y", pos.y + 5);
+      label.setAttribute("font-family", "JetBrains Mono");
+      label.setAttribute("font-size", "14");
+      label.setAttribute("font-weight", "800");
+      label.setAttribute("fill", "#FFFFFF");
+      label.setAttribute("text-anchor", "middle");
+      label.textContent = cfg.label.replace("NODE ", "");
+
+      g.appendChild(halo);
+      g.appendChild(core);
+      g.appendChild(label);
+      physNodesGroup.appendChild(g);
+      physNodeEls[cfg.id] = { g, halo, core, label, pos, angle: cfg.angle };
+    });
+
+    // 3. Build Orbiting Data Key Orbs on Ring (K1..K8)
+    // Fix #4: Ensure no key sits near 0° (360°) top clamp (angles are 62..342)
+    const ringKeysGroup = document.getElementById("svg-ring-keys");
+    const keyAngles = [62, 88, 118, 185, 222, 285, 304, 342];
+    const ringKeyEls = [];
+
+    keyAngles.forEach((ang, idx) => {
+      const pos = polarToXY(ang, R_RING);
+      const g = document.createElementNS(SVG_NS, "g");
+      g.setAttribute("id", `ring-key-${idx}`);
+
+      const c = document.createElementNS(SVG_NS, "circle");
+      c.setAttribute("cx", pos.x);
+      c.setAttribute("cy", pos.y);
+      c.setAttribute("r", "14");
+      c.setAttribute("fill", "#00F5D4");
+      c.setAttribute("stroke", "#070A12");
+      c.setAttribute("stroke-width", "3");
+
+      const t = document.createElementNS(SVG_NS, "text");
+      t.setAttribute("x", pos.x);
+      t.setAttribute("y", pos.y + 4);
+      t.setAttribute("font-family", "JetBrains Mono");
+      t.setAttribute("font-size", "11");
+      t.setAttribute("font-weight", "800");
+      t.setAttribute("fill", "#070A12");
+      t.setAttribute("text-anchor", "middle");
+      t.textContent = `K${idx + 1}`;
+
+      g.appendChild(c);
+      g.appendChild(t);
+      ringKeysGroup.appendChild(g);
+      ringKeyEls.push({ g, c, t, baseAngle: ang, basePos: pos });
+    });
+
+    // 4. Build 12 Interleaved Virtual Node Badges (Bars 15-16)
+    // Fix #4: Offset by +15° (15°, 45° ... 345°) so no vnode sits at 0° under the top boundary clamp
+    const vnodesLayer = document.getElementById("svg-vnodes-layer");
+    const vnodeColors = ["#00F5D4", "#A855F7", "#FF2A85"];
+    const vnodeLabels = ["A1", "B1", "C1", "A2", "B2", "C2", "A3", "B3", "C3", "A4", "B4", "C4"];
+    const vnodeEls = [];
+
+    for (let i = 0; i < 12; i++) {
+      const ang = i * 30 + 15;
+      const pos = polarToXY(ang, R_RING);
+      const color = vnodeColors[i % 3];
+
+      const g = document.createElementNS(SVG_NS, "g");
+      g.setAttribute("id", `vnode-${i}`);
+
+      const c = document.createElementNS(SVG_NS, "circle");
+      c.setAttribute("cx", pos.x);
+      c.setAttribute("cy", pos.y);
+      c.setAttribute("r", "18");
+      c.setAttribute("fill", "#070A12");
+      c.setAttribute("stroke", color);
+      c.setAttribute("stroke-width", "4");
+
+      const t = document.createElementNS(SVG_NS, "text");
+      t.setAttribute("x", pos.x);
+      t.setAttribute("y", pos.y + 4);
+      t.setAttribute("font-family", "JetBrains Mono");
+      t.setAttribute("font-size", "12");
+      t.setAttribute("font-weight", "800");
+      t.setAttribute("fill", color);
+      t.setAttribute("text-anchor", "middle");
+      t.textContent = vnodeLabels[i];
+
+      g.appendChild(c);
+      g.appendChild(t);
+      vnodesLayer.appendChild(g);
+      vnodeEls.push(g);
+    }
+
+    // 5. Build Karaoke Lyrics DOM inside #lyrics-stage
+    // Fix #6: Align Bar 14 (57.33s..58.65s), Bar 15 (58.65s..59.35s), and Bar 16 (59.35s..60.00s) in clean chronological order matching treatment.json, while also highlighting "Causing" if spoken at 59.77s.
+    const lyricsStage = document.getElementById("lyrics-stage");
+    const barElements = [];
+
+    const EFFECTIVE_BAR_SCHEDULE = BARS_DATA.map((bar) => {
+      let effStart = bar.start;
+      let effEnd = bar.end;
+
+      if (bar.index === 13) {
+        effStart = 54.588;
+        effEnd = 57.33;
+      } else if (bar.index === 14) {
+        effStart = 57.33;
+        effEnd = 58.65;
+      } else if (bar.index === 15) {
+        effStart = 58.65;
+        effEnd = 59.35;
+      } else if (bar.index === 16) {
+        effStart = 59.35;
+        effEnd = 60.0;
+      }
+
+      const rawWords = bar.text.split(/\s+/);
+      const computedWords = rawWords.map((wStr, wIdx) => {
+        if (bar.words && bar.words[wIdx] && bar.index <= 13) {
+          return bar.words[wIdx];
+        }
+        const spanDur = (effEnd - effStart) / rawWords.length;
+        return {
+          w: wStr,
+          start: effStart + wIdx * spanDur,
+          end: effStart + (wIdx + 1) * spanDur
+        };
+      });
+
+      return {
+        bar,
+        effStart,
+        effEnd,
+        computedWords
+      };
+    });
+
+    EFFECTIVE_BAR_SCHEDULE.sort((a, b) => a.effStart - b.effStart);
+
+    EFFECTIVE_BAR_SCHEDULE.forEach(({ bar, effStart, effEnd, computedWords }) => {
+      const group = document.createElement("div");
+      group.className = "bar-lyric-group";
+      group.id = `lyric-bar-${bar.index}`;
+
+      const wordEls = [];
+      computedWords.forEach((wObj, wIdx) => {
+        const span = document.createElement("span");
+        span.className = "lyric-word";
+        span.id = `word-${bar.index}-${wIdx}`;
+        span.textContent = wObj.w;
+
+        const cleanW = wObj.w.toLowerCase().replace(/[^a-z0-9]/g, "");
+        const isKey = bar.key_terms.some(kt => kt.toLowerCase().includes(cleanW) && cleanW.length > 2);
+        if (isKey) span.classList.add("key-term");
+        if (wObj.w.toLowerCase() === bar.visual_hit_word.toLowerCase()) {
+          span.classList.add("hit-word");
+        }
+
+        group.appendChild(span);
+        wordEls.push({ el: span, start: wObj.start, end: wObj.end });
+      });
+
+      lyricsStage.appendChild(group);
+      barElements.push({ bar, effStart, effEnd, group, wordEls });
+    });
+
+    // =========================================================================
+    // MASTER GSAP TIMELINE (100% Deterministic using fromTo / set / to)
+    // =========================================================================
+    const tl = gsap.timeline({ paused: true });
+
+    // Initial deterministic state at t = 0
+    tl.set("#beat-flash-overlay", { opacity: 0 }, 0);
+    tl.set("#punchline-banner", { autoAlpha: 0, scale: 0.88, y: -6 }, 0);
+    tl.set("#camera-rig", { scale: 1, x: 0, y: 0, rotation: 0 }, 0);
+    tl.set("#linear-scene", { autoAlpha: 1, scale: 1 }, 0);
+    tl.set("#svg-linear-routes", { autoAlpha: 1 }, 0);
+    tl.set("#svg-ring-group", { opacity: 0 }, 0);
+    tl.set("#ring-center-hud", { opacity: 0, scale: 0.8 }, 0);
+    tl.set("#caption-progress-fill", { width: "0%" }, 0);
+
+    barElements.forEach(({ group, wordEls }, idx) => {
+      if (idx === 0) {
+        tl.set(group, { autoAlpha: 1, y: 0 }, 0);
+      } else {
+        tl.set(group, { autoAlpha: 0, y: 16 }, 0);
+      }
+      wordEls.forEach(({ el }) => {
+        tl.set(el, {
+          color: "rgba(248, 250, 252, 0.35)",
+          scale: 1.0,
+          backgroundColor: "rgba(255, 42, 133, 0)"
+        }, 0);
+      });
+    });
+
+    // Master Progress Bar across 60s
+    tl.fromTo(
+      "#caption-progress-fill",
+      { width: "0%" },
+      { width: "100%", duration: 60.0, ease: "none" },
+      0
+    );
+
+    // Fix #7: Continuous orbital rotation of #polar-grid-1, #polar-grid-2, and #orbital-pulse-ring across all 60s so instrumental bridges (31.06s-33.59s, 36.47s-38.93s, 41.49s-44.05s, 46.71s-49.21s) are always alive with motion
+    tl.fromTo(
+      "#polar-grid-1",
+      { rotation: 0, svgOrigin: "432 436" },
+      { rotation: 360, svgOrigin: "432 436", duration: 60.0, ease: "none" },
+      0
+    );
+    tl.fromTo(
+      "#polar-grid-2",
+      { rotation: 360, svgOrigin: "432 436" },
+      { rotation: 0, svgOrigin: "432 436", duration: 60.0, ease: "none" },
+      0
+    );
+    tl.fromTo(
+      "#orbital-pulse-ring",
+      { strokeDashoffset: 1458 },
+      { strokeDashoffset: -1458, duration: 60.0, ease: "none" },
+      0
+    );
+
+    // Beat & Downbeat Pulses (including active node halos and key orbs on every beat so bridges never freeze)
+    TIMELINE_DATA.beats.forEach((bTime, bIdx) => {
+      tl.fromTo(
+        "#hud-pulse-dot",
+        { scale: 1.5, opacity: 1 },
+        { scale: 1.0, opacity: 0.55, duration: 0.28, ease: "power2.out", immediateRender: false },
+        bTime
+      );
+      // Fix #7: Pulse physical node halos and key orbs rhythmically on every beat once the ring is visible (t >= 18.1s)
+      if (bTime >= 18.1) {
+        tl.fromTo(
+          ["#node-A-halo", "#node-B-halo", "#node-C-halo", "#node-D-halo"],
+          { attr: { r: 39 } },
+          { attr: { r: 33 }, duration: 0.45, ease: "power2.out", immediateRender: false },
+          bTime
+        );
+        const keyTarget = `#ring-key-${bIdx % 8} circle`;
+        tl.fromTo(
+          keyTarget,
+          { attr: { r: 17 } },
+          { attr: { r: 14 }, duration: 0.4, ease: "power2.out", immediateRender: false },
+          bTime
+        );
+      }
+    });
+
+    TIMELINE_DATA.downbeats.forEach((dbTime) => {
+      tl.fromTo(
+        "#beat-flash-overlay",
+        { opacity: 0.35 },
+        { opacity: 0, duration: 0.45, ease: "power2.out", immediateRender: false },
+        dbTime
+      );
+    });
+
+    // Karaoke Word-Sync & HUD Metadata Updates for each Bar
+    const rhymeGroupsByIndex = {
+      1: "A", 2: "A", 3: "B", 4: "B",
+      5: "C", 6: "C", 7: "D", 8: "D",
+      9: "E", 10: "E", 11: "F", 12: "F",
+      13: "G", 14: "G", 15: "H", 16: "H"
+    };
+    const phaseTitlesByIndex = {
+      1: "1. MODULO N ROUTING COLLISION",
+      2: "1. MASSIVE REHASH DETONATION",
+      3: "1. CACHE MISS STATE SHATTER",
+      4: "1. CHAOTIC KEY SCRAMBLING",
+      5: "2. CIRCULAR KEY SPACE MAPPING",
+      6: "2. FIXED [0, 2^32-1] HASH RING",
+      7: "2. CLOCKWISE PACKET WALK",
+      8: "2. FIRST CLOCKWISE NODE DOCK",
+      9: "3. SEAMLESS CLUSTER SCALE-UP",
+      10: "3. 1-NEIGHBOR ARC SLICE SPLIT",
+      11: "3. MINIMAL WIRE DATA TRANSFER",
+      12: "3. O(K/N) SCALING EFFICIENCY",
+      13: "4. SPARSE PHYSICAL NODE GAP",
+      14: "4. 90% LOAD HOTSPOT IGNITION",
+      15: "4. VIRTUAL NODE REPLICA SPAWN",
+      16: "4. UNIFORM VNODE LOAD BALANCE"
+    };
+
+    // Set initial Bar 1 HUD metadata at t=0
+    tl.set("#bar-counter-pill", { textContent: "BAR 01 / 16" }, 0);
+    tl.set("#phase-title", { textContent: phaseTitlesByIndex[1] }, 0);
+    tl.set("#action-verb-ticker", { textContent: `> ${BARS_DATA[0].action_verb.toUpperCase()}` }, 0);
+    tl.set("#rhyme-badge", { textContent: "POINT 1 // RHYME A" }, 0);
+
+    barElements.forEach(({ bar, effStart, group, wordEls }, idx) => {
+      const bStart = effStart;
+
+      if (idx > 0) {
+        const prevGroup = barElements[idx - 1].group;
+        tl.set(prevGroup, { autoAlpha: 0, y: -14 }, bStart - 0.015);
+        tl.fromTo(
+          group,
+          { autoAlpha: 0, y: 14 },
+          { autoAlpha: 1, y: 0, duration: 0.14, ease: "power2.out", immediateRender: false },
+          bStart
+        );
+      }
+
+      barElements.forEach((other, oIdx) => {
+        if (oIdx !== idx) {
+          tl.set(other.group, { autoAlpha: 0 }, bStart + 0.001);
+        }
+      });
+
+      const barNumStr = String(bar.index).padStart(2, "0");
+      tl.set("#bar-counter-pill", { textContent: `BAR ${barNumStr} / 16` }, bStart);
+      tl.set("#phase-title", { textContent: phaseTitlesByIndex[bar.index] }, bStart);
+      tl.set("#action-verb-ticker", { textContent: `> ${bar.action_verb.toUpperCase()}` }, bStart);
+      tl.set("#rhyme-badge", { textContent: `POINT ${bar.point_order} // RHYME ${rhymeGroupsByIndex[bar.index]}` }, bStart);
+
+      wordEls.forEach(({ el, start, end }) => {
+        const dur = Math.max(0.06, end - start);
+        tl.fromTo(
+          el,
+          { color: "rgba(248, 250, 252, 0.35)", scale: 1.0, backgroundColor: "rgba(255, 42, 133, 0)" },
+          {
+            color: "#FF2A85",
+            scale: 1.12,
+            backgroundColor: "rgba(255, 42, 133, 0.22)",
+            duration: dur * 0.45,
+            ease: "back.out(2)",
+            immediateRender: false
+          },
+          start
+        );
+        tl.fromTo(
+          el,
+          { color: "#FF2A85", scale: 1.12, backgroundColor: "rgba(255, 42, 133, 0.22)" },
+          {
+            color: "#F8FAFC",
+            scale: 1.0,
+            backgroundColor: "rgba(255, 42, 133, 0)",
+            duration: dur * 0.55,
+            ease: "power2.out",
+            immediateRender: false
+          },
+          start + dur * 0.45
+        );
+      });
+    });
+
+    function triggerPunchline(timeSec, textStr, durationSec = 1.6) {
+      tl.set("#punchline-banner", { textContent: textStr }, timeSec);
+      tl.fromTo(
+        "#punchline-banner",
+        { autoAlpha: 0, scale: 0.9, y: -6 },
+        { autoAlpha: 1, scale: 1.0, y: 0, duration: 0.18, ease: "back.out(2)", immediateRender: false },
+        timeSec
+      );
+      tl.fromTo(
+        "#punchline-banner",
+        { autoAlpha: 1, scale: 1.0, y: 0 },
+        { autoAlpha: 0, scale: 0.94, y: -4, duration: 0.18, ease: "power2.in", immediateRender: false },
+        timeSec + durationSec
+      );
+    }
+
+    // =========================================================================
+    // BAR-BY-BAR BESPOKE TECHNICAL DIAGRAM CHOREOGRAPHY
+    // =========================================================================
+
+    // --- BAR 1 (2.50s - 7.42s): Inject 4th Server Slot & Fracture Modulo Routing ---
+    tl.set("#formula-readout", { textContent: "slot = hash(key) % 3" }, 2.5);
+    tl.set("#topology-chip", { textContent: "TOPOLOGY: LINEAR MODULO (N=3)" }, 2.5);
+    tl.set("#rehash-meter-chip", { textContent: "KEY REHASH: 0%" }, 2.5);
+
+    triggerPunchline(4.34, "MODULO FAIL: N=3 → N=4 BREAKS ROUTES!", 2.4);
+    tl.set("#formula-readout", { textContent: "hash(key) % 4 [FAIL]" }, 4.34);
+    tl.set("#topology-chip", { textContent: "TOPOLOGY: LINEAR MODULO (N=4)" }, 4.34);
+
+    tl.fromTo(
+      "#slot-3",
+      { opacity: 0, scale: 0.7, y: 40 },
+      { opacity: 1, scale: 1.0, y: 0, duration: 0.35, ease: "back.out(1.8)", immediateRender: false },
+      4.34
+    );
+
+    linearLines.forEach((item, i) => {
+      const newSlot = i % 4;
+      const endX4 = 137 + newSlot * 196;
+      tl.fromTo(
+        item.el,
+        { attr: { x2: item.endX3 }, stroke: "#00F5D4" },
+        { attr: { x2: endX4 }, stroke: "#FF2A85", duration: 0.4, ease: "power2.inOut", immediateRender: false },
+        4.34
+      );
+    });
+
+    tl.fromTo(
+      "#camera-rig",
+      { scale: 1.0, y: 0 },
+      { scale: 1.04, y: 10, duration: 1.2, ease: "power2.out", immediateRender: false },
+      4.34
+    );
+
+    // --- BAR 2 (7.70s - 12.62s): Detonate Cached Key Blocks on "rehash" (10.32s) ---
+    tl.set("#rehash-meter-chip", { textContent: "KEY REHASH: 75%..90%!" }, 10.32);
+    tl.set("#load-balance-status", { textContent: "STATE: CACHE THRASHING (90% MOVED)", color: "#FF2A85" }, 10.32);
+
+    for (let s = 0; s < 3; s++) {
+      for (let c = 0; c < 4; c++) {
+        const dx = ((s * 4 + c) % 2 === 0 ? 1 : -1) * (25 + c * 12);
+        const dy = -35 - s * 15;
+        tl.fromTo(
+          `#cell-${s}-${c}`,
+          { x: 0, y: 0, rotation: 0, backgroundColor: "rgba(0, 245, 212, 0.18)", borderColor: "#00F5D4" },
+          {
+            x: dx,
+            y: dy,
+            rotation: (c - 1.5) * 18,
+            backgroundColor: "rgba(255, 42, 133, 0.45)",
+            borderColor: "#FF2A85",
+            duration: 0.45,
+            ease: "back.out(2)",
+            immediateRender: false
+          },
+          10.32
+        );
+      }
+    }
+
+    tl.fromTo(
+      "#camera-rig",
+      { scale: 1.04, x: -12, y: 10 },
+      { scale: 0.96, x: 0, y: 0, duration: 0.5, ease: "elastic.out(1.2, 0.3)", immediateRender: false },
+      10.32
+    );
+
+    // --- BAR 3 (12.96s - 15.00s): Shatter State & Drop CACHE MISS Stamps (14.20s) ---
+    triggerPunchline(14.20, "CACHE MISS STORM: STATE SHATTERED!", 1.1);
+
+    for (let s = 0; s < 4; s++) {
+      tl.fromTo(
+        `#miss-${s}`,
+        { opacity: 0, scale: 1.8 },
+        { opacity: 1, scale: 1.0, duration: 0.25, ease: "back.out(2.5)", immediateRender: false },
+        13.6 + s * 0.12
+      );
+    }
+
+    tl.fromTo(
+      "#camera-rig",
+      { rotation: 0, scale: 0.96 },
+      { rotation: 3.0, scale: 0.97, duration: 0.35, ease: "power2.out", immediateRender: false },
+      14.2
+    );
+
+    // --- BAR 4 (15.40s - 17.72s): Scramble 12 Key Orbs Across All Servers ---
+    tl.fromTo(
+      "#camera-rig",
+      { rotation: 3.0, scale: 0.97 },
+      { rotation: 0, scale: 1.0, duration: 0.4, ease: "power2.out", immediateRender: false },
+      15.4
+    );
+
+    linearOrbs.forEach((orb, i) => {
+      const targetSlot = (i + 2) % 4;
+      const targetX = 137 + targetSlot * 196 - (95 + i * 61);
+      const targetY = 305;
+      tl.fromTo(
+        orb,
+        { x: 0, y: 0 },
+        { x: targetX, y: targetY, duration: 1.4, ease: "power2.inOut", immediateRender: false },
+        15.4 + (i % 4) * 0.08
+      );
+    });
+
+    // --- BAR 5 (18.10s - 20.62s): Bend Linear Space into 360° Circular Key Space ---
+    tl.set("#formula-readout", { textContent: "ring = hash(k) mod 2^32" }, 18.1);
+    tl.set("#topology-chip", { textContent: "TOPOLOGY: 360° CIRCULAR KEY SPACE" }, 18.1);
+    tl.set("#rehash-meter-chip", { textContent: "KEY REHASH: STABILIZING", borderColor: "#00F5D4", color: "#00F5D4" }, 18.1);
+    tl.set("#load-balance-status", { textContent: "STATE: RING FORMATION", color: "#00F5D4" }, 18.1);
+
+    // Fix #3: Rapidly fade out #linear-scene and #svg-linear-routes to opacity 0 over 0.3s at 18.1s so they never linger behind the circular Hash Ring
+    tl.to("#linear-scene", { autoAlpha: 0, duration: 0.3, ease: "power2.out" }, 18.1);
+    tl.to("#svg-linear-routes", { autoAlpha: 0, duration: 0.3, ease: "power2.out" }, 18.1);
+
+    tl.fromTo(
+      "#svg-ring-group",
+      { opacity: 0, scale: 0.75, transformOrigin: "432px 436px" },
+      { opacity: 1, scale: 1.0, duration: 0.65, ease: "back.out(1.4)", immediateRender: false },
+      18.3
+    );
+
+    tl.fromTo(
+      "#hash-ring-active",
+      { strokeDashoffset: 1458 },
+      { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut", immediateRender: false },
+      18.4
+    );
+
+    // Fix #5: Use clean HTML <sup>32</sup> inside #center-big-formula
+    tl.set("#center-big-formula", { innerHTML: "[0, 2<sup>32</sup>-1]" }, 18.1);
+    tl.fromTo(
+      "#ring-center-hud",
+      { opacity: 0, scale: 0.8 },
+      { opacity: 1, scale: 1.0, duration: 0.5, ease: "back.out(1.6)", immediateRender: false },
+      19.88
+    );
+
+    // --- BAR 6 (20.70s - 25.80s): Lock [0, 2^32 - 1] Boundary Clamp at Top ---
+    triggerPunchline(21.70, "HASH RING LOCKED: FIXED [0, 2^32-1] SPACE", 2.2);
+
+    tl.fromTo(
+      "#top-boundary-clamp",
+      { opacity: 0, y: -16 },
+      { opacity: 1, y: 0, duration: 0.4, ease: "back.out(2)", immediateRender: false },
+      21.7
+    );
+
+    tl.fromTo(
+      "#camera-rig",
+      { scale: 1.0, y: 0 },
+      { scale: 0.97, y: 14, duration: 1.4, ease: "power2.out", immediateRender: false },
+      21.7
+    );
+
+    // --- BAR 7 (25.86s - 28.12s): Packets Walk Clockwise on the Glowing Rim ---
+    tl.set("#center-big-formula", { textContent: "CLOCKWISE" }, 25.86);
+    tl.set("#center-sub-label", { textContent: "WALK RIM TO NEXT SERVER" }, 25.86);
+
+    tl.to("#camera-rig", { scale: 1.0, x: 0, y: 0, duration: 0.5, ease: "power2.out" }, 25.86);
+
+    // Show clockwise highlight arc between 35° (Node A) and 150° (Node B)
+    tl.fromTo(
+      "#highlight-arc",
+      { opacity: 0, stroke: "#00F5D4", strokeDasharray: "0 1458", strokeDashoffset: -142 },
+      { opacity: 0.9, stroke: "#00F5D4", strokeDasharray: "466 1458", strokeDashoffset: -142, duration: 1.6, ease: "power2.inOut", immediateRender: false },
+      26.0
+    );
+
+    const dockedAngles = [98, 114, 130];
+    [0, 1, 2].forEach((kIdx, step) => {
+      const kObj = ringKeyEls[kIdx];
+      const targetPos = polarToXY(dockedAngles[step], R_RING);
+      const dx = targetPos.x - kObj.basePos.x;
+      const dy = targetPos.y - kObj.basePos.y;
+      tl.fromTo(
+        kObj.g,
+        { x: 0, y: 0, scale: 1.0 },
+        { x: dx, y: dy, scale: 1.12, duration: 1.5, ease: "power2.inOut", immediateRender: false },
+        26.1 + step * 0.15
+      );
+    });
+
+    // --- BAR 8 (28.42s - 31.06s): Dock at First Node & Dim Ambient Lights ---
+    tl.set("#center-big-formula", { textContent: "NODE B" }, 28.42);
+    tl.set("#center-sub-label", { textContent: "FIRST CLOCKWISE MATCH" }, 28.42);
+
+    tl.fromTo(
+      "#camera-rig",
+      { scale: 1.0, x: 0, y: 0 },
+      { scale: 1.02, x: -16, y: 12, duration: 0.9, ease: "power2.out", immediateRender: false },
+      29.0
+    );
+
+    tl.fromTo(
+      "#node-B-halo",
+      { scale: 1.0, opacity: 0.45, stroke: "#A855F7", transformOrigin: "center center" },
+      { scale: 1.35, opacity: 1.0, stroke: "#00F5D4", duration: 0.45, ease: "back.out(2)", immediateRender: false },
+      29.42
+    );
+
+    tl.fromTo(
+      "#highlight-arc",
+      { opacity: 0.9 },
+      { opacity: 0.2, duration: 0.6, ease: "power2.out", immediateRender: false },
+      29.8
+    );
+
+    // Fix #7: Active bridge animation during 31.06s - 33.59s so the Hash Ring stays lively
+    [0, 1, 2].forEach((kIdx) => {
+      tl.to(ringKeyEls[kIdx].g, { x: 0, y: 0, scale: 1.0, duration: 0.9, ease: "power2.inOut" }, 31.2);
+    });
+    tl.to("#camera-rig", { scale: 0.99, x: 0, y: 4, duration: 1.8, ease: "sine.inOut" }, 31.2);
+    tl.fromTo(
+      "#highlight-arc",
+      { opacity: 0.2, strokeDashoffset: -142 },
+      { opacity: 0.45, strokeDashoffset: -600, duration: 2.2, ease: "sine.inOut", immediateRender: false },
+      31.2
+    );
+
+    // --- BAR 9 (33.59s - 36.47s): Scale Up Cluster (Insert Node D) While Keys Stay Still ---
+    tl.set("#topology-chip", { textContent: "TOPOLOGY: 4-NODE HASH RING (N=4)" }, 33.59);
+    tl.set("#center-big-formula", { textContent: "+ NODE D" }, 33.59);
+    tl.set("#center-sub-label", { textContent: "80% KEYS STAY FROZEN" }, 33.59);
+    tl.set("#rehash-meter-chip", { textContent: "KEY MOVEMENT: ONLY 1/N" }, 33.59);
+
+    tl.fromTo(
+      "#node-D",
+      { opacity: 0, scale: 0.3, transformOrigin: "center center" },
+      { opacity: 1, scale: 1.0, duration: 0.45, ease: "back.out(2.2)", immediateRender: false },
+      33.8
+    );
+
+    tl.fromTo("#load-col-d", { opacity: 0.35 }, { opacity: 1.0, duration: 0.4, immediateRender: false }, 34.0);
+    tl.to("#load-bar-a", { width: "25%", duration: 0.5 }, 34.2);
+    tl.to("#load-bar-b", { width: "25%", duration: 0.5 }, 34.2);
+    tl.to("#load-bar-c", { width: "25%", duration: 0.5 }, 34.2);
+    tl.fromTo("#load-bar-d", { width: "0%" }, { width: "25%", duration: 0.5, immediateRender: false }, 34.2);
+    tl.set("#load-pct-a", { textContent: "25%" }, 34.5);
+    tl.set("#load-pct-b", { textContent: "25%" }, 34.5);
+    tl.set("#load-pct-c", { textContent: "25%" }, 34.5);
+    tl.set("#load-pct-d", { textContent: "25%" }, 34.5);
+    tl.set("#load-balance-status", { textContent: "STATE: BALANCED (25% EACH)", color: "#00F5D4" }, 34.5);
+
+    // Fix #7: Active bridge animation during 36.47s - 38.93s
+    tl.fromTo(
+      "#highlight-arc",
+      { opacity: 0.45, stroke: "#00F5D4", strokeDasharray: "260 1458", strokeDashoffset: -600 },
+      { opacity: 0.7, stroke: "#FFB703", strokeDasharray: "260 1458", strokeDashoffset: -1053, duration: 2.3, ease: "sine.inOut", immediateRender: false },
+      36.5
+    );
+
+    // --- BAR 10 (38.93s - 41.49s): Split Single Arc Slice Between Node C and Node A ---
+    tl.set("#center-big-formula", { textContent: "SLICE SPLIT" }, 38.93);
+    tl.set("#center-sub-label", { textContent: "ONLY 1 NEIGHBOR AFFECTED" }, 38.93);
+
+    tl.fromTo(
+      "#highlight-arc",
+      { opacity: 0.4, stroke: "#FFB703", strokeDasharray: "0 1458", strokeDashoffset: -1053 },
+      { opacity: 1, stroke: "#FFB703", strokeDasharray: "263 1458", strokeDashoffset: -1053, duration: 0.6, ease: "power2.out", immediateRender: false },
+      39.5
+    );
+
+    tl.fromTo(
+      "#camera-rig",
+      { scale: 1.0, x: 0, y: 0 },
+      { scale: 1.04, x: 20, y: 16, duration: 0.7, ease: "power2.out", immediateRender: false },
+      40.09
+    );
+
+    // Fix #7: Active bridge animation during 41.49s - 44.05s
+    tl.to("#camera-rig", { scale: 1.01, x: 8, y: 8, duration: 2.3, ease: "sine.inOut" }, 41.6);
+
+    // --- BAR 11 (44.05s - 46.71s): Glide Just 2 Key Orbs (K6, K7 at 285°, 304°) into Node D (325°) ---
+    tl.set("#center-big-formula", { textContent: "2 KEYS" }, 44.05);
+    tl.set("#center-sub-label", { textContent: "MINIMAL WIRE TRANSFER" }, 44.05);
+
+    const nodeDTargetAngles = [300, 313];
+    [5, 6].forEach((kIdx, step) => {
+      const kObj = ringKeyEls[kIdx];
+      const tPos = polarToXY(nodeDTargetAngles[step], R_RING);
+      const dx = tPos.x - kObj.basePos.x;
+      const dy = tPos.y - kObj.basePos.y;
+      tl.fromTo(
+        kObj.g,
+        { x: 0, y: 0, scale: 1.0 },
+        { x: dx, y: dy, scale: 1.15, duration: 0.9, ease: "power2.inOut", immediateRender: false },
+        44.1 + step * 0.2
+      );
+    });
+
+    tl.to("#camera-rig", { scale: 1.0, x: 0, y: 0, duration: 0.8, ease: "power2.inOut" }, 46.0);
+
+    // Fix #7: Active bridge animation during 46.71s - 49.21s
+    tl.fromTo(
+      "#highlight-arc",
+      { opacity: 0.8, strokeDashoffset: -1053 },
+      { opacity: 0.35, strokeDashoffset: -1458, duration: 2.3, ease: "sine.inOut", immediateRender: false },
+      46.8
+    );
+
+    // --- BAR 12 (49.21s - 51.89s): Project Glowing `1 / N` Badge & Accelerate Ring ---
+    // Fix #2: Concise, unclipped punchline string with 21px font-size
+    triggerPunchline(50.53, "O(K/N) SCALING: ZERO CLUSTER THRASH!", 2.0);
+    tl.set("#center-big-formula", { textContent: "1 / N" }, 49.21);
+    tl.set("#center-sub-label", { textContent: "OPTIMAL SCALING RATIO" }, 49.21);
+    tl.set("#formula-readout", { textContent: "moved_keys = K / N" }, 49.21);
+
+    tl.fromTo(
+      "#ring-center-hud",
+      { scale: 1.0 },
+      { scale: 1.18, duration: 0.45, ease: "back.out(2.5)", immediateRender: false },
+      50.53
+    );
+    tl.to("#ring-center-hud", { scale: 1.0, duration: 0.4 }, 51.4);
+
+    // --- BAR 13 (54.59s - 57.33s): Few Physical Servers Create Wide 290° Gap ---
+    tl.set("#topology-chip", { textContent: "WARNING: SPARSE NODES (290° GAP)" }, 54.59);
+    tl.set("#center-big-formula", { textContent: "290° GAP", color: "#FFB703" }, 54.59);
+    tl.set("#center-sub-label", { textContent: "UNBALANCED KEY PARTITION" }, 54.59);
+    tl.set("#load-balance-status", { textContent: "STATE: SEVERE SKEW (290° GAP)", color: "#FFB703" }, 54.59);
+
+    tl.to("#node-C", { opacity: 0.15, duration: 0.4 }, 54.7);
+    tl.to("#node-D", { opacity: 0.15, duration: 0.4 }, 54.7);
+    tl.to("#load-col-d", { opacity: 0.25, duration: 0.4 }, 54.7);
+
+    tl.fromTo(
+      "#highlight-arc",
+      { opacity: 0.2, stroke: "#FFB703", strokeDasharray: "263 1458", strokeDashoffset: -1053 },
+      { opacity: 0.95, stroke: "#FFB703", strokeDasharray: "1174 1458", strokeDashoffset: -607, duration: 1.1, ease: "power2.inOut", immediateRender: false },
+      55.0
+    );
+
+    tl.to("#load-bar-a", { width: "80%", backgroundColor: "#FFB703", duration: 0.4 }, 56.8);
+    tl.to("#load-bar-b", { width: "20%", duration: 0.4 }, 56.8);
+    tl.to("#load-bar-c", { width: "0%", duration: 0.4 }, 56.8);
+    tl.to("#load-bar-d", { width: "0%", duration: 0.4 }, 56.8);
+    tl.set("#load-pct-a", { textContent: "80%", color: "#FFB703" }, 56.8);
+    tl.set("#load-pct-b", { textContent: "20%" }, 56.8);
+    tl.set("#load-pct-c", { textContent: "0%" }, 56.8);
+    tl.set("#load-pct-d", { textContent: "0%" }, 56.8);
+
+    // --- BAR 14 (57.33s - 58.65s): Ignite Node A Hotspot (90% Keys Funnel Into Single Hotspot) ---
+    // Fix #6: Hold Bar 14 cleanly from 57.33s to 58.65s matching treatment.json
+    triggerPunchline(57.40, "HOTSPOT OVERLOAD: 90% KEYS ON NODE A!", 1.1);
+    tl.set("#center-big-formula", { textContent: "HOTSPOT!", color: "#FF2A85" }, 57.33);
+    tl.set("#center-sub-label", { textContent: "90% CLUSTER OVERLOAD" }, 57.33);
+    tl.set("#load-balance-status", { textContent: "CRITICAL: NODE A HOTSPOT (90% LOAD)", color: "#FF2A85" }, 57.33);
+
+    tl.to("#highlight-arc", { stroke: "#FF2A85", duration: 0.25 }, 57.33);
+    tl.fromTo(
+      "#node-A-halo",
+      { scale: 1.0, stroke: "#00F5D4", opacity: 0.45, transformOrigin: "center center" },
+      { scale: 1.65, stroke: "#FF2A85", opacity: 1.0, duration: 0.3, ease: "back.out(2)", immediateRender: false },
+      57.35
+    );
+    tl.to("#load-bar-a", { width: "90%", backgroundColor: "#FF2A85", duration: 0.3 }, 57.35);
+    tl.to("#load-bar-b", { width: "10%", duration: 0.3 }, 57.35);
+    tl.set("#load-pct-a", { textContent: "90%", color: "#FF2A85" }, 57.35);
+    tl.set("#load-pct-b", { textContent: "10%" }, 57.35);
+
+    // --- BAR 15 (58.65s - 59.35s): Spawn Virtual Nodes (A1..A4, B1..B4, C1..C4) ---
+    tl.set("#topology-chip", { textContent: "TOPOLOGY: 12 INTERLEAVED VIRTUAL NODES" }, 58.65);
+    tl.set("#center-big-formula", { textContent: "VNODES", color: "#00F5D4" }, 58.65);
+    tl.set("#center-sub-label", { textContent: "A1..A4 | B1..B4 | C1..C4" }, 58.65);
+    tl.set("#formula-readout", { textContent: "vnode = hash(NodeID, i)" }, 58.65);
+
+    tl.to("#camera-rig", { scale: 0.98, x: 0, y: 10, duration: 0.35, ease: "power2.out" }, 58.65);
+    tl.to("#highlight-arc", { opacity: 0, duration: 0.25 }, 58.65);
+    tl.to("#node-A-halo", { scale: 1.0, stroke: "#00F5D4", duration: 0.25 }, 58.65);
+    tl.to("#node-C", { opacity: 1, duration: 0.25 }, 58.65);
+
+    tl.fromTo(
+      "#svg-vnodes-layer",
+      { opacity: 0, scale: 0.5, transformOrigin: "432px 436px" },
+      { opacity: 1, scale: 1.0, duration: 0.35, ease: "back.out(2)", immediateRender: false },
+      58.68
+    );
+
+    // --- BAR 16 (59.35s - 60.00s): Uniform Load across 3 Physical Nodes (33.3% | 33.3% | 33.3% = 100%) ---
+    triggerPunchline(59.40, "UNIFORM VNODE LOAD: 33.3% | 33.3% | 33.3%", 0.58);
+    tl.set("#center-big-formula", { textContent: "UNIFORM", color: "#00F5D4" }, 59.35);
+    tl.set("#center-sub-label", { textContent: "33.3% × 3 NODES (HOTSPOT SOLVED)" }, 59.35);
+    tl.set("#load-balance-status", { textContent: "STATE: VNODE EQUILIBRIUM (33.3% EACH)", color: "#00F5D4" }, 59.35);
+
+    tl.to("#load-bar-a", { width: "33.3%", backgroundColor: "#00F5D4", duration: 0.25 }, 59.36);
+    tl.to("#load-bar-b", { width: "33.3%", duration: 0.25 }, 59.36);
+    tl.to("#load-bar-c", { width: "33.3%", duration: 0.25 }, 59.36);
+    tl.to("#load-bar-d", { width: "0%", duration: 0.25 }, 59.36);
+    tl.set("#load-pct-a", { textContent: "33.3%", color: "#00F5D4" }, 59.36);
+    tl.set("#load-pct-b", { textContent: "33.3%" }, 59.36);
+    tl.set("#load-pct-c", { textContent: "33.3%" }, 59.36);
+    tl.set("#load-pct-d", { textContent: "OFF" }, 59.36);
+
+    // Register timeline for HyperFrames renderer
+    window.__timelines = window.__timelines || {};
+    window.__timelines["main"] = tl;
+    tl.seek(0);
+  </script>
+</body>
+</html>

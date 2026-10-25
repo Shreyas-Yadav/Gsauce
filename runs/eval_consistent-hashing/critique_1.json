@@ -1,0 +1,108 @@
+{
+  "round": 1,
+  "passed": false,
+  "overall_score": 74.0,
+  "issues": [
+    {
+      "category": "overlap",
+      "timestamp_start_sec": 3.8,
+      "timestamp_end_sec": 60.0,
+      "grid_positions": [
+        "B2",
+        "B3",
+        "B4",
+        "B5"
+      ],
+      "description": "Whenever the `.punchline-banner` pops in on visual hit words (Bars 1, 3, 6, 12, 14, 16), it is positioned at `top: 380px` inside the frame, directly colliding with and covering the top border and header badges (`TOPOLOGY:...` and `KEY REHASH:...`) of the `.arena-card` container which begins around `y: 380px`.",
+      "concrete_fix": "Move `.punchline-banner` inside the arena's upper inner space (`top: 455px; z-index: 40;`) or reduce `.arena-card` top margin / adjust layout so the punchline banner sits cleanly between the `.sub-header` (`y: 260-340px`) and `.arena-card` (`top: 430px`), ensuring zero overlap with the `.arena-header` pills."
+    },
+    {
+      "category": "unreadable_text",
+      "timestamp_start_sec": 50.5,
+      "timestamp_end_sec": 54.5,
+      "grid_positions": [
+        "B2",
+        "B3",
+        "B4",
+        "B5"
+      ],
+      "description": "In Bar 12 (`50.5s - 54.5s`), the `.punchline-banner` text `O(K / N) EFFICIENCY: ZERO CLUSTER THRASH!` overflows its container width and gets clipped on the right edge (`THRASH!` is cut off as `THRASH`).",
+      "concrete_fix": "Reduce `.punchline-banner` font-size from `26px` to `21px` (or `letter-spacing: 0.5px; padding: 8px 18px; white-space: nowrap; max-width: 900px;`) so long punchline strings fit comfortably inside the `920px` width without clipping."
+    },
+    {
+      "category": "overlap",
+      "timestamp_start_sec": 18.1,
+      "timestamp_end_sec": 20.6,
+      "grid_positions": [
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "D2",
+        "D3",
+        "D4",
+        "D5"
+      ],
+      "description": "During Bar 5 (`18.10s - 20.62s`), the `#linear-group` (the 4 rectangular server columns and 12 linear key circles) stays visible at `opacity: 0.25` directly behind the newly revealed `#ring-group`, creating visual clutter and overlapping geometry in the center of the diagram.",
+      "concrete_fix": "In the GSAP timeline at Bar 5 (`t = 18.10s`), animate `#linear-group` to `opacity: 0` over `0.4s` (`tl.to('#linear-group', { opacity: 0, duration: 0.4 }, 18.1)`) so the linear server boxes cleanly disappear as the circular hash ring forms."
+    },
+    {
+      "category": "overlap",
+      "timestamp_start_sec": 21.7,
+      "timestamp_end_sec": 59.9,
+      "grid_positions": [
+        "B3",
+        "B4",
+        "C3",
+        "C4"
+      ],
+      "description": "On the circular Hash Ring (`#ring-group`), the `#clamp-badge` (`LOCK 0°` rectangle at `y: 128` in SVG coordinates) and the top label `0 / 2^32-1 (0°)` collide with key circle `rk12` (positioned at angle `-90°`, `cx: 430, cy: 130`) and vnode `v1` (at `cx: 430, cy: 130`), causing the badge and key/vnode circles to overlap at the 12 o'clock position.",
+      "concrete_fix": "Move `#clamp-badge` slightly higher above the ring rim (`y: 88` instead of `y: 112`, and move the `0 / 2^32-1 (0°)` text label to `y: 75`), or shift `rk12`'s resting angle on the ring from `-90°` (`0°` clock) to `-75°` so no key or node sits directly under the top boundary clamp."
+    },
+    {
+      "category": "inaccurate_visual",
+      "timestamp_start_sec": 20.0,
+      "timestamp_end_sec": 25.8,
+      "grid_positions": [
+        "C3",
+        "C4"
+      ],
+      "description": "In Bars 5 and 6 (`20.0s - 25.8s`), the center ring title `#ring-center-title` renders `[0, 2³²-1]` using a Unicode superscript `³²` (`\\u00B3\\u00B2`), where the superscript characters render in a mismatched fallback glyph height/weight compared to `2` and `-1`, looking visually broken.",
+      "concrete_fix": "Use SVG `<tspan baseline-shift=\"super\" font-size=\"24\">32</tspan>` inside `#ring-center-title` instead of Unicode superscript characters so `2^32 - 1` renders cleanly in `Space Grotesk`."
+    },
+    {
+      "category": "sync_drift",
+      "timestamp_start_sec": 57.33,
+      "timestamp_end_sec": 60.0,
+      "grid_positions": [
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "E2",
+        "E3",
+        "E4",
+        "E5"
+      ],
+      "description": "Bars 14, 15, and 16 are compressed into the final `2.67s` (`57.33s - 60.00s`), and in `final.mp4` Bar 14 (`Causing a hotspot...`) and Bar 15 (`Spawn virtual nodes...`) flash by in less than a second between `57.3s` and `59.3s` while the audio is still finishing Bar 13's instrumental gap and starting Bar 14 at `59.77s`. As a result, Bar 16 (`Uniform load with the vnodes...`) appears on screen at `59.35s` right as the vocal says 'Causing' at `59.77s`.",
+      "concrete_fix": "Align the caption and visual triggers for Bar 14 to hold clearly from `57.33s` to `58.65s`, Bar 15 from `58.65s` to `59.35s`, and Bar 16 from `59.35s` to `60.00s` with clean, readable state transitions, or ensure Bar 14's hotspot visual (`90% HOTSPOT`) remains visible when 'Causing' is spoken at `59.77s`."
+    },
+    {
+      "category": "dead_air",
+      "timestamp_start_sec": 31.06,
+      "timestamp_end_sec": 33.59,
+      "grid_positions": [
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "D2",
+        "D3",
+        "D4",
+        "D5"
+      ],
+      "description": "During the 2.5-second instrumental breath between Bar 8 and Bar 9 (`31.06s - 33.59s`), as well as between Bars 9-10 (`36.47s - 38.93s`), Bars 10-11 (`41.49s - 44.05s`), and Bars 11-12 (`46.71s - 49.21s`), the central Hash Ring diagram is almost completely static with no continuous orbital motion or active pulse.",
+      "concrete_fix": "Add a continuous GSAP ticker or repeating timeline animation that rotates `#compass-ring` and `#inner-dashed-ring` continuously, pulses the active node halos on every beat (`0.65s` interval), and animates subtle data packet glow ripples around the ring during the instrumental bridges so the frame never freezes."
+    }
+  ]
+}

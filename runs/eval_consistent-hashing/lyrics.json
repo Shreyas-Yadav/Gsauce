@@ -5,57 +5,58 @@
   "bars": [
     {
       "index": 1,
-      "text": "Modulo math on the count is a trap for the scale",
+      "text": "Modulo routing will fail when N changes fast",
       "point_order": 1,
-      "end_word": "scale",
+      "end_word": "fast",
       "rhyme_group": "A",
       "key_terms_used": [
-        "modulo"
+        "modulo",
+        "N changes"
       ]
     },
     {
       "index": 2,
-      "text": "Add a machine and the cluster will stumble and fail",
+      "text": "Trigger a rehash and make the old caches blast",
       "point_order": 1,
-      "end_word": "fail",
+      "end_word": "blast",
       "rhyme_group": "A",
-      "key_terms_used": []
-    },
-    {
-      "index": 3,
-      "text": "Forced to rehash every item when servers are down",
-      "point_order": 1,
-      "end_word": "down",
-      "rhyme_group": "B",
       "key_terms_used": [
         "rehash"
       ]
     },
     {
-      "index": 4,
-      "text": "Waves of a cache miss are making the database drown",
+      "index": 3,
+      "text": "Every single cache miss will shatter the state",
       "point_order": 1,
-      "end_word": "drown",
+      "end_word": "state",
       "rhyme_group": "B",
       "key_terms_used": [
         "cache miss"
       ]
     },
     {
+      "index": 4,
+      "text": "Scrambling all of the keys at a massive rate",
+      "point_order": 1,
+      "end_word": "rate",
+      "rhyme_group": "B",
+      "key_terms_used": []
+    },
+    {
       "index": 5,
-      "text": "Build up a circular keyspace and map out the byte",
+      "text": "Map all the servers and keys to a circular space",
       "point_order": 2,
-      "end_word": "byte",
+      "end_word": "space",
       "rhyme_group": "C",
       "key_terms_used": [
-        "keyspace"
+        "key space"
       ]
     },
     {
       "index": 6,
-      "text": "Servers and data will land on the hash ring alright",
+      "text": "Build up a hash ring locked in a fixed-size place",
       "point_order": 2,
-      "end_word": "alright",
+      "end_word": "place",
       "rhyme_group": "C",
       "key_terms_used": [
         "hash ring"
@@ -63,83 +64,87 @@
     },
     {
       "index": 7,
-      "text": "Drop in a package and travel the rim like a clock",
+      "text": "Packets walk clockwise right on the glowing rim",
       "point_order": 2,
-      "end_word": "clock",
-      "rhyme_group": "D",
-      "key_terms_used": []
-    },
-    {
-      "index": 8,
-      "text": "Sliding it clockwise until it hits first server block",
-      "point_order": 2,
-      "end_word": "block",
+      "end_word": "rim",
       "rhyme_group": "D",
       "key_terms_used": [
         "clockwise"
       ]
     },
     {
+      "index": 8,
+      "text": "Stopping at the first node when the lights go dim",
+      "point_order": 2,
+      "end_word": "dim",
+      "rhyme_group": "D",
+      "key_terms_used": [
+        "node"
+      ]
+    },
+    {
       "index": 9,
-      "text": "Adding a host triggers minimal movement of state",
+      "text": "Scale up the cluster and watch how the keys stay still",
       "point_order": 3,
-      "end_word": "state",
+      "end_word": "still",
       "rhyme_group": "E",
+      "key_terms_used": [
+        "scale up"
+      ]
+    },
+    {
+      "index": 10,
+      "text": "Only one neighbor will split up the slice to fill",
+      "point_order": 3,
+      "end_word": "fill",
+      "rhyme_group": "E",
+      "key_terms_used": [
+        "neighbor"
+      ]
+    },
+    {
+      "index": 11,
+      "text": "Minimal movement of data across the wire",
+      "point_order": 3,
+      "end_word": "wire",
+      "rhyme_group": "F",
       "key_terms_used": [
         "minimal movement"
       ]
     },
     {
-      "index": 10,
-      "text": "Only the arc from a neighbor node shifts at a rate",
-      "point_order": 3,
-      "end_word": "rate",
-      "rhyme_group": "E",
-      "key_terms_used": [
-        "neighbor node"
-      ]
-    },
-    {
-      "index": 11,
-      "text": "K over N is the fraction of keys on the flight",
-      "point_order": 3,
-      "end_word": "flight",
-      "rhyme_group": "F",
-      "key_terms_used": [
-        "K over N"
-      ]
-    },
-    {
       "index": 12,
-      "text": "Keeping the rest of the traffic untouched in the night",
+      "text": "Shifting just 1 over N so the speeds go higher",
       "point_order": 3,
-      "end_word": "night",
+      "end_word": "higher",
       "rhyme_group": "F",
-      "key_terms_used": []
+      "key_terms_used": [
+        "1 over N"
+      ]
     },
     {
       "index": 13,
-      "text": "Few physical hosts leave a gap and a spike in the heat",
+      "text": "Few physical servers will create a wide gap",
       "point_order": 4,
-      "end_word": "heat",
+      "end_word": "gap",
       "rhyme_group": "G",
       "key_terms_used": []
     },
     {
       "index": 14,
-      "text": "Leading to hotspots that hammer a server to beat",
+      "text": "Causing a hotspot that burns up the cluster map",
       "point_order": 4,
-      "end_word": "beat",
+      "end_word": "map",
       "rhyme_group": "G",
       "key_terms_used": [
-        "hotspots"
+        "hotspot"
       ]
     },
     {
       "index": 15,
-      "text": "Scatter the virtual nodes like a clone on the road",
+      "text": "Spawn virtual nodes and scatter the labels wide",
       "point_order": 4,
-      "end_word": "road",
+      "end_word": "wide",
       "rhyme_group": "H",
       "key_terms_used": [
         "virtual nodes"
@@ -147,12 +152,13 @@
     },
     {
       "index": 16,
-      "text": "Slicing the circle to balance a uniform load",
+      "text": "Uniform load with the vnodes on every side",
       "point_order": 4,
-      "end_word": "load",
+      "end_word": "side",
       "rhyme_group": "H",
       "key_terms_used": [
-        "uniform load"
+        "uniform load",
+        "vnodes"
       ]
     }
   ]

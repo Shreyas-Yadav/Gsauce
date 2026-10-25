@@ -1,50 +1,54 @@
 {
   "concept": "Consistent Hashing and Virtual Nodes",
-  "summary": "Consistent hashing enables distributed systems to scale servers up or down while moving only a tiny fraction of keys. Adding virtual nodes ensures the data load stays evenly balanced across the cluster even when machines fail or differ in capacity.",
+  "summary": "Consistent hashing allows distributed systems to scale servers up or down without shuffling almost all existing keys. Virtual nodes enhance this by evenly distributing traffic across the ring to prevent server hotspots.",
   "key_points": [
     {
       "order": 1,
-      "title": "The Modulo Trap (Why Naive Hashing Fails)",
-      "core_idea": "Using `hash(key) % N` ties every data key's location directly to the total server count `N`. If a single node joins or crashes, `N` changes and nearly every key hashes to a new server, triggering a massive cache stampede.",
+      "title": "The Modulo Trap",
+      "core_idea": "Standard `hash(key) % N` routing breaks when servers join or leave, because changing N alters the remainder for almost every key and triggers a massive data migration.",
       "key_terms": [
         "modulo",
         "rehash",
-        "cache miss"
+        "cache miss",
+        "N changes"
       ],
-      "analogy_or_visual_hook": "Musical chairs where adding one extra chair forces every single person in the room to get up and scramble to a brand-new seat."
+      "analogy_or_visual_hook": "A musical chairs game where adding one chair forces everyone in the room to scramble to a brand new seat at the exact same time."
     },
     {
       "order": 2,
-      "title": "The Hash Ring & Clockwise Walk",
-      "core_idea": "Both server IDs and data keys are hashed onto the same fixed circular integer space (like `0` to `2^32 - 1`). To find which server stores a key, start at the key's hash position and walk clockwise around the ring until you hit the first server node.",
+      "title": "The Hash Ring",
+      "core_idea": "Consistent hashing maps both servers and data keys onto a fixed circular hash space (0 to 2^32 - 1), where each key routes to the first server it encounters moving clockwise.",
       "key_terms": [
         "hash ring",
-        "keyspace",
-        "clockwise"
+        "clockwise",
+        "key space",
+        "node"
       ],
-      "analogy_or_visual_hook": "Dropping packages onto a giant 12-hour clock face; each package slides clockwise along the rim until it falls into the next open server bucket."
+      "analogy_or_visual_hook": "A glowing 12-hour clock face where data packets parachute onto the rim and walk clockwise until they bump into the first server checkpoint."
     },
     {
       "order": 3,
-      "title": "Minimal Disruption on Scale or Failure",
-      "core_idea": "When a node is added or removed on the ring, only the keys sitting on the arc between that node and its immediate counterclockwise neighbor need to move. On average, only `K / N` keys relocate while the rest stay untouched.",
+      "title": "Painless Scaling",
+      "core_idea": "When a node is added or removed on the ring, only the keys sitting in the arc between it and its immediate neighbor need to be reassigned, leaving the rest untouched.",
       "key_terms": [
-        "neighbor node",
-        "K over N",
-        "minimal movement"
+        "minimal movement",
+        "neighbor",
+        "scale up",
+        "1 over N"
       ],
-      "analogy_or_visual_hook": "Slotting a new tollbooth onto a circular highway—only the cars right behind the new booth divert into it, while traffic across the rest of the loop keeps cruising."
+      "analogy_or_visual_hook": "Slicing a single piece of pizza in half to share with a new friend while the rest of the slices on the tray stay completely undisturbed."
     },
     {
       "order": 4,
-      "title": "Virtual Nodes (Vnodes) for Even Balance",
-      "core_idea": "With only a few physical servers, random hashing leaves uneven gaps on the ring and creates hotspots. Assigning each physical server many virtual nodes scattered across the ring slices the keyspace into fine, interleaved segments for uniform load distribution and weighted capacity.",
+      "title": "Virtual Nodes (Vnodes)",
+      "core_idea": "With few physical servers, random hash placement creates uneven gaps and overloaded hotspots; assigning multiple virtual nodes per physical server scatters labels across the ring for uniform load balancing.",
       "key_terms": [
         "virtual nodes",
-        "hotspots",
-        "uniform load"
+        "hotspot",
+        "uniform load",
+        "vnodes"
       ],
-      "analogy_or_visual_hook": "Instead of three goalies standing clumped together on a giant circular field, each goalie spawns dozens of hologram clones spaced evenly around the entire perimeter."
+      "analogy_or_visual_hook": "Instead of three goalies clumped on one side of a circular arena, each goalie spawns ten holographic clones spaced evenly around the entire perimeter."
     }
   ]
 }
