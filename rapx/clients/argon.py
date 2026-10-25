@@ -151,3 +151,65 @@ def call_argon_json(
         input_hash=input_hash,
     )
     return artifact, metric
+
+
+def _extract_html_str(raw_text: str) -> str:
+    text = raw_text.strip()
+    fence = re.search(r"```(?:html)?\s*(<!doctype html>.*</html>)\s*```", text, flags=re.DOTALL | re.IGNORECASE)
+    if fence:
+        return fence.group(1).strip()
+    idx = text.lower().find("<!doctype html>")
+    end_idx = text.lower().rfind("</html>")
+    if idx != -1 and end_idx != -1:
+        return text[idx : end_idx + 7].strip()
+    return text
+
+
+def call_argon_text(
+    client: genai.Client,
+    cfg: AppConfig,
+    stage_name: str,
+    prompt_text: str,
+    *,
+    thinking_level: str = "low",
+    multimodal_parts: list[types.Part] | None = None,
+    input_hash: str | None = None,
+) -> tuple[str, StageMetric]:
+    """Call Gemini 4 Argon (`cfg.models.llm`) for raw text/HTML output and return (text, StageMetric)."""
+    contents: list[object] = []
+    if multimodal_parts:
+        contents.extend(multimodal_parts)
+    contents.append(prompt_text)
+
+    t0 = time.perf_counter()
+    response = client.models.generate_content(
+        model=cfg.models.llm,
+        contents=contents,
+        config=types.GenerateContentConfig(
+            max_output_tokens=32768,
+            thinking_config=types.ThinkingConfig(thinking_level=thinking_level),
+        ),
+    )
+    elapsed_ms = round((time.perf_counter() - t0) * 1000)
+
+    usage = getattr(response, "usage_metadata", None)
+    in_tok = getattr(usage, "prompt_token_count", 0) or 0
+    out_tok = (getattr(usage, "candidates_token_count", 0) or 0) + (
+        getattr(usage, "thoughts_token_count", 0) or 0
+    )
+    cost = (in_tok / 1_000_000) * cfg.pricing.argon_input_per_1m + (
+        out_tok / 1_000_000
+    ) * cfg.pricing.argon_output_per_1m
+
+    raw = response.text or ""
+    metric = StageMetric(
+        stage=stage_name,
+        model=cfg.models.llm,
+        cached=False,
+        latency_ms=elapsed_ms,
+        input_tokens=in_tok,
+        output_tokens=out_tok,
+        estimated_cost_usd=round(cost, 6),
+        input_hash=input_hash,
+    )
+    return _extract_html_str(raw), metric
