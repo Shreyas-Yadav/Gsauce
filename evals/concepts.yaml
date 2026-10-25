@@ -1,0 +1,31 @@
+concepts:
+  - id: consistent-hashing
+    concept: "Consistent Hashing and Virtual Nodes"
+    must_include_terms: ["ring", "hash", "node", "key", "virtual"]
+  - id: tcp-handshake
+    concept: "TCP 3-Way Handshake (SYN, SYN-ACK, ACK)"
+    must_include_terms: ["SYN", "ACK", "sequence", "socket", "packet"]
+  - id: cap-theorem
+    concept: "CAP Theorem in Distributed Databases"
+    must_include_terms: ["consistency", "availability", "partition", "quorum", "network"]
+  - id: lru-cache
+    concept: "LRU Cache with Hash Map and Doubly Linked List"
+    must_include_terms: ["cache", "pointer", "head", "tail", "evict"]
+  - id: raft-consensus
+    concept: "Raft Consensus Leader Election and Log Replication"
+    must_include_terms: ["leader", "follower", "term", "heartbeat", "quorum"]
+  - id: bloom-filter
+    concept: "Bloom Filters and False Positives"
+    must_include_terms: ["bit", "hash", "false positive", "set", "filter"]
+  - id: mvcc
+    concept: "Multi-Version Concurrency Control (MVCC) Snapshot Isolation"
+    must_include_terms: ["snapshot", "version", "transaction", "read", "write"]
+  - id: b-tree-vs-lsm
+    concept: "B-Trees vs LSM-Trees Storage Engines"
+    must_include_terms: ["memtable", "sstable", "compaction", "page", "write"]
+  - id: token-bucket
+    concept: "Token Bucket Rate Limiting"
+    must_include_terms: ["bucket", "token", "burst", "rate", "drop"]
+  - id: zero-copy
+    concept: "Zero-Copy I/O and sendfile Kernel Bypass"
+    must_include_terms: ["kernel", "buffer", "DMA", "socket", "context"]

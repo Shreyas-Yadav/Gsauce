@@ -1,0 +1,58 @@
+{
+  "run_id": "eval_consistent-hashing",
+  "concept": "Consistent Hashing and Virtual Nodes",
+  "total_latency_ms": 93920,
+  "total_estimated_cost_usd": 0.050278,
+  "stages": [
+    {
+      "stage": "outline",
+      "model": "gemini-4-argon",
+      "cached": false,
+      "latency_ms": 12908,
+      "input_tokens": 687,
+      "output_tokens": 732,
+      "estimated_cost_usd": 0.008694,
+      "input_hash": "0798abb8ce538be1"
+    },
+    {
+      "stage": "outline",
+      "model": "gemini-4-argon",
+      "cached": true,
+      "latency_ms": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "estimated_cost_usd": 0.0,
+      "input_hash": "0798abb8ce538be1"
+    },
+    {
+      "stage": "lyrics",
+      "model": "gemini-4-argon",
+      "cached": false,
+      "latency_ms": 19598,
+      "input_tokens": 1800,
+      "output_tokens": 1350,
+      "estimated_cost_usd": 0.0171,
+      "input_hash": "03b5e77a41acf1f8"
+    },
+    {
+      "stage": "fix_attempt_1",
+      "model": "gemini-4-argon",
+      "cached": false,
+      "latency_ms": 40631,
+      "input_tokens": 2414,
+      "output_tokens": 1347,
+      "estimated_cost_usd": 0.018298,
+      "input_hash": null
+    },
+    {
+      "stage": "factcheck",
+      "model": "gemini-4-argon",
+      "cached": false,
+      "latency_ms": 20783,
+      "input_tokens": 2618,
+      "output_tokens": 95,
+      "estimated_cost_usd": 0.006186,
+      "input_hash": "e8b48a211cb07676"
+    }
+  ]
+}

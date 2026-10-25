@@ -1,0 +1,151 @@
+{
+  "passed": true,
+  "score": 99.4,
+  "bars": [
+    {
+      "bar_index": 1,
+      "text": "Modulo math on the count is a trap for the scale",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 2,
+      "text": "Add a machine and the cluster will stumble and fail",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 9,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 3,
+      "text": "Forced to rehash every item when servers are down",
+      "syllable_count": 14,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 4,
+      "text": "Waves of a cache miss are making the database drown",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 3,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 5,
+      "text": "Build up a circular keyspace and map out the byte",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 6,
+      "text": "Servers and data will land on the hash ring alright",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 4,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 7,
+      "text": "Drop in a package and travel the rim like a clock",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 2,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 8,
+      "text": "Sliding it clockwise until it hits first server block",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 3,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 9,
+      "text": "Adding a host triggers minimal movement of state",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 10,
+      "text": "Only the arc from a neighbor node shifts at a rate",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 2,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 11,
+      "text": "K over N is the fraction of keys on the flight",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 0,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 12,
+      "text": "Keeping the rest of the traffic untouched in the night",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 3,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 13,
+      "text": "Few physical hosts leave a gap and a spike in the heat",
+      "syllable_count": 14,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 14,
+      "text": "Leading to hotspots that hammer a server to beat",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 15,
+      "text": "Scatter the virtual nodes like a clone on the road",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 16,
+      "text": "Slicing the circle to balance a uniform load",
+      "syllable_count": 13,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 0,
+      "stress_beats_ok": true,
+      "errors": []
+    }
+  ],
+  "failing_bar_indices": []
+}

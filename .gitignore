@@ -1,0 +1,21 @@
+# Python & uv
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/
+
+# HyperFrames build artifacts & caches
+**/.hyperframes/
+**/node_modules/
+
+# Large media outputs in runs (keep JSON reports/evals inspectable)
+runs/**/*.mp3
+runs/**/*.mp4
+runs/**/*.wav

@@ -1,0 +1,68 @@
+{
+  "run_id": "eval_cap-theorem",
+  "concept": "CAP Theorem in Distributed Databases",
+  "total_latency_ms": 116704,
+  "total_estimated_cost_usd": 0.050466,
+  "stages": [
+    {
+      "stage": "outline",
+      "model": "gemini-4-argon",
+      "cached": false,
+      "latency_ms": 37318,
+      "input_tokens": 687,
+      "output_tokens": 629,
+      "estimated_cost_usd": 0.007664,
+      "input_hash": "8ff60615a6454569"
+    },
+    {
+      "stage": "lyrics",
+      "model": "gemini-4-argon",
+      "cached": false,
+      "latency_ms": 28002,
+      "input_tokens": 1697,
+      "output_tokens": 738,
+      "estimated_cost_usd": 0.010774,
+      "input_hash": "46181f9ef141cf64"
+    },
+    {
+      "stage": "fix_attempt_1",
+      "model": "gemini-4-argon",
+      "cached": false,
+      "latency_ms": 8908,
+      "input_tokens": 1799,
+      "output_tokens": 524,
+      "estimated_cost_usd": 0.008838,
+      "input_hash": null
+    },
+    {
+      "stage": "factcheck",
+      "model": "gemini-4-argon",
+      "cached": false,
+      "latency_ms": 22258,
+      "input_tokens": 1904,
+      "output_tokens": 215,
+      "estimated_cost_usd": 0.005958,
+      "input_hash": "0f50aa0f5699bdb5"
+    },
+    {
+      "stage": "fix_attempt_1",
+      "model": "gemini-4-argon",
+      "cached": false,
+      "latency_ms": 11573,
+      "input_tokens": 1702,
+      "output_tokens": 526,
+      "estimated_cost_usd": 0.008664,
+      "input_hash": null
+    },
+    {
+      "stage": "fix_attempt_2",
+      "model": "gemini-4-argon",
+      "cached": false,
+      "latency_ms": 8645,
+      "input_tokens": 1659,
+      "output_tokens": 525,
+      "estimated_cost_usd": 0.008568,
+      "input_hash": null
+    }
+  ]
+}

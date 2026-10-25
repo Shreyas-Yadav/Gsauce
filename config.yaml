@@ -1,0 +1,36 @@
+# rapx configuration
+gcp:
+  project_id: "clickwork-1d7f2a"
+  location: "global"      # Verified in Phase 0 ("global" works; "us-central1" returns 400)
+  vertexai: true          # Use Vertex AI with ADC
+
+models:
+  llm: "gemini-4-argon"   # Hackathon constraint: Gemini 4 Argon for LLM steps
+  music: "lyria-3-pro-preview"  # Verified in Phase 0 ("lyria-3-pro-preview" & "lyria-3-clip-preview" work)
+
+audio:
+  bpm: 92
+  time_signature: "4/4"
+  takes: 3
+  genre: "boom-bap hip-hop"
+  mood: "confident, rhythmic, educational, crisp drums, warm bassline"
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  duration_min_sec: 30
+  duration_max_sec: 60
+
+pipeline:
+  max_fix_retries: 3
+  max_render_retries: 3
+  max_critique_rounds: 3
+  runs_dir: "runs"
+  cache_enabled: true
+
+pricing:
+  # Gemini 4 Argon introductory pricing per 1M tokens (USD)
+  argon_input_per_1m: 2.00
+  argon_output_per_1m: 10.00
+  lyria_per_take: 0.08

@@ -1,0 +1,159 @@
+{
+  "concept": "Consistent Hashing and Virtual Nodes",
+  "bpm": 92,
+  "time_signature": "4/4",
+  "bars": [
+    {
+      "index": 1,
+      "text": "Modulo math on the count is a trap for the scale",
+      "point_order": 1,
+      "end_word": "scale",
+      "rhyme_group": "A",
+      "key_terms_used": [
+        "modulo"
+      ]
+    },
+    {
+      "index": 2,
+      "text": "Add a machine and the cluster will stumble and fail",
+      "point_order": 1,
+      "end_word": "fail",
+      "rhyme_group": "A",
+      "key_terms_used": []
+    },
+    {
+      "index": 3,
+      "text": "Forced to rehash every item when servers are down",
+      "point_order": 1,
+      "end_word": "down",
+      "rhyme_group": "B",
+      "key_terms_used": [
+        "rehash"
+      ]
+    },
+    {
+      "index": 4,
+      "text": "Waves of a cache miss are making the database drown",
+      "point_order": 1,
+      "end_word": "drown",
+      "rhyme_group": "B",
+      "key_terms_used": [
+        "cache miss"
+      ]
+    },
+    {
+      "index": 5,
+      "text": "Build up a circular keyspace and map out the byte",
+      "point_order": 2,
+      "end_word": "byte",
+      "rhyme_group": "C",
+      "key_terms_used": [
+        "keyspace"
+      ]
+    },
+    {
+      "index": 6,
+      "text": "Servers and data will land on the hash ring alright",
+      "point_order": 2,
+      "end_word": "alright",
+      "rhyme_group": "C",
+      "key_terms_used": [
+        "hash ring"
+      ]
+    },
+    {
+      "index": 7,
+      "text": "Drop in a package and travel the rim like a clock",
+      "point_order": 2,
+      "end_word": "clock",
+      "rhyme_group": "D",
+      "key_terms_used": []
+    },
+    {
+      "index": 8,
+      "text": "Sliding it clockwise until it hits first server block",
+      "point_order": 2,
+      "end_word": "block",
+      "rhyme_group": "D",
+      "key_terms_used": [
+        "clockwise"
+      ]
+    },
+    {
+      "index": 9,
+      "text": "Adding a host triggers minimal movement of state",
+      "point_order": 3,
+      "end_word": "state",
+      "rhyme_group": "E",
+      "key_terms_used": [
+        "minimal movement"
+      ]
+    },
+    {
+      "index": 10,
+      "text": "Only the arc from a neighbor node shifts at a rate",
+      "point_order": 3,
+      "end_word": "rate",
+      "rhyme_group": "E",
+      "key_terms_used": [
+        "neighbor node"
+      ]
+    },
+    {
+      "index": 11,
+      "text": "K over N is the fraction of keys on the flight",
+      "point_order": 3,
+      "end_word": "flight",
+      "rhyme_group": "F",
+      "key_terms_used": [
+        "K over N"
+      ]
+    },
+    {
+      "index": 12,
+      "text": "Keeping the rest of the traffic untouched in the night",
+      "point_order": 3,
+      "end_word": "night",
+      "rhyme_group": "F",
+      "key_terms_used": []
+    },
+    {
+      "index": 13,
+      "text": "Few physical hosts leave a gap and a spike in the heat",
+      "point_order": 4,
+      "end_word": "heat",
+      "rhyme_group": "G",
+      "key_terms_used": []
+    },
+    {
+      "index": 14,
+      "text": "Leading to hotspots that hammer a server to beat",
+      "point_order": 4,
+      "end_word": "beat",
+      "rhyme_group": "G",
+      "key_terms_used": [
+        "hotspots"
+      ]
+    },
+    {
+      "index": 15,
+      "text": "Scatter the virtual nodes like a clone on the road",
+      "point_order": 4,
+      "end_word": "road",
+      "rhyme_group": "H",
+      "key_terms_used": [
+        "virtual nodes"
+      ]
+    },
+    {
+      "index": 16,
+      "text": "Slicing the circle to balance a uniform load",
+      "point_order": 4,
+      "end_word": "load",
+      "rhyme_group": "H",
+      "key_terms_used": [
+        "uniform load"
+      ]
+    }
+  ]
+}

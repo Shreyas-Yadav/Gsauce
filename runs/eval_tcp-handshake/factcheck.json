@@ -1,0 +1,11 @@
+{
+  "accurate": false,
+  "flagged_bars": [
+    {
+      "bar_index": 8,
+      "issue": "In Step 2 (SYN-ACK), 'They both acknowledge' is technically inaccurate. At this stage of the handshake, only the server is acknowledging the client's SYN (while sending its own SYN ISN). The client has not acknowledged the server yet; that happens in Step 3.",
+      "suggested_fix_direction": "Revise the bar so that only the server is acknowledging the client's sequence number alongside its own fresh sequence number/packet (e.g., 'It can acknowledge with a fresh new pack' or 'To now acknowledge with its own fresh pack')."
+    }
+  ],
+  "overall_notes": "The lyrics accurately capture the flow, states, and sequence number mechanics of the TCP 3-way handshake, with the minor exception of Bar 8 implying mutual acknowledgment during Step 2 instead of unilateral acknowledgment by the server."
+}

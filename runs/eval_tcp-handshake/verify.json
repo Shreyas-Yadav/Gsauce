@@ -1,0 +1,115 @@
+{
+  "passed": true,
+  "score": 100.0,
+  "bars": [
+    {
+      "bar_index": 1,
+      "text": "The client fires a SYN to start the state,",
+      "syllable_count": 11,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 2,
+      "text": "Towards the listening port and open gate.",
+      "syllable_count": 11,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 2,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 3,
+      "text": "A random sequence number sets the pace,",
+      "syllable_count": 10,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 4,
+      "text": "A glowing baton tossed across the space.",
+      "syllable_count": 10,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 5,
+      "text": "The server hears the call and locks the slot,",
+      "syllable_count": 10,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 3,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 6,
+      "text": "And sends a SYN-ACK back into the spot.",
+      "syllable_count": 10,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 3,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 7,
+      "text": "To increment by one and show the track,",
+      "syllable_count": 10,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 3,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 8,
+      "text": "The host will now acknowledge with its pack.",
+      "syllable_count": 10,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 3,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 9,
+      "text": "The final ACK will lock the bridge in place,",
+      "syllable_count": 10,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 10,
+      "text": "ESTABLISHED is the state that both embrace.",
+      "syllable_count": 10,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 11,
+      "text": "One Round-Trip Time of wait to make it tight,",
+      "syllable_count": 10,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    },
+    {
+      "bar_index": 12,
+      "text": "Full-duplex trains now stream every byte.",
+      "syllable_count": 10,
+      "end_rhyme_ok": true,
+      "internal_rhyme_count": 1,
+      "stress_beats_ok": true,
+      "errors": []
+    }
+  ],
+  "failing_bar_indices": []
+}

@@ -1,0 +1,11 @@
+{
+  "accurate": false,
+  "flagged_bars": [
+    {
+      "bar_index": 8,
+      "issue": "Saying an AP system 'syncs the data right' during a partition contradicts the core AP trade-off (serving unsynchronized/stale data during the split and only achieving eventual consistency later).",
+      "suggested_fix_direction": "Emphasize that an AP system stays online/scrolling now and only reaches eventual consistency later (e.g., 'An AP system scrolls the feed till eventual consistency makes it right' or 'though data's out of sight')."
+    }
+  ],
+  "overall_notes": "Bars 1 through 7 accurately capture replication, network partitions, and the C vs. A trade-off using the approved analogies. Bar 8 needs a minor tweak so it doesn't imply that an AP system is actively synchronized during the partition."
+}
