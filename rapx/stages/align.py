@@ -19,16 +19,20 @@ import warnings
 from pathlib import Path
 from typing import Any
 
-# Suppress noisy pyannote torchcodec & lightning checkpoint warnings (we decode audio via whisperx.load_audio into memory)
-warnings.filterwarnings("ignore", message=".*torchcodec is not installed correctly.*")
-warnings.filterwarnings("ignore", message=".*Lightning automatically upgraded your loaded checkpoint.*")
-logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
-logging.getLogger("lightning.pytorch").setLevel(logging.ERROR)
-logging.getLogger("whisperx.vads.pyannote").setLevel(logging.WARNING)
+# Suppress noisy pyannote torchcodec multi-line warning before importing whisperx
+warnings.filterwarnings("ignore", category=UserWarning, module=r"pyannote\.audio\.core\.io")
+warnings.filterwarnings("ignore", message=r"(?s).*torchcodec is not installed correctly.*")
 
 import librosa
+import lightning.pytorch
 import numpy as np
+import pytorch_lightning
 import whisperx
+
+# Eagerly silence whisperx and lightning loggers (whisperx lazy-imports lightning, which resets its logger to INFO)
+whisperx.setup_logging(level="error")
+for _log_name in ("lightning.pytorch", "pytorch_lightning", "whisperx"):
+    logging.getLogger(_log_name).setLevel(logging.ERROR)
 
 from rapx.clients.argon import compute_stage_hash, record_stage_metric
 from rapx.config import AppConfig
