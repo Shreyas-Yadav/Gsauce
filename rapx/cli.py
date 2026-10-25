@@ -6,26 +6,15 @@ import re
 import typer
 from rich.console import Console
 
+from rapx.config import ROOT_DIR, load_config
+from rapx.pipeline import STAGES_ORDER, run_full_pipeline
+
 app = typer.Typer(
     name="rapx",
     help="AI rap explainer video generator (1080x1920, 30fps) powered by Gemini 4 Argon & Lyria.",
     no_args_is_help=True,
 )
 console = Console()
-
-STAGES = [
-    "outline",
-    "lyrics",
-    "verify",
-    "fix",
-    "factcheck",
-    "audio",
-    "align",
-    "direct",
-    "code",
-    "render",
-    "critique",
-]
 
 
 def _slugify(text: str) -> str:
@@ -45,29 +34,37 @@ def spike() -> None:
 def make(
     concept: str = typer.Argument(..., help="Technical concept to explain (e.g. 'explain consistent hashing')"),
     run_id: str | None = typer.Option(None, "--run-id", help="Optional custom run ID"),
-    force: bool = typer.Option(False, "--force", help="Ignore stage cache and recompute"),
+    force: bool = typer.Option(False, "--force", help="Ignore stage cache and recompute all stages"),
 ) -> None:
-    """Run the rapx pipeline for a concept (currently Phase 1: outline -> lyrics -> verify -> fix -> factcheck)."""
-    from rapx.stages.eval_runner import run_phase1_for_concept
-
+    """Run the full 11-stage rapx pipeline for a concept -> runs/<run_id>/final.mp4."""
+    cfg = load_config()
     rid = run_id or _slugify(concept)
+    run_dir = ROOT_DIR / cfg.pipeline.runs_dir / rid
     console.print(f"[bold cyan]rapx make[/bold cyan]: {concept} -> runs/{rid}/")
-    outline, lyrics, verify_res, factcheck_res = run_phase1_for_concept(concept, rid, force=force)
-    console.print(
-        f"[green]Phase 1 complete[/green] — {len(outline.key_points)} key points, "
-        f"{len(lyrics.bars)} bars, verify score={verify_res.score:.1f} (passed={verify_res.passed}), "
-        f"factcheck accurate={factcheck_res.accurate}"
-    )
+    run_full_pipeline(run_dir, concept=concept, from_stage="outline", force=force, cfg=cfg)
 
 
 @app.command()
 def rerun(
     run_id: str = typer.Argument(..., help="Run ID inside runs/<run_id>"),
-    from_stage: str = typer.Option(..., "--from", help=f"Stage to rerun from ({', '.join(STAGES)})"),
+    from_stage: str = typer.Option(
+        ...,
+        "--from",
+        help=f"Stage to rerun from ({', '.join(STAGES_ORDER)})",
+    ),
 ) -> None:
-    """Rerun an existing run starting from a specific stage."""
+    """Rerun an existing run starting from a specific stage (reusing earlier cached artifacts)."""
+    cfg = load_config()
+    run_dir = ROOT_DIR / cfg.pipeline.runs_dir / run_id
+    if not run_dir.exists():
+        raise typer.BadParameter(f"Run directory does not exist: {run_dir}")
+    if from_stage not in STAGES_ORDER:
+        raise typer.BadParameter(
+            f"Invalid stage '{from_stage}'. Must be one of: {', '.join(STAGES_ORDER)}"
+        )
+
     console.print(f"[bold cyan]rapx rerun[/bold cyan]: {run_id} --from {from_stage}")
-    raise NotImplementedError("Rerun-from-stage is built in Phase 5.")
+    run_full_pipeline(run_dir, concept=None, from_stage=from_stage, force=False, cfg=cfg)
 
 
 @app.command(name="eval")

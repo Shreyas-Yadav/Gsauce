@@ -181,5 +181,24 @@ def run_code(
     root_index_copy.write_text(html_code, encoding="utf-8")
     if not error_feedback:
         hash_path.write_text(stage_hash, encoding="utf-8")
+    else:
+        # Update base .code.hash so a subsequent non-forced run_code knows index.html is up to date
+        base_prompt = (
+            prompt_template.replace("{{concept}}", lyrics.concept)
+            .replace("{{duration_sec}}", str(timeline.duration_sec))
+            .replace("{{audio_filename}}", timeline.selected_take)
+            .replace("{{bpm}}", str(timeline.bpm))
+            .replace("{{treatment_json}}", treatment.model_dump_json(indent=2))
+            .replace("{{lyrics_json}}", lyrics.model_dump_json(indent=2))
+            .replace("{{timeline_compact_json}}", json.dumps(compact_timeline))
+            .replace("{{bars_compact_json}}", json.dumps(bars_compact))
+            .replace("{{error_feedback_block}}", "")
+        )
+        base_hash = compute_stage_hash(
+            cfg.models.llm,
+            base_prompt,
+            [treatment.model_dump_json(), timeline.model_dump_json(), ""],
+        )
+        hash_path.write_text(base_hash, encoding="utf-8")
     record_stage_metric(run_dir, lyrics.concept, metric)
     return index_path

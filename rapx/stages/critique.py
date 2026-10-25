@@ -148,6 +148,35 @@ def run_critique_loop(
     max_rounds = cfg.pipeline.max_critique_rounds
     critiques: list[CritiqueArtifact] = []
 
+    loop_hash_path = run_dir / ".critique_loop.hash"
+    loop_hash = compute_stage_hash(
+        cfg.models.llm,
+        "critique_loop_v1",
+        [str(final_mp4.stat().st_size), timeline.model_dump_json(), treatment.model_dump_json()],
+    )
+    if (
+        not force
+        and cfg.pipeline.cache_enabled
+        and loop_hash_path.exists()
+        and loop_hash_path.read_text(encoding="utf-8").strip() == loop_hash
+    ):
+        for r in range(1, max_rounds + 1):
+            cp = run_dir / f"critique_{r}.json"
+            if cp.exists():
+                critiques.append(CritiqueArtifact.model_validate_json(cp.read_text(encoding="utf-8")))
+        if critiques:
+            record_stage_metric(
+                run_dir,
+                lyrics.concept,
+                StageMetric(
+                    stage="critique",
+                    model=cfg.models.llm,
+                    cached=True,
+                    input_hash=loop_hash,
+                ),
+            )
+            return critiques
+
     for round_num in range(1, max_rounds + 1):
         critique = evaluate_video_critique(
             run_dir,
@@ -183,4 +212,10 @@ def run_critique_loop(
         )
         run_render(run_dir, cfg, force=True, output_filename="final.mp4")
 
+    final_loop_hash = compute_stage_hash(
+        cfg.models.llm,
+        "critique_loop_v1",
+        [str(final_mp4.stat().st_size), timeline.model_dump_json(), treatment.model_dump_json()],
+    )
+    loop_hash_path.write_text(final_loop_hash, encoding="utf-8")
     return critiques
