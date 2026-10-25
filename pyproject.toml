@@ -10,6 +10,8 @@ dependencies = [
     "rich>=13.9.0",
     "typer>=0.15.0",
     "pronouncing>=0.2.0",
+    "librosa>=0.11.0",
+    "whisperx>=3.8.6",
 ]
 
 [project.scripts]
