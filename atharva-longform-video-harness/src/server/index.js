@@ -8,6 +8,7 @@ const { verifyScene, renderPreview, extractBoundaryClip } = require("../harness/
 const { generateSceneAudio } = require("../harness/audio");
 const { openTopic, createProject } = require("../harness/create");
 const { credentials, GeminiSession, MODELS, outputText } = require("../harness/gemini");
+const { createJobRunner } = require("./jobs");
 
 const UI_DIR = join(PROJECT, "src/ui");
 
@@ -413,7 +414,7 @@ function applySurgicalCodeNote(existingCode, { timestamp, box, prompt }) {
   return header + existingCode;
 }
 
-function createStudioServer() {
+function createStudioServer({ jobs = createJobRunner(), hasCredentials = () => Boolean(credentials(process.env, join(PROJECT, ".env"))) } = {}) {
   return http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
@@ -421,6 +422,19 @@ function createStudioServer() {
 
       if (req.method === "GET" && pathname === "/api/creations") {
         return sendJson(res, 200, { creations: listAllCreations() });
+      }
+
+      if (req.method === "GET" && /^\/api\/creations\/[^/]+\/status$/.test(pathname)) {
+        const id = decodeURIComponent(pathname.split("/")[3]);
+        const status = jobs.status(id);
+        if (!status) return sendJson(res, 404, { error: "Creation not found." });
+        return sendJson(res, 200, status);
+      }
+
+      if (req.method === "POST" && /^\/api\/creations\/[^/]+\/cancel$/.test(pathname)) {
+        const id = decodeURIComponent(pathname.split("/")[3]);
+        if (!jobs.cancel(id)) return sendJson(res, 409, { error: "No generation is running for this creation." });
+        return sendJson(res, 202, { ok: true, id });
       }
 
       if (req.method === "GET" && pathname.startsWith("/api/creations/")) {
@@ -580,10 +594,23 @@ Current scene.js:\n${currentCode}\nReturn ONLY the valid JavaScript function bod
         const style = body.style || "risograph";
         const duration = Number(body.duration || 120);
         const customId = body.id || `studio-${randomUUID().slice(0, 8)}`;
-        const ws = openTopic(topicText, { id: customId, duration, style });
-        return sendJson(res, 201, {
+        if (!hasCredentials()) return sendJson(res, 400, { error: "Gemini credentials are not configured. Set GEMINI_API_KEY before creating." });
+        let ws;
+        try {
+          ws = openTopic(topicText, { id: customId, duration, style });
+        } catch (error) {
+          return sendJson(res, 400, { error: error.message });
+        }
+        let job;
+        try {
+          job = jobs.start({ id: ws.id, topic: topicText, duration, style });
+        } catch (error) {
+          return sendJson(res, error.status || 500, { error: error.message, id: ws.id });
+        }
+        return sendJson(res, 202, {
           ok: true,
           id: ws.id,
+          job,
           creations: listAllCreations()
         });
       }

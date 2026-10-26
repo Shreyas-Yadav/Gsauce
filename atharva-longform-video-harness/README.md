@@ -30,3 +30,8 @@ node tools/lit.js create "How a Kalman filter works" --duration=120 --style=riso
 
 Studio UI: `node src/server/index.js`, then open http://127.0.0.1:4173 (or the
 port set in `PORT`).
+
+Create in the studio runs the same `lit.js create` pipeline as a background
+process (at most two at once). The studio polls
+`GET /api/creations/:id/status` for the current stage and log, and Stop calls
+`POST /api/creations/:id/cancel`.

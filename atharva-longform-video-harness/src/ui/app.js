@@ -9,8 +9,11 @@ const state = {
   markBox: null, // normalized { x, y, w, h }
   selectedStyle: "risograph",
   selectedDuration: 120,
-  frameStep: 12
+  frameStep: 12,
+  poll: null // { id, timer, lastStatus }
 };
+
+const POLL_MS = 3000;
 
 const el = (id) => document.getElementById(id);
 
@@ -70,6 +73,7 @@ function switchStageView(mode) {
 }
 
 async function selectCreation(id) {
+  if (state.poll && state.poll.id !== id) stopPolling();
   const res = await fetch(`/api/creations/${encodeURIComponent(id)}`);
   if (!res.ok) return showToast("Could not load creation.");
   const details = await res.json();
@@ -97,6 +101,58 @@ async function selectCreation(id) {
   } else if (firstScene?.frames?.length) {
     selectFrameLayer(firstScene, firstScene.frames[0]);
   }
+  if (!state.poll) pollGeneration(id);
+}
+
+function statusLabel(status) {
+  return String(status || "ready").replace(/_/g, " ").toUpperCase();
+}
+
+function renderGeneration(info) {
+  const running = Boolean(info?.job?.running);
+  el("activeStatusBadge").textContent = running ? `GENERATING · ${statusLabel(info.status)}` : statusLabel(info?.status);
+  el("generationLog").textContent = running ? (info.log.at(-1) || "Starting…") : "";
+  el("btnCancelGeneration").classList.toggle("hidden", !running);
+}
+
+function stopPolling() {
+  if (state.poll) clearTimeout(state.poll.timer);
+  state.poll = null;
+  el("generationLog").textContent = "";
+  el("btnCancelGeneration").classList.add("hidden");
+}
+
+async function pollGeneration(id) {
+  const res = await fetch(`/api/creations/${encodeURIComponent(id)}/status`);
+  if (!res.ok || state.activeCreation?.id !== id) return;
+  const info = await res.json();
+  renderGeneration(info);
+  if (!info.job?.running) {
+    if (state.poll?.id === id) {
+      stopPolling();
+      renderGeneration(info);
+      await fetchCreations();
+      await selectCreation(id);
+      const failed = info.job && info.job.exitCode !== 0;
+      showToast(failed ? `Generation stopped: ${info.log.at(-1) || statusLabel(info.status)}` : `Generation finished: ${statusLabel(info.status)}`);
+    }
+    return;
+  }
+  const changed = state.poll?.lastStatus !== undefined && state.poll.lastStatus !== info.status;
+  state.poll = { id, lastStatus: info.status, timer: setTimeout(() => pollGeneration(id), POLL_MS) };
+  if (changed) {
+    await fetchCreations();
+    await selectCreation(id);
+    renderGeneration(info);
+  }
+}
+
+async function cancelGeneration() {
+  const id = state.poll?.id;
+  if (!id) return;
+  const res = await fetch(`/api/creations/${encodeURIComponent(id)}/cancel`, { method: "POST" });
+  const data = await res.json();
+  showToast(res.ok ? "Stopping generation…" : data.error || "Could not stop generation.");
 }
 
 function setMediaDisplay(mode, srcUrl) {
@@ -480,7 +536,7 @@ async function createNewTopicCreation() {
   const topic = el("topicInput").value.trim();
   if (!topic) return showToast("Enter a topic in the prompt box first.");
 
-  showToast("Initializing project workspace...");
+  showToast("Starting generation…");
   const res = await fetch("/api/creations", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -496,7 +552,7 @@ async function createNewTopicCreation() {
   state.creations = data.creations;
   renderCreationsMenu();
   await selectCreation(data.id);
-  showToast(`Created ${data.id} (${state.selectedStyle}, ${state.selectedDuration}s).`);
+  showToast(`Generating ${data.id} (${state.selectedStyle}, ${state.selectedDuration}s).`);
 }
 
 function wireEvents() {
@@ -593,6 +649,7 @@ function wireEvents() {
   });
 
   el("btnCreateTopic").addEventListener("click", createNewTopicCreation);
+  el("btnCancelGeneration").addEventListener("click", cancelGeneration);
   initMarkOverlay();
 }
 
