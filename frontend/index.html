@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lost in Translation — Studio</title>
+  <title>Gsauce</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -14,33 +14,27 @@
     <!-- TOP STUDIO BAR -->
     <header class="topbar">
       <div class="brand-group">
-        <div class="brand-swatch"></div>
-        <span class="brand-title">LOST IN TRANSLATION</span>
-        <span class="brand-tag">ARGON × FLASH STUDIO</span>
+        <span class="brand-title">G<span class="brand-accent">SAUCE</span></span>
       </div>
 
       <div class="topbar-center">
         <button id="btnModePrompt" class="tool-pill active" title="Start a new creation from a text prompt">
-          <span class="dot-accent"></span> + NEW PROMPT
+          NEW PROMPT
         </button>
         <button id="btnModeCanvas" class="tool-pill" title="Inspect canvas, frame layers & transcript">
-          STAGE &amp; FRAME LAYERS
+          STAGE
         </button>
         <div class="divider-v"></div>
         <button id="btnToolScrub" class="tool-pill subtle active" title="Scrub & play video/frames">
-          ▶ PLAY / SCRUB
+          PLAY
         </button>
-        <button id="btnToolMark" class="tool-pill subtle" title="Drag a box on any frame to tell Argon what to fix">
-          ⌖ MARK FRAME REGION
+        <button id="btnToolMark" class="tool-pill subtle" title="Drag a box on a frame to mark what to fix">
+          MARK REGION
         </button>
       </div>
 
       <div class="topbar-right">
         <span id="activeStatusBadge" class="status-badge">READY</span>
-        <span class="palette-chip">
-          <i class="swatch-red"></i> #ED254E
-          <i class="swatch-gun"></i> #002A32
-        </span>
       </div>
     </header>
 
@@ -49,8 +43,8 @@
       <!-- MENU 1: CREATIONS SIDEBAR -->
       <aside class="panel panel-left">
         <div class="panel-header">
-          <span class="panel-title">01 // CREATIONS</span>
-          <button id="btnNewCreation" class="btn-crayola-sm">+ NEW</button>
+          <span class="panel-title">CREATIONS</span>
+          <button id="btnNewCreation" class="btn-crayola-sm">NEW</button>
         </div>
         <div class="creations-list" id="creationsList">
           <!-- Populated dynamically -->
@@ -62,20 +56,17 @@
         <!-- VIEW A: NEW PROMPT COMPOSER -->
         <section id="promptComposerView" class="prompt-composer">
           <div class="poster-card">
-            <div class="dot-matrix dot-matrix-tl"></div>
-            <div class="dot-matrix dot-matrix-br"></div>
-            <div class="poster-badge">PARALLEL SWARM ENGINE</div>
-            <h1 class="poster-heading">WHAT SHOULD WE EXPLAIN TODAY?</h1>
+            <h1 class="poster-heading">WHAT SHOULD WE EXPLAIN?</h1>
             <p class="poster-sub">
-              Argon plans the multi-scene narrative &amp; handoff anchors, synthesizes voice &amp; word timings first, and dispatches concurrent scene workers with 10s boundary-stitch verification.
+              Give it a topic. You get a narrated 9:16 explainer, checked scene by scene.
             </p>
 
             <div class="prompt-box-wrap">
               <textarea
                 id="topicInput"
                 class="prompt-textarea"
-                rows="3"
-                placeholder="e.g. Explain how a Kalman Filter fuses drifting physics predictions with noisy radar measurements in dense fog..."
+                rows="2"
+                placeholder="Topic"
               ></textarea>
 
               <div class="prompt-controls">
@@ -99,17 +90,11 @@
                 </div>
 
                 <button id="btnCreateTopic" class="btn-crayola-lg">
-                  INITIALIZE CREATION ➔
+                  CREATE
                 </button>
               </div>
             </div>
 
-            <div class="sample-prompts">
-              <span class="sample-label">QUICK LOAD EXISTING / TEMPLATES:</span>
-              <button class="sample-chip" data-sample="kalman-30s">Load: Kalman Filter (30s Full Film + Frames + Audio)</button>
-              <button class="sample-chip" data-sample="kalman-2min">Load: Kalman 2-Min (Scene 0 + Audio)</button>
-              <button class="sample-chip" data-prompt="How Fourier Transforms decompose complex sound waves into pure spinning circles">Template: Fourier Epicycles</button>
-            </div>
           </div>
         </section>
 
@@ -117,14 +102,14 @@
         <section id="canvasStageView" class="canvas-stage hidden">
           <div class="stage-toolbar">
             <div class="stage-crumb">
-              <span id="stageCreationTitle" class="crumb-title">—</span>
+              <span id="stageCreationTitle" class="crumb-title"></span>
               <span id="stageSceneBadge" class="crumb-scene">SCENE 1</span>
-              <span id="stageFrameCounter" class="crumb-mono">f00000 · 00:00.00</span>
+              <span id="stageFrameCounter" class="crumb-mono"></span>
             </div>
             <div class="stage-view-modes">
               <button id="btnViewVideo" class="mini-btn active">Video Player</button>
               <button id="btnViewFrame" class="mini-btn">Frame Layer Still</button>
-              <button id="btnClearMark" class="mini-btn hidden">✕ Clear Box</button>
+              <button id="btnClearMark" class="mini-btn hidden">Clear Box</button>
             </div>
           </div>
 
@@ -133,7 +118,7 @@
               <video id="stageVideo" class="stage-media" controls playsinline></video>
               <img id="stageImage" class="stage-media hidden" alt="Selected Frame Layer" />
               <!-- Interactive Mark-Out Lasso / Box Layer -->
-              <div id="markOverlay" class="mark-overlay" title="Drag to mark a region on this frame for Argon to fix">
+              <div id="markOverlay" class="mark-overlay" title="Drag to mark a region to fix">
                 <div id="markSelectionBox" class="mark-box hidden">
                   <span id="markCoordsLabel" class="mark-coords">x:0 y:0</span>
                 </div>
@@ -151,10 +136,10 @@
               id="surgicalPromptInput"
               type="text"
               class="surgical-input"
-              placeholder="Click a frame or drag a red box on the canvas, then tell Argon what to fix (or edit the selected transcript line)..."
+              placeholder="Describe the fix"
             />
             <button id="btnApplyFrameFix" class="btn-crayola-sm">
-              FIX FRAME WITH ARGON
+              FIX FRAME
             </button>
             <button id="btnApplyAudioFix" class="btn-gunmetal-sm hidden">
               UPDATE VOICE &amp; TIMING
@@ -166,9 +151,9 @@
       <!-- MENU 2: SCENE, ANCHOR & FLASH INSPECTOR -->
       <aside class="panel panel-right">
         <div class="panel-header">
-          <span class="panel-title">02 // INSPECTOR</span>
+          <span class="panel-title">INSPECTOR</span>
           <div class="tab-strip">
-            <button id="tabBtnScenes" class="tab-btn active">Scenes &amp; Cuts</button>
+            <button id="tabBtnScenes" class="tab-btn active">Scenes</button>
             <button id="tabBtnCode" class="tab-btn">scene.js</button>
           </div>
         </div>
@@ -176,17 +161,17 @@
         <!-- TAB 1: SCENES, BOUNDARY STITCHES, FLASH FINDINGS & ANCHORS -->
         <div id="inspectorScenesTab" class="inspector-body">
           <div class="inspector-section">
-            <div class="sec-title">SCENES &amp; 10s BOUNDARY CUTS</div>
+            <div class="sec-title">SCENES</div>
             <div id="sceneCutList" class="scene-cut-list"></div>
           </div>
 
           <div class="inspector-section">
-            <div class="sec-title">HANDOFF ANCHORS (ENTRY / EXIT)</div>
-            <div id="anchorCard" class="anchor-card">Select a scene to inspect spatial handoff vectors.</div>
+            <div class="sec-title">HANDOFF ANCHORS</div>
+            <div id="anchorCard" class="anchor-card"></div>
           </div>
 
           <div class="inspector-section">
-            <div class="sec-title">FLASH VERIFIER &amp; PATCH LOG</div>
+            <div class="sec-title">REVIEW FINDINGS</div>
             <div id="findingsList" class="findings-list"></div>
           </div>
         </div>
@@ -206,11 +191,11 @@
     <footer class="timeline-dock">
       <div class="timeline-header">
         <div class="tl-title-group">
-          <span class="panel-title">TIMELINE // FRAME LAYERS &amp; TRANSCRIPT</span>
-          <span id="timelineStats" class="crumb-mono">0 frames · 0 transcript clauses</span>
+          <span class="panel-title">TIMELINE</span>
+          <span id="timelineStats" class="crumb-mono"></span>
         </div>
         <div class="tl-controls">
-          <label class="tl-filter-label">FRAME DENSITY:</label>
+          <label class="tl-filter-label">DENSITY</label>
           <select id="frameStepSelect" class="tl-select">
             <option value="24">Every 1.0s (24f)</option>
             <option value="12" selected>Every 0.5s (12f)</option>
@@ -225,7 +210,6 @@
         <div class="track-row">
           <div class="track-label">
             <span class="track-name">FRAMES</span>
-            <span class="track-sub">Click to inspect/mark</span>
           </div>
           <div id="frameTrackStrip" class="frame-track-strip"></div>
         </div>
@@ -233,8 +217,7 @@
         <!-- TRACK 2: AUDIO / TRANSCRIPT RIBBON -->
         <div class="track-row track-audio">
           <div class="track-label">
-            <span class="track-name">AUDIO / TTS</span>
-            <span class="track-sub">Click to edit script</span>
+            <span class="track-name">AUDIO</span>
           </div>
           <div id="audioTrackStrip" class="audio-track-strip"></div>
         </div>

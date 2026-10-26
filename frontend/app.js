@@ -44,7 +44,7 @@ function renderCreationsMenu() {
     card.className = `creation-card ${state.activeCreation?.id === item.id ? "active" : ""}`;
     const thumbHtml = item.thumbnailUrl
       ? `<img class="creation-thumb" src="${item.thumbnailUrl}" alt="${item.id}" loading="lazy" />`
-      : `<div class="creation-thumb" style="display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--red-crayola)">${item.style.slice(0, 4).toUpperCase()}</div>`;
+      : `<div class="creation-thumb" style="display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--red)">${item.style.slice(0, 4).toUpperCase()}</div>`;
     card.innerHTML = `
       ${thumbHtml}
       <div class="creation-meta">
@@ -151,7 +151,7 @@ function selectFrameLayer(scene, frameObj) {
 
   el("surgicalTargetText").textContent = `FRAME ${fStr} @ ${frameObj.timestamp}s (${scene.id})`;
   el("surgicalPromptInput").value = "";
-  el("surgicalPromptInput").placeholder = `Drag a red box on Frame ${fStr} or describe what Argon should fix at t=${frameObj.timestamp}s...`;
+  el("surgicalPromptInput").placeholder = `Describe the fix at ${frameObj.timestamp}s`;
   el("btnApplyFrameFix").classList.remove("hidden");
   el("btnApplyAudioFix").classList.add("hidden");
 
@@ -193,9 +193,9 @@ function updateInspector() {
     sDiv.innerHTML = `
       <div style="display:flex;justify-content:space-between;font-weight:700;font-size:12px;">
         <span>${idx + 1}. ${scene.id}</span>
-        <span style="font-family:var(--font-mono);font-size:10.5px;color:var(--red-crayola)">${scene.duration}s · ${scene.frames?.length || 0}f</span>
+        <span style="font-family:var(--font-mono);font-size:10.5px;color:var(--red)">${scene.duration}s · ${scene.frames?.length || 0}f</span>
       </div>
-      <div style="font-size:11px;color:var(--ink-muted);margin-top:3px;">${scene.purpose || ""}</div>
+      <div style="font-size:11px;color:var(--beige-muted);margin-top:3px;">${scene.purpose || ""}</div>
     `;
     sDiv.addEventListener("click", () => selectScene(scene.id));
     list.appendChild(sDiv);
@@ -205,8 +205,8 @@ function updateInspector() {
       const cutDiv = document.createElement("div");
       cutDiv.className = "cut-item";
       cutDiv.innerHTML = `
-        <span>⚡ 10s BOUNDARY CUT ${idx + 1}➔${idx + 2}</span>
-        <span>INSPECT SLICE ➔</span>
+        <span>CUT ${idx + 1} / ${idx + 2}</span>
+        <span>INSPECT</span>
       `;
       cutDiv.addEventListener("click", () => inspectBoundaryCut(scene.id, nextScene.id));
       list.appendChild(cutDiv);
@@ -236,7 +236,7 @@ function updateInspector() {
     card.className = "finding-card patch-card";
     card.innerHTML = `
       <div class="finding-head">
-        <span style="color:var(--mint)">SURGICAL PATCH · ${patch.sceneId}</span>
+        <span style="color:var(--beige)">SURGICAL PATCH · ${patch.sceneId}</span>
         <span>t=${Number(patch.timestamp || 0).toFixed(2)}s</span>
       </div>
       <div>${patch.prompt}</div>
@@ -268,13 +268,13 @@ function updateInspector() {
   }
 
   if (!totalFindings && !(c.annotations || []).length) {
-    findingsContainer.innerHTML = `<div style="font-size:11.5px;color:var(--ink-muted)">✓ Zero unresolved Flash findings. Click any frame below to mark &amp; patch.</div>`;
+    findingsContainer.innerHTML = `<div style="font-size:11.5px;color:var(--beige-muted)">No open findings.</div>`;
   }
 }
 
 async function inspectBoundaryCut(fromScene, toScene) {
   if (!state.activeCreation) return;
-  showToast(`Extracting 10s boundary slice: ${fromScene} ➔ ${toScene}...`);
+  showToast(`Extracting 10s boundary slice: ${fromScene} to ${toScene}`);
   const res = await fetch(`/api/creations/${encodeURIComponent(state.activeCreation.id)}/boundary`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -282,7 +282,7 @@ async function inspectBoundaryCut(fromScene, toScene) {
   });
   const data = await res.json();
   if (!res.ok) return showToast(data.error || "Boundary extraction requires rendered scene MP4s.");
-  el("stageSceneBadge").textContent = `⚡ BOUNDARY ${fromScene} ➔ ${toScene} (10s)`;
+  el("stageSceneBadge").textContent = `BOUNDARY ${fromScene} / ${toScene}`;
   setMediaDisplay("video", `${data.clipUrl}?t=${Date.now()}`);
   el("stageVideo").play().catch(() => {});
   showToast(`Loaded 10s boundary clip (cut @ t=${data.clip.cut_time}s).`);
@@ -315,7 +315,7 @@ function renderTimelineTracks() {
         <img src="${frameObj.url}" alt="${fLabel}" loading="lazy" />
         <div class="frame-card-foot">
           <span>${fLabel}</span>
-          <span style="color:var(--red-crayola)">${frameObj.timestamp}s</span>
+          <span style="color:var(--red)">${frameObj.timestamp}s</span>
         </div>
       `;
       card.addEventListener("click", () => selectFrameLayer(scene, frameObj));
@@ -326,7 +326,7 @@ function renderTimelineTracks() {
       const nextScene = c.scenes[sIdx + 1];
       const cutPill = document.createElement("div");
       cutPill.className = "frame-cut-pill";
-      cutPill.innerHTML = `<span>⚡ CUT</span><span>${sIdx + 1}➔${sIdx + 2}</span>`;
+      cutPill.innerHTML = `<span>CUT</span><span>${sIdx + 1}/${sIdx + 2}</span>`;
       cutPill.title = "Click to extract and inspect 10s boundary handover clip";
       cutPill.addEventListener("click", () => inspectBoundaryCut(scene.id, nextScene.id));
       frameStrip.appendChild(cutPill);
@@ -340,7 +340,7 @@ function renderTimelineTracks() {
     block.className = "transcript-block";
     block.dataset.segId = seg.id;
     block.innerHTML = `
-      <div class="transcript-time">🔊 ${fmtTime(seg.globalStart ?? seg.start)} – ${fmtTime(seg.globalEnd ?? seg.end)} · ${seg.sceneId || "voice"}</div>
+      <div class="transcript-time">${fmtTime(seg.globalStart ?? seg.start)} – ${fmtTime(seg.globalEnd ?? seg.end)} · ${seg.sceneId || "voice"}</div>
       <div class="transcript-text" title="${seg.text}">"${seg.text}"</div>
     `;
     block.addEventListener("click", () => selectTranscriptSegment(seg));
@@ -421,7 +421,7 @@ function initMarkOverlay() {
 async function submitFrameSurgicalFix() {
   if (!state.activeCreation) return;
   const prompt = el("surgicalPromptInput").value.trim();
-  if (!prompt) return showToast("Type what Argon should fix in this frame/region.");
+  if (!prompt) return showToast("Describe the fix first.");
 
   const sceneId = state.selectedFrame?.sceneId || state.activeSceneId || state.activeCreation.scenes[0]?.id;
   const timestamp = state.selectedFrame?.timestamp ?? Number(el("stageVideo").currentTime.toFixed(2));
