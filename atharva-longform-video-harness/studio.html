@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lost in Translation · Exp 001: The McCulloch-Pitts Neuron (1943)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #060911;
+      color: #F3EFE6;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #stage-wrap {
+      position: relative;
+      width: 1920px;
+      height: 1080px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75);
+    }
+    canvas#stage {
+      width: 1920px;
+      height: 1080px;
+      display: block;
+      background: #0B101B;
+    }
+    body.render-mode #controls {
+      display: none !important;
+    }
+    #controls {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(12, 18, 30, 0.92);
+      border: 1px solid rgba(243, 239, 230, 0.22);
+      border-radius: 10px;
+      padding: 8px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 100;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+    #controls button {
+      background: #F4A261;
+      color: #0B101B;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    #controls input[type="range"] {
+      width: 460px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="stage-wrap">
+    <canvas id="stage" width="1920" height="1080"></canvas>
+  </div>
+
+  <div id="controls">
+    <button id="btn-play">PLAY</button>
+    <input id="scrubber" type="range" min="0" max="122.77" step="0.0333" value="0" />
+    <span id="time-readout">0.00s / 122.77s</span>
+  </div>
+
+  <script src="src/timeline_data.js"></script>
+  <script src="src/engine.js"></script>
+  <script src="src/scenes/act1_2.js"></script>
+  <script src="src/scenes/act3.js"></script>
+  <script src="src/scenes/act4_5.js"></script>
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has("render")) {
+        document.body.classList.add("render-mode");
+      }
+
+      const canvas = document.getElementById("stage");
+      const ctx = canvas.getContext("2d", { alpha: false });
+      const DATA = window.TIMELINE_DATA;
+      const DUR = DATA.duration;
+
+      function drawTransitionFlush(ctx, t) {
+        // Hand-painted watercolor & ink brush wipe at major Act boundaries
+        const boundaries = [21.0, 37.2, 70.8, 98.0];
+        for (let i = 0; i < boundaries.length; i++) {
+          const b = boundaries[i];
+          const dt = Math.abs(t - b);
+          if (dt < 0.34) {
+            const u = (t - (b - 0.34)) / 0.68; // 0..1 across boundary
+            window.ENG.drawBrushWipe(ctx, u);
+          }
+        }
+      }
+
+      function seek(t) {
+        t = Math.max(0, Math.min(DUR, Number(t) || 0));
+
+        // 1. Static Archival Blueprint & Paper Grain Backdrop
+        const bg = window.ENG.getStaticBackdrop();
+        ctx.drawImage(bg, 0, 0);
+
+        // 2. Render Active Scene Acts
+        if (t <= 37.6) {
+          window.ACT1_2.renderAct1_2(ctx, t);
+        }
+        if (t >= 37.0 && t <= 71.2) {
+          window.ACT3.renderAct3(ctx, t);
+        }
+        if (t >= 70.6) {
+          window.ACT4_5.renderAct4_5(ctx, t);
+        }
+
+        // 3. Act Transition Accent
+        drawTransitionFlush(ctx, t);
+
+        // 4. Top Chapter HUD & Progress Bar
+        window.ENG.drawTopHUD(ctx, t, DUR);
+
+        // 5. Synchronized Subtitles with Active Word Highlighting
+        window.ENG.drawSubtitles(ctx, t, DATA.subtitles);
+
+        // 6. Gentle Fade-in from Warm Sketchbook Paper (0..0.6s) and Fade-out at Tail
+        if (t < 0.6) {
+          ctx.fillStyle = `rgba(245, 239, 224, ${1 - t / 0.6})`;
+          ctx.fillRect(0, 0, 1920, 1080);
+        } else if (t > DUR - 0.6) {
+          ctx.fillStyle = `rgba(245, 239, 224, ${(t - (DUR - 0.6)) / 0.6})`;
+          ctx.fillRect(0, 0, 1920, 1080);
+        }
+      }
+
+      // Expose deterministic render API for headless Puppeteer harness
+      window.renderAt = function (t, mime = "image/jpeg", quality = 0.94) {
+        seek(t);
+        return canvas.toDataURL(mime, quality);
+      };
+
+      // Contact sheet generator inside page for instant visual QA
+      window.renderSheet = function (times, cols = 4, thumbW = 480) {
+        const thumbH = Math.round(thumbW * (1080 / 1920));
+        const rows = Math.ceil(times.length / cols);
+        const sheet = document.createElement("canvas");
+        sheet.width = cols * thumbW;
+        sheet.height = rows * thumbH;
+        const sctx = sheet.getContext("2d");
+        sctx.fillStyle = "#060911";
+        sctx.fillRect(0, 0, sheet.width, sheet.height);
+
+        for (let i = 0; i < times.length; i++) {
+          const t = times[i];
+          seek(t);
+          const c = i % cols;
+          const r = Math.floor(i / cols);
+          const dx = c * thumbW;
+          const dy = r * thumbH;
+          sctx.drawImage(canvas, 0, 0, 1920, 1080, dx, dy, thumbW, thumbH);
+
+          // Timestamp overlay pill on contact sheet cell
+          sctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+          sctx.fillRect(dx + 8, dy + 8, 92, 26);
+          sctx.font = "bold 14px monospace";
+          sctx.fillStyle = "#E9C46A";
+          sctx.fillText(`t=${t.toFixed(1)}s`, dx + 14, dy + 26);
+          sctx.strokeStyle = "rgba(243, 239, 230, 0.25)";
+          sctx.strokeRect(dx + 0.5, dy + 0.5, thumbW - 1, thumbH - 1);
+        }
+        return sheet.toDataURL("image/jpeg", 0.92);
+      };
+
+      window.__lit = {
+        duration: DUR,
+        fps: DATA.fps,
+        ready: true,
+        seek,
+        renderAt: window.renderAt,
+        renderSheet: window.renderSheet
+      };
+      window.ready = true;
+
+      // Interactive browser scrubbing support
+      const initialT = params.has("t") ? parseFloat(params.get("t")) : 0;
+      seek(initialT);
+
+      const scrubber = document.getElementById("scrubber");
+      const readout = document.getElementById("time-readout");
+      const btnPlay = document.getElementById("btn-play");
+      scrubber.max = String(DUR);
+      scrubber.value = String(initialT);
+      readout.textContent = `${initialT.toFixed(2)}s / ${DUR.toFixed(2)}s`;
+
+      let playing = false;
+      let playStartWall = 0;
+      let playStartT = initialT;
+
+      scrubber.addEventListener("input", () => {
+        const val = parseFloat(scrubber.value);
+        seek(val);
+        readout.textContent = `${val.toFixed(2)}s / ${DUR.toFixed(2)}s`;
+      });
+
+      btnPlay.addEventListener("click", () => {
+        playing = !playing;
+        btnPlay.textContent = playing ? "PAUSE" : "PLAY";
+        if (playing) {
+          playStartWall = performance.now();
+          playStartT = parseFloat(scrubber.value);
+          requestAnimationFrame(loop);
+        }
+      });
+
+      function loop(now) {
+        if (!playing) return;
+        const cur = playStartT + (now - playStartWall) / 1000;
+        if (cur >= DUR) {
+          seek(DUR);
+          playing = false;
+          btnPlay.textContent = "PLAY";
+          return;
+        }
+        scrubber.value = String(cur);
+        readout.textContent = `${cur.toFixed(2)}s / ${DUR.toFixed(2)}s`;
+        seek(cur);
+        requestAnimationFrame(loop);
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+[
+  {
+    "time": 2.6,
+    "kind": "tick",
+    "label": "86 billion counter"
+  },
+  {
+    "time": 4.45,
+    "kind": "spike",
+    "label": "storm firing 1"
+  },
+  {
+    "time": 4.85,
+    "kind": "spike",
+    "label": "storm firing 2"
+  },
+  {
+    "time": 5.3,
+    "kind": "spike",
+    "label": "storm firing 3"
+  },
+  {
+    "time": 7.6,
+    "kind": "whoosh",
+    "label": "transition to 1943"
+  },
+  {
+    "time": 8.48,
+    "kind": "tick",
+    "label": "1943 stamp"
+  },
+  {
+    "time": 10.62,
+    "kind": "tick",
+    "label": "Warren McCulloch card"
+  },
+  {
+    "time": 13.5,
+    "kind": "tick",
+    "label": "Walter Pitts card"
+  },
+  {
+    "time": 15.4,
+    "kind": "sum_step",
+    "label": "radical question reticle"
+  },
+  {
+    "time": 21.0,
+    "kind": "whoosh",
+    "label": "transition to Act 2"
+  },
+  {
+    "time": 24.5,
+    "kind": "whoosh",
+    "label": "strip away chemistry morph"
+  },
+  {
+    "time": 30.0,
+    "kind": "spike",
+    "label": "all-or-none snap"
+  },
+  {
+    "time": 31.5,
+    "kind": "tick",
+    "label": "clock tick 1"
+  },
+  {
+    "time": 32.5,
+    "kind": "tick",
+    "label": "clock tick 2"
+  },
+  {
+    "time": 33.5,
+    "kind": "tick",
+    "label": "silent 0 state"
+  },
+  {
+    "time": 34.72,
+    "kind": "veto",
+    "label": "zero badge"
+  },
+  {
+    "time": 35.8,
+    "kind": "spike",
+    "label": "fires a pulse 1"
+  },
+  {
+    "time": 37.2,
+    "kind": "whoosh",
+    "label": "transition to Act 3"
+  },
+  {
+    "time": 41.62,
+    "kind": "tick",
+    "label": "Rule 1 excitatory"
+  },
+  {
+    "time": 44.0,
+    "kind": "sum_step",
+    "label": "excitatory input x1"
+  },
+  {
+    "time": 44.6,
+    "kind": "sum_step",
+    "label": "excitatory input x2"
+  },
+  {
+    "time": 47.0,
+    "kind": "sum_step",
+    "label": "added together sum=2"
+  },
+  {
+    "time": 48.38,
+    "kind": "tick",
+    "label": "Rule 2 threshold"
+  },
+  {
+    "time": 50.89,
+    "kind": "sum_step",
+    "label": "theta barrier"
+  },
+  {
+    "time": 52.9,
+    "kind": "sum_step",
+    "label": "reaches theta"
+  },
+  {
+    "time": 54.3,
+    "kind": "spike",
+    "label": "neuron fires on next step"
+  },
+  {
+    "time": 56.62,
+    "kind": "tick",
+    "label": "Rule 3 inhibitory"
+  },
+  {
+    "time": 61.17,
+    "kind": "sum_step",
+    "label": "drawn as small loop"
+  },
+  {
+    "time": 64.3,
+    "kind": "veto",
+    "label": "inhibitory input active"
+  },
+  {
+    "time": 65.7,
+    "kind": "veto",
+    "label": "silences neuron completely"
+  },
+  {
+    "time": 70.8,
+    "kind": "whoosh",
+    "label": "transition to Act 4"
+  },
+  {
+    "time": 72.8,
+    "kind": "tick",
+    "label": "tuning threshold dial"
+  },
+  {
+    "time": 78.4,
+    "kind": "sum_step",
+    "label": "theta = 1 OR gate"
+  },
+  {
+    "time": 81.9,
+    "kind": "spike",
+    "label": "OR gate triggers"
+  },
+  {
+    "time": 84.4,
+    "kind": "sum_step",
+    "label": "theta = 2 AND gate"
+  },
+  {
+    "time": 87.3,
+    "kind": "sum_step",
+    "label": "both inputs arrive"
+  },
+  {
+    "time": 88.8,
+    "kind": "spike",
+    "label": "AND gate fires"
+  },
+  {
+    "time": 90.9,
+    "kind": "veto",
+    "label": "inhibitory veto NOT gate"
+  },
+  {
+    "time": 94.3,
+    "kind": "spike",
+    "label": "network cascade 1"
+  },
+  {
+    "time": 94.75,
+    "kind": "spike",
+    "label": "network cascade 2"
+  },
+  {
+    "time": 95.2,
+    "kind": "spike",
+    "label": "network cascade 3"
+  },
+  {
+    "time": 98.0,
+    "kind": "whoosh",
+    "label": "transition to Act 5"
+  },
+  {
+    "time": 99.6,
+    "kind": "veto",
+    "label": "fatal flaw stamp"
+  },
+  {
+    "time": 101.7,
+    "kind": "tick",
+    "label": "equal strength clamp"
+  },
+  {
+    "time": 104.4,
+    "kind": "tick",
+    "label": "wired by hand clamp"
+  },
+  {
+    "time": 109.1,
+    "kind": "veto",
+    "label": "never learn"
+  },
+  {
+    "time": 110.0,
+    "kind": "whoosh",
+    "label": "transition to legacy"
+  },
+  {
+    "time": 116.0,
+    "kind": "sum_step",
+    "label": "cornerstone 1943"
+  },
+  {
+    "time": 118.7,
+    "kind": "spike",
+    "label": "Perceptron 1958"
+  },
+  {
+    "time": 119.8,
+    "kind": "spike",
+    "label": "modern deep learning"
+  }
+]

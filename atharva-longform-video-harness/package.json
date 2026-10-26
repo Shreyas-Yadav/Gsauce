@@ -1,0 +1,31 @@
+{
+  "name": "atharva-longform-video-harness",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "preflight": "node tools/gemini_smoke.js",
+    "smoke:fixtures": "node tools/gemini_fixtures.js",
+    "smoke:live": "node tools/gemini_smoke.js --live",
+    "skills:sync": "node tools/lit.js sync-skills",
+    "scene:demo": "node tools/lit.js demo",
+    "scene:generate": "node tools/lit.js generate",
+    "scene:resume": "node tools/lit.js resume",
+    "scene:status": "node tools/lit.js status",
+    "test:render": "node --test tests/render.integration.js",
+    "project:demo": "node tools/lit.js project-demo",
+    "test:project": "node --test tests/project.test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "dependencies": {
+    "@google/genai": "2.29.1",
+    "puppeteer-core": "^25.16.0"
+  }
+}

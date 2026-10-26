@@ -1,0 +1,2077 @@
+{
+  "voice": "en-US-AndrewMultilingualNeural",
+  "total_duration": 122.77,
+  "segments": [
+    {
+      "id": "s01_intro",
+      "act": 1,
+      "text": "Inside your brain, eighty-six billion neurons are firing in a storm of electro-chemical pulses.",
+      "start": 1.2,
+      "end": 7.376,
+      "duration": 6.176,
+      "wav": "build/audio/segments/s01_intro.wav",
+      "words": [
+        {
+          "word": "Inside",
+          "rel_start": 0.098,
+          "rel_end": 0.527,
+          "start": 1.298,
+          "end": 1.727
+        },
+        {
+          "word": "your",
+          "rel_start": 0.527,
+          "rel_end": 0.613,
+          "start": 1.727,
+          "end": 1.813
+        },
+        {
+          "word": "brain",
+          "rel_start": 0.625,
+          "rel_end": 1.078,
+          "start": 1.825,
+          "end": 2.278
+        },
+        {
+          "word": "eighty-six",
+          "rel_start": 1.373,
+          "rel_end": 1.899,
+          "start": 2.573,
+          "end": 3.099
+        },
+        {
+          "word": "billion",
+          "rel_start": 1.899,
+          "rel_end": 2.255,
+          "start": 3.099,
+          "end": 3.455
+        },
+        {
+          "word": "neurons",
+          "rel_start": 2.255,
+          "rel_end": 2.831,
+          "start": 3.455,
+          "end": 4.031
+        },
+        {
+          "word": "are",
+          "rel_start": 3.039,
+          "rel_end": 3.211,
+          "start": 4.239,
+          "end": 4.411
+        },
+        {
+          "word": "firing",
+          "rel_start": 3.211,
+          "rel_end": 3.946,
+          "start": 4.411,
+          "end": 5.146
+        },
+        {
+          "word": "in",
+          "rel_start": 3.946,
+          "rel_end": 4.032,
+          "start": 5.146,
+          "end": 5.232
+        },
+        {
+          "word": "a",
+          "rel_start": 4.032,
+          "rel_end": 4.081,
+          "start": 5.232,
+          "end": 5.281
+        },
+        {
+          "word": "storm",
+          "rel_start": 4.093,
+          "rel_end": 4.657,
+          "start": 5.293,
+          "end": 5.857
+        },
+        {
+          "word": "of",
+          "rel_start": 4.657,
+          "rel_end": 4.718,
+          "start": 5.857,
+          "end": 5.918
+        },
+        {
+          "word": "electro-chemical",
+          "rel_start": 4.718,
+          "rel_end": 5.576,
+          "start": 5.918,
+          "end": 6.776
+        },
+        {
+          "word": "pulses",
+          "rel_start": 5.588,
+          "rel_end": 6.25,
+          "start": 6.788,
+          "end": 7.45
+        }
+      ]
+    },
+    {
+      "id": "s02_authors",
+      "act": 1,
+      "text": "In nineteen forty-three, neurophysiologist Warren McCulloch and an eighteen-year-old logician named Walter Pitts asked a radical question: beneath all that messy biology, what is a single neuron actually doing?",
+      "start": 7.976,
+      "end": 20.696,
+      "duration": 12.72,
+      "wav": "build/audio/segments/s02_authors.wav",
+      "words": [
+        {
+          "word": "In",
+          "rel_start": 0.086,
+          "rel_end": 0.159,
+          "start": 8.061,
+          "end": 8.135
+        },
+        {
+          "word": "nineteen",
+          "rel_start": 0.172,
+          "rel_end": 0.502,
+          "start": 8.147,
+          "end": 8.478
+        },
+        {
+          "word": "forty-three",
+          "rel_start": 0.502,
+          "rel_end": 1.336,
+          "start": 8.478,
+          "end": 9.311
+        },
+        {
+          "word": "neurophysiologist",
+          "rel_start": 1.569,
+          "rel_end": 2.635,
+          "start": 9.544,
+          "end": 10.61
+        },
+        {
+          "word": "Warren",
+          "rel_start": 2.647,
+          "rel_end": 2.929,
+          "start": 10.623,
+          "end": 10.904
+        },
+        {
+          "word": "McCulloch",
+          "rel_start": 2.929,
+          "rel_end": 3.395,
+          "start": 10.904,
+          "end": 11.37
+        },
+        {
+          "word": "and",
+          "rel_start": 3.517,
+          "rel_end": 3.578,
+          "start": 11.493,
+          "end": 11.554
+        },
+        {
+          "word": "an",
+          "rel_start": 3.578,
+          "rel_end": 3.701,
+          "start": 11.554,
+          "end": 11.676
+        },
+        {
+          "word": "eighteen-year-old",
+          "rel_start": 3.836,
+          "rel_end": 4.498,
+          "start": 11.811,
+          "end": 12.473
+        },
+        {
+          "word": "logician",
+          "rel_start": 4.498,
+          "rel_end": 5.074,
+          "start": 12.473,
+          "end": 13.049
+        },
+        {
+          "word": "named",
+          "rel_start": 5.282,
+          "rel_end": 5.527,
+          "start": 13.257,
+          "end": 13.502
+        },
+        {
+          "word": "Walter",
+          "rel_start": 5.527,
+          "rel_end": 5.944,
+          "start": 13.502,
+          "end": 13.919
+        },
+        {
+          "word": "Pitts",
+          "rel_start": 5.956,
+          "rel_end": 6.409,
+          "start": 13.931,
+          "end": 14.385
+        },
+        {
+          "word": "asked",
+          "rel_start": 6.618,
+          "rel_end": 6.863,
+          "start": 14.593,
+          "end": 14.838
+        },
+        {
+          "word": "a",
+          "rel_start": 6.875,
+          "rel_end": 6.912,
+          "start": 14.851,
+          "end": 14.887
+        },
+        {
+          "word": "radical",
+          "rel_start": 6.912,
+          "rel_end": 7.414,
+          "start": 14.887,
+          "end": 15.39
+        },
+        {
+          "word": "question",
+          "rel_start": 7.426,
+          "rel_end": 7.904,
+          "start": 15.402,
+          "end": 15.88
+        },
+        {
+          "word": "beneath",
+          "rel_start": 8.321,
+          "rel_end": 8.64,
+          "start": 16.297,
+          "end": 16.615
+        },
+        {
+          "word": "all",
+          "rel_start": 8.762,
+          "rel_end": 8.958,
+          "start": 16.738,
+          "end": 16.934
+        },
+        {
+          "word": "that",
+          "rel_start": 8.958,
+          "rel_end": 9.154,
+          "start": 16.934,
+          "end": 17.13
+        },
+        {
+          "word": "messy",
+          "rel_start": 9.154,
+          "rel_end": 9.547,
+          "start": 17.13,
+          "end": 17.522
+        },
+        {
+          "word": "biology",
+          "rel_start": 9.547,
+          "rel_end": 10.221,
+          "start": 17.522,
+          "end": 18.196
+        },
+        {
+          "word": "what",
+          "rel_start": 10.797,
+          "rel_end": 10.907,
+          "start": 18.772,
+          "end": 18.882
+        },
+        {
+          "word": "is",
+          "rel_start": 10.907,
+          "rel_end": 10.993,
+          "start": 18.882,
+          "end": 18.968
+        },
+        {
+          "word": "a",
+          "rel_start": 10.993,
+          "rel_end": 11.042,
+          "start": 18.968,
+          "end": 19.017
+        },
+        {
+          "word": "single",
+          "rel_start": 11.042,
+          "rel_end": 11.409,
+          "start": 19.017,
+          "end": 19.385
+        },
+        {
+          "word": "neuron",
+          "rel_start": 11.409,
+          "rel_end": 11.9,
+          "start": 19.385,
+          "end": 19.875
+        },
+        {
+          "word": "actually",
+          "rel_start": 12.022,
+          "rel_end": 12.426,
+          "start": 19.998,
+          "end": 20.402
+        },
+        {
+          "word": "doing",
+          "rel_start": 12.426,
+          "rel_end": 12.806,
+          "start": 20.402,
+          "end": 20.782
+        }
+      ]
+    },
+    {
+      "id": "s03_strip",
+      "act": 2,
+      "text": "Their answer launched artificial intelligence. They stripped away the chemistry and noticed one fundamental property: a neuron's signal is all-or-none.",
+      "start": 21.496,
+      "end": 30.532,
+      "duration": 9.036,
+      "wav": "build/audio/segments/s03_strip.wav",
+      "words": [
+        {
+          "word": "Their",
+          "rel_start": 0.11,
+          "rel_end": 0.27,
+          "start": 21.606,
+          "end": 21.765
+        },
+        {
+          "word": "answer",
+          "rel_start": 0.282,
+          "rel_end": 0.576,
+          "start": 21.778,
+          "end": 22.072
+        },
+        {
+          "word": "launched",
+          "rel_start": 0.576,
+          "rel_end": 1.115,
+          "start": 22.072,
+          "end": 22.611
+        },
+        {
+          "word": "artificial",
+          "rel_start": 1.226,
+          "rel_end": 1.752,
+          "start": 22.721,
+          "end": 23.248
+        },
+        {
+          "word": "intelligence",
+          "rel_start": 1.752,
+          "rel_end": 2.488,
+          "start": 23.248,
+          "end": 23.984
+        },
+        {
+          "word": "They",
+          "rel_start": 2.892,
+          "rel_end": 2.978,
+          "start": 24.388,
+          "end": 24.474
+        },
+        {
+          "word": "stripped",
+          "rel_start": 2.978,
+          "rel_end": 3.321,
+          "start": 24.474,
+          "end": 24.817
+        },
+        {
+          "word": "away",
+          "rel_start": 3.321,
+          "rel_end": 3.566,
+          "start": 24.817,
+          "end": 25.062
+        },
+        {
+          "word": "the",
+          "rel_start": 3.566,
+          "rel_end": 3.64,
+          "start": 25.062,
+          "end": 25.135
+        },
+        {
+          "word": "chemistry",
+          "rel_start": 3.64,
+          "rel_end": 4.252,
+          "start": 25.136,
+          "end": 25.748
+        },
+        {
+          "word": "and",
+          "rel_start": 4.363,
+          "rel_end": 4.534,
+          "start": 25.859,
+          "end": 26.03
+        },
+        {
+          "word": "noticed",
+          "rel_start": 4.534,
+          "rel_end": 5.074,
+          "start": 26.03,
+          "end": 26.569
+        },
+        {
+          "word": "one",
+          "rel_start": 5.086,
+          "rel_end": 5.466,
+          "start": 26.582,
+          "end": 26.961
+        },
+        {
+          "word": "fundamental",
+          "rel_start": 5.576,
+          "rel_end": 6.066,
+          "start": 27.072,
+          "end": 27.562
+        },
+        {
+          "word": "property",
+          "rel_start": 6.066,
+          "rel_end": 6.556,
+          "start": 27.562,
+          "end": 28.052
+        },
+        {
+          "word": "a",
+          "rel_start": 6.961,
+          "rel_end": 6.985,
+          "start": 28.457,
+          "end": 28.481
+        },
+        {
+          "word": "neuron's",
+          "rel_start": 6.985,
+          "rel_end": 7.5,
+          "start": 28.481,
+          "end": 28.996
+        },
+        {
+          "word": "signal",
+          "rel_start": 7.512,
+          "rel_end": 8.002,
+          "start": 29.008,
+          "end": 29.498
+        },
+        {
+          "word": "is",
+          "rel_start": 8.26,
+          "rel_end": 8.456,
+          "start": 29.756,
+          "end": 29.952
+        },
+        {
+          "word": "all-or-none",
+          "rel_start": 8.468,
+          "rel_end": 9.093,
+          "start": 29.964,
+          "end": 30.589
+        }
+      ]
+    },
+    {
+      "id": "s04_binary",
+      "act": 2,
+      "text": "At any tick of the clock, a cell either stays silent, zero, or fires a pulse, one.",
+      "start": 31.032,
+      "end": 36.828,
+      "duration": 5.796,
+      "wav": "build/audio/segments/s04_binary.wav",
+      "words": [
+        {
+          "word": "At",
+          "rel_start": 0.098,
+          "rel_end": 0.196,
+          "start": 31.13,
+          "end": 31.228
+        },
+        {
+          "word": "any",
+          "rel_start": 0.355,
+          "rel_end": 0.502,
+          "start": 31.387,
+          "end": 31.534
+        },
+        {
+          "word": "tick",
+          "rel_start": 0.502,
+          "rel_end": 0.699,
+          "start": 31.534,
+          "end": 31.73
+        },
+        {
+          "word": "of",
+          "rel_start": 0.699,
+          "rel_end": 0.76,
+          "start": 31.73,
+          "end": 31.791
+        },
+        {
+          "word": "the",
+          "rel_start": 0.76,
+          "rel_end": 0.833,
+          "start": 31.791,
+          "end": 31.865
+        },
+        {
+          "word": "clock",
+          "rel_start": 0.846,
+          "rel_end": 1.311,
+          "start": 31.877,
+          "end": 32.343
+        },
+        {
+          "word": "a",
+          "rel_start": 1.728,
+          "rel_end": 1.777,
+          "start": 32.76,
+          "end": 32.809
+        },
+        {
+          "word": "cell",
+          "rel_start": 1.789,
+          "rel_end": 2.132,
+          "start": 32.821,
+          "end": 33.164
+        },
+        {
+          "word": "either",
+          "rel_start": 2.194,
+          "rel_end": 2.426,
+          "start": 33.225,
+          "end": 33.458
+        },
+        {
+          "word": "stays",
+          "rel_start": 2.426,
+          "rel_end": 2.868,
+          "start": 33.458,
+          "end": 33.899
+        },
+        {
+          "word": "silent",
+          "rel_start": 2.88,
+          "rel_end": 3.431,
+          "start": 33.912,
+          "end": 34.463
+        },
+        {
+          "word": "zero",
+          "rel_start": 3.689,
+          "rel_end": 4.363,
+          "start": 34.72,
+          "end": 35.394
+        },
+        {
+          "word": "or",
+          "rel_start": 4.62,
+          "rel_end": 4.718,
+          "start": 35.652,
+          "end": 35.75
+        },
+        {
+          "word": "fires",
+          "rel_start": 4.718,
+          "rel_end": 5.11,
+          "start": 35.75,
+          "end": 36.142
+        },
+        {
+          "word": "a",
+          "rel_start": 5.11,
+          "rel_end": 5.159,
+          "start": 36.142,
+          "end": 36.191
+        },
+        {
+          "word": "pulse",
+          "rel_start": 5.159,
+          "rel_end": 5.551,
+          "start": 36.191,
+          "end": 36.583
+        },
+        {
+          "word": "one",
+          "rel_start": 5.564,
+          "rel_end": 5.87,
+          "start": 36.595,
+          "end": 36.902
+        }
+      ]
+    },
+    {
+      "id": "s05_rules",
+      "act": 3,
+      "text": "The McCulloch-Pitts neuron follows three strict rules. First, excitatory inputs send positive signals into the cell, where they are simply added together.",
+      "start": 37.628,
+      "end": 47.769,
+      "duration": 10.142,
+      "wav": "build/audio/segments/s05_rules.wav",
+      "words": [
+        {
+          "word": "The",
+          "rel_start": 0.098,
+          "rel_end": 0.135,
+          "start": 37.726,
+          "end": 37.762
+        },
+        {
+          "word": "McCulloch-Pitts",
+          "rel_start": 0.147,
+          "rel_end": 0.944,
+          "start": 37.775,
+          "end": 38.571
+        },
+        {
+          "word": "neuron",
+          "rel_start": 0.956,
+          "rel_end": 1.409,
+          "start": 38.584,
+          "end": 39.037
+        },
+        {
+          "word": "follows",
+          "rel_start": 1.422,
+          "rel_end": 1.973,
+          "start": 39.049,
+          "end": 39.601
+        },
+        {
+          "word": "three",
+          "rel_start": 1.985,
+          "rel_end": 2.524,
+          "start": 39.613,
+          "end": 40.152
+        },
+        {
+          "word": "strict",
+          "rel_start": 2.537,
+          "rel_end": 2.966,
+          "start": 40.164,
+          "end": 40.593
+        },
+        {
+          "word": "rules",
+          "rel_start": 2.978,
+          "rel_end": 3.554,
+          "start": 40.606,
+          "end": 41.182
+        },
+        {
+          "word": "First",
+          "rel_start": 3.995,
+          "rel_end": 4.485,
+          "start": 41.623,
+          "end": 42.113
+        },
+        {
+          "word": "excitatory",
+          "rel_start": 4.632,
+          "rel_end": 5.368,
+          "start": 42.26,
+          "end": 42.995
+        },
+        {
+          "word": "inputs",
+          "rel_start": 5.38,
+          "rel_end": 5.944,
+          "start": 43.008,
+          "end": 43.571
+        },
+        {
+          "word": "send",
+          "rel_start": 6.091,
+          "rel_end": 6.385,
+          "start": 43.718,
+          "end": 44.012
+        },
+        {
+          "word": "positive",
+          "rel_start": 6.397,
+          "rel_end": 6.948,
+          "start": 44.025,
+          "end": 44.576
+        },
+        {
+          "word": "signals",
+          "rel_start": 6.949,
+          "rel_end": 7.512,
+          "start": 44.576,
+          "end": 45.14
+        },
+        {
+          "word": "into",
+          "rel_start": 7.61,
+          "rel_end": 7.806,
+          "start": 45.238,
+          "end": 45.434
+        },
+        {
+          "word": "the",
+          "rel_start": 7.819,
+          "rel_end": 7.904,
+          "start": 45.446,
+          "end": 45.532
+        },
+        {
+          "word": "cell",
+          "rel_start": 7.917,
+          "rel_end": 8.358,
+          "start": 45.544,
+          "end": 45.985
+        },
+        {
+          "word": "where",
+          "rel_start": 8.664,
+          "rel_end": 8.75,
+          "start": 46.292,
+          "end": 46.378
+        },
+        {
+          "word": "they",
+          "rel_start": 8.75,
+          "rel_end": 8.824,
+          "start": 46.378,
+          "end": 46.451
+        },
+        {
+          "word": "are",
+          "rel_start": 8.824,
+          "rel_end": 8.934,
+          "start": 46.451,
+          "end": 46.561
+        },
+        {
+          "word": "simply",
+          "rel_start": 8.934,
+          "rel_end": 9.412,
+          "start": 46.561,
+          "end": 47.039
+        },
+        {
+          "word": "added",
+          "rel_start": 9.412,
+          "rel_end": 9.681,
+          "start": 47.039,
+          "end": 47.309
+        },
+        {
+          "word": "together",
+          "rel_start": 9.694,
+          "rel_end": 10.233,
+          "start": 47.321,
+          "end": 47.86
+        }
+      ]
+    },
+    {
+      "id": "s06_threshold",
+      "act": 3,
+      "text": "Second, the cell holds a fixed threshold, theta. If the sum reaches theta, the neuron fires on the very next time step.",
+      "start": 48.269,
+      "end": 55.886,
+      "duration": 7.617,
+      "wav": "build/audio/segments/s06_threshold.wav",
+      "words": [
+        {
+          "word": "Second",
+          "rel_start": 0.11,
+          "rel_end": 0.539,
+          "start": 48.38,
+          "end": 48.809
+        },
+        {
+          "word": "the",
+          "rel_start": 0.944,
+          "rel_end": 1.029,
+          "start": 49.213,
+          "end": 49.299
+        },
+        {
+          "word": "cell",
+          "rel_start": 1.042,
+          "rel_end": 1.311,
+          "start": 49.311,
+          "end": 49.581
+        },
+        {
+          "word": "holds",
+          "rel_start": 1.311,
+          "rel_end": 1.544,
+          "start": 49.581,
+          "end": 49.813
+        },
+        {
+          "word": "a",
+          "rel_start": 1.544,
+          "rel_end": 1.605,
+          "start": 49.813,
+          "end": 49.875
+        },
+        {
+          "word": "fixed",
+          "rel_start": 1.605,
+          "rel_end": 2.022,
+          "start": 49.875,
+          "end": 50.291
+        },
+        {
+          "word": "threshold",
+          "rel_start": 2.034,
+          "rel_end": 2.623,
+          "start": 50.304,
+          "end": 50.892
+        },
+        {
+          "word": "theta",
+          "rel_start": 2.623,
+          "rel_end": 3.149,
+          "start": 50.892,
+          "end": 51.419
+        },
+        {
+          "word": "If",
+          "rel_start": 3.554,
+          "rel_end": 3.664,
+          "start": 51.823,
+          "end": 51.934
+        },
+        {
+          "word": "the",
+          "rel_start": 3.676,
+          "rel_end": 3.75,
+          "start": 51.946,
+          "end": 52.019
+        },
+        {
+          "word": "sum",
+          "rel_start": 3.762,
+          "rel_end": 4.142,
+          "start": 52.032,
+          "end": 52.412
+        },
+        {
+          "word": "reaches",
+          "rel_start": 4.142,
+          "rel_end": 4.645,
+          "start": 52.412,
+          "end": 52.914
+        },
+        {
+          "word": "theta",
+          "rel_start": 4.657,
+          "rel_end": 5.196,
+          "start": 52.926,
+          "end": 53.465
+        },
+        {
+          "word": "the",
+          "rel_start": 5.564,
+          "rel_end": 5.625,
+          "start": 53.833,
+          "end": 53.894
+        },
+        {
+          "word": "neuron",
+          "rel_start": 5.625,
+          "rel_end": 6.017,
+          "start": 53.894,
+          "end": 54.287
+        },
+        {
+          "word": "fires",
+          "rel_start": 6.029,
+          "rel_end": 6.471,
+          "start": 54.299,
+          "end": 54.74
+        },
+        {
+          "word": "on",
+          "rel_start": 6.471,
+          "rel_end": 6.532,
+          "start": 54.74,
+          "end": 54.801
+        },
+        {
+          "word": "the",
+          "rel_start": 6.532,
+          "rel_end": 6.581,
+          "start": 54.801,
+          "end": 54.85
+        },
+        {
+          "word": "very",
+          "rel_start": 6.593,
+          "rel_end": 6.912,
+          "start": 54.862,
+          "end": 55.181
+        },
+        {
+          "word": "next",
+          "rel_start": 6.912,
+          "rel_end": 7.145,
+          "start": 55.181,
+          "end": 55.414
+        },
+        {
+          "word": "time",
+          "rel_start": 7.145,
+          "rel_end": 7.365,
+          "start": 55.414,
+          "end": 55.635
+        },
+        {
+          "word": "step",
+          "rel_start": 7.365,
+          "rel_end": 7.745,
+          "start": 55.635,
+          "end": 56.014
+        }
+      ]
+    },
+    {
+      "id": "s07_inhibitory",
+      "act": 3,
+      "text": "Third, inhibitory inputs act as an absolute veto. Drawn as a small loop on the cell, a single active inhibitory input silences the neuron completely, no matter how strong the excitation.",
+      "start": 56.486,
+      "end": 70.303,
+      "duration": 13.817,
+      "wav": "build/audio/segments/s07_inhibitory.wav",
+      "words": [
+        {
+          "word": "Third",
+          "rel_start": 0.135,
+          "rel_end": 0.527,
+          "start": 56.621,
+          "end": 57.013
+        },
+        {
+          "word": "inhibitory",
+          "rel_start": 0.931,
+          "rel_end": 1.581,
+          "start": 57.418,
+          "end": 58.067
+        },
+        {
+          "word": "inputs",
+          "rel_start": 1.593,
+          "rel_end": 2.194,
+          "start": 58.079,
+          "end": 58.68
+        },
+        {
+          "word": "act",
+          "rel_start": 2.328,
+          "rel_end": 2.733,
+          "start": 58.815,
+          "end": 59.219
+        },
+        {
+          "word": "as",
+          "rel_start": 2.941,
+          "rel_end": 3.051,
+          "start": 59.428,
+          "end": 59.538
+        },
+        {
+          "word": "an",
+          "rel_start": 3.064,
+          "rel_end": 3.174,
+          "start": 59.55,
+          "end": 59.66
+        },
+        {
+          "word": "absolute",
+          "rel_start": 3.248,
+          "rel_end": 3.774,
+          "start": 59.734,
+          "end": 60.261
+        },
+        {
+          "word": "veto",
+          "rel_start": 3.775,
+          "rel_end": 4.289,
+          "start": 60.261,
+          "end": 60.776
+        },
+        {
+          "word": "Drawn",
+          "rel_start": 4.681,
+          "rel_end": 5.061,
+          "start": 61.168,
+          "end": 61.548
+        },
+        {
+          "word": "as",
+          "rel_start": 5.061,
+          "rel_end": 5.147,
+          "start": 61.548,
+          "end": 61.633
+        },
+        {
+          "word": "a",
+          "rel_start": 5.147,
+          "rel_end": 5.196,
+          "start": 61.633,
+          "end": 61.682
+        },
+        {
+          "word": "small",
+          "rel_start": 5.196,
+          "rel_end": 5.674,
+          "start": 61.682,
+          "end": 62.16
+        },
+        {
+          "word": "loop",
+          "rel_start": 5.686,
+          "rel_end": 6.029,
+          "start": 62.173,
+          "end": 62.516
+        },
+        {
+          "word": "on",
+          "rel_start": 6.042,
+          "rel_end": 6.14,
+          "start": 62.528,
+          "end": 62.626
+        },
+        {
+          "word": "the",
+          "rel_start": 6.152,
+          "rel_end": 6.225,
+          "start": 62.638,
+          "end": 62.712
+        },
+        {
+          "word": "cell",
+          "rel_start": 6.226,
+          "rel_end": 6.728,
+          "start": 62.712,
+          "end": 63.214
+        },
+        {
+          "word": "a",
+          "rel_start": 6.961,
+          "rel_end": 6.985,
+          "start": 63.447,
+          "end": 63.472
+        },
+        {
+          "word": "single",
+          "rel_start": 6.998,
+          "rel_end": 7.463,
+          "start": 63.484,
+          "end": 63.95
+        },
+        {
+          "word": "active",
+          "rel_start": 7.476,
+          "rel_end": 7.819,
+          "start": 63.962,
+          "end": 64.305
+        },
+        {
+          "word": "inhibitory",
+          "rel_start": 7.819,
+          "rel_end": 8.554,
+          "start": 64.305,
+          "end": 65.04
+        },
+        {
+          "word": "input",
+          "rel_start": 8.566,
+          "rel_end": 9.056,
+          "start": 65.052,
+          "end": 65.543
+        },
+        {
+          "word": "silences",
+          "rel_start": 9.252,
+          "rel_end": 9.951,
+          "start": 65.739,
+          "end": 66.437
+        },
+        {
+          "word": "the",
+          "rel_start": 9.951,
+          "rel_end": 10.037,
+          "start": 66.437,
+          "end": 66.523
+        },
+        {
+          "word": "neuron",
+          "rel_start": 10.037,
+          "rel_end": 10.637,
+          "start": 66.523,
+          "end": 67.124
+        },
+        {
+          "word": "completely",
+          "rel_start": 10.649,
+          "rel_end": 11.348,
+          "start": 67.136,
+          "end": 67.834
+        },
+        {
+          "word": "no",
+          "rel_start": 11.814,
+          "rel_end": 11.948,
+          "start": 68.3,
+          "end": 68.435
+        },
+        {
+          "word": "matter",
+          "rel_start": 11.949,
+          "rel_end": 12.255,
+          "start": 68.435,
+          "end": 68.741
+        },
+        {
+          "word": "how",
+          "rel_start": 12.255,
+          "rel_end": 12.402,
+          "start": 68.741,
+          "end": 68.888
+        },
+        {
+          "word": "strong",
+          "rel_start": 12.402,
+          "rel_end": 13.027,
+          "start": 68.888,
+          "end": 69.513
+        },
+        {
+          "word": "the",
+          "rel_start": 13.039,
+          "rel_end": 13.113,
+          "start": 69.526,
+          "end": 69.599
+        },
+        {
+          "word": "excitation",
+          "rel_start": 13.113,
+          "rel_end": 13.897,
+          "start": 69.599,
+          "end": 70.383
+        }
+      ]
+    },
+    {
+      "id": "s08_logic",
+      "act": 4,
+      "text": "Why does this matter? Because by tuning the threshold, this simple cell becomes a universal logic gate.",
+      "start": 71.103,
+      "end": 77.514,
+      "duration": 6.411,
+      "wav": "build/audio/segments/s08_logic.wav",
+      "words": [
+        {
+          "word": "Why",
+          "rel_start": 0.098,
+          "rel_end": 0.184,
+          "start": 71.201,
+          "end": 71.287
+        },
+        {
+          "word": "does",
+          "rel_start": 0.184,
+          "rel_end": 0.294,
+          "start": 71.287,
+          "end": 71.397
+        },
+        {
+          "word": "this",
+          "rel_start": 0.294,
+          "rel_end": 0.429,
+          "start": 71.397,
+          "end": 71.532
+        },
+        {
+          "word": "matter",
+          "rel_start": 0.429,
+          "rel_end": 0.833,
+          "start": 71.532,
+          "end": 71.936
+        },
+        {
+          "word": "Because",
+          "rel_start": 1.238,
+          "rel_end": 1.532,
+          "start": 72.341,
+          "end": 72.635
+        },
+        {
+          "word": "by",
+          "rel_start": 1.532,
+          "rel_end": 1.667,
+          "start": 72.635,
+          "end": 72.77
+        },
+        {
+          "word": "tuning",
+          "rel_start": 1.667,
+          "rel_end": 2.034,
+          "start": 72.77,
+          "end": 73.137
+        },
+        {
+          "word": "the",
+          "rel_start": 2.034,
+          "rel_end": 2.108,
+          "start": 73.137,
+          "end": 73.211
+        },
+        {
+          "word": "threshold",
+          "rel_start": 2.108,
+          "rel_end": 2.892,
+          "start": 73.211,
+          "end": 73.995
+        },
+        {
+          "word": "this",
+          "rel_start": 3.284,
+          "rel_end": 3.468,
+          "start": 74.387,
+          "end": 74.571
+        },
+        {
+          "word": "simple",
+          "rel_start": 3.468,
+          "rel_end": 3.946,
+          "start": 74.571,
+          "end": 75.049
+        },
+        {
+          "word": "cell",
+          "rel_start": 3.946,
+          "rel_end": 4.412,
+          "start": 75.049,
+          "end": 75.515
+        },
+        {
+          "word": "becomes",
+          "rel_start": 4.51,
+          "rel_end": 5.0,
+          "start": 75.613,
+          "end": 76.103
+        },
+        {
+          "word": "a",
+          "rel_start": 5.074,
+          "rel_end": 5.098,
+          "start": 76.177,
+          "end": 76.201
+        },
+        {
+          "word": "universal",
+          "rel_start": 5.098,
+          "rel_end": 5.735,
+          "start": 76.201,
+          "end": 76.838
+        },
+        {
+          "word": "logic",
+          "rel_start": 5.735,
+          "rel_end": 6.127,
+          "start": 76.838,
+          "end": 77.231
+        },
+        {
+          "word": "gate",
+          "rel_start": 6.14,
+          "rel_end": 6.495,
+          "start": 77.243,
+          "end": 77.598
+        }
+      ]
+    },
+    {
+      "id": "s09_or_and",
+      "act": 4,
+      "text": "Set theta to one with two inputs, and either signal triggers it: an OR gate. Raise theta to two, and both inputs must arrive together: an AND gate.",
+      "start": 78.014,
+      "end": 89.277,
+      "duration": 11.263,
+      "wav": "build/audio/segments/s09_or_and.wav",
+      "words": [
+        {
+          "word": "Set",
+          "rel_start": 0.086,
+          "rel_end": 0.331,
+          "start": 78.099,
+          "end": 78.345
+        },
+        {
+          "word": "theta",
+          "rel_start": 0.343,
+          "rel_end": 0.784,
+          "start": 78.357,
+          "end": 78.798
+        },
+        {
+          "word": "to",
+          "rel_start": 0.797,
+          "rel_end": 0.919,
+          "start": 78.81,
+          "end": 78.933
+        },
+        {
+          "word": "one",
+          "rel_start": 0.919,
+          "rel_end": 1.336,
+          "start": 78.933,
+          "end": 79.349
+        },
+        {
+          "word": "with",
+          "rel_start": 1.348,
+          "rel_end": 1.52,
+          "start": 79.362,
+          "end": 79.533
+        },
+        {
+          "word": "two",
+          "rel_start": 1.52,
+          "rel_end": 1.789,
+          "start": 79.533,
+          "end": 79.803
+        },
+        {
+          "word": "inputs",
+          "rel_start": 1.801,
+          "rel_end": 2.537,
+          "start": 79.815,
+          "end": 80.55
+        },
+        {
+          "word": "and",
+          "rel_start": 2.77,
+          "rel_end": 3.039,
+          "start": 80.783,
+          "end": 81.053
+        },
+        {
+          "word": "either",
+          "rel_start": 3.235,
+          "rel_end": 3.48,
+          "start": 81.249,
+          "end": 81.494
+        },
+        {
+          "word": "signal",
+          "rel_start": 3.493,
+          "rel_end": 3.848,
+          "start": 81.506,
+          "end": 81.862
+        },
+        {
+          "word": "triggers",
+          "rel_start": 3.86,
+          "rel_end": 4.252,
+          "start": 81.874,
+          "end": 82.266
+        },
+        {
+          "word": "it",
+          "rel_start": 4.265,
+          "rel_end": 4.412,
+          "start": 82.278,
+          "end": 82.425
+        },
+        {
+          "word": "an",
+          "rel_start": 4.963,
+          "rel_end": 5.086,
+          "start": 82.977,
+          "end": 83.099
+        },
+        {
+          "word": "OR",
+          "rel_start": 5.086,
+          "rel_end": 5.196,
+          "start": 83.099,
+          "end": 83.21
+        },
+        {
+          "word": "gate",
+          "rel_start": 5.208,
+          "rel_end": 5.613,
+          "start": 83.222,
+          "end": 83.626
+        },
+        {
+          "word": "Raise",
+          "rel_start": 6.005,
+          "rel_end": 6.373,
+          "start": 84.019,
+          "end": 84.386
+        },
+        {
+          "word": "theta",
+          "rel_start": 6.385,
+          "rel_end": 6.752,
+          "start": 84.398,
+          "end": 84.766
+        },
+        {
+          "word": "to",
+          "rel_start": 6.936,
+          "rel_end": 7.059,
+          "start": 84.95,
+          "end": 85.072
+        },
+        {
+          "word": "two",
+          "rel_start": 7.071,
+          "rel_end": 7.61,
+          "start": 85.085,
+          "end": 85.624
+        },
+        {
+          "word": "and",
+          "rel_start": 7.892,
+          "rel_end": 8.015,
+          "start": 85.906,
+          "end": 86.028
+        },
+        {
+          "word": "both",
+          "rel_start": 8.027,
+          "rel_end": 8.346,
+          "start": 86.041,
+          "end": 86.359
+        },
+        {
+          "word": "inputs",
+          "rel_start": 8.358,
+          "rel_end": 8.909,
+          "start": 86.372,
+          "end": 86.923
+        },
+        {
+          "word": "must",
+          "rel_start": 9.02,
+          "rel_end": 9.277,
+          "start": 87.033,
+          "end": 87.291
+        },
+        {
+          "word": "arrive",
+          "rel_start": 9.289,
+          "rel_end": 9.718,
+          "start": 87.303,
+          "end": 87.732
+        },
+        {
+          "word": "together",
+          "rel_start": 9.718,
+          "rel_end": 10.159,
+          "start": 87.732,
+          "end": 88.173
+        },
+        {
+          "word": "an",
+          "rel_start": 10.711,
+          "rel_end": 10.76,
+          "start": 88.724,
+          "end": 88.773
+        },
+        {
+          "word": "AND",
+          "rel_start": 10.76,
+          "rel_end": 10.858,
+          "start": 88.773,
+          "end": 88.871
+        },
+        {
+          "word": "gate",
+          "rel_start": 10.858,
+          "rel_end": 11.323,
+          "start": 88.872,
+          "end": 89.337
+        }
+      ]
+    },
+    {
+      "id": "s10_not_net",
+      "act": 4,
+      "text": "Attach an inhibitory veto, and you get NOT. Chain these cells into a network, and they can compute any logical proposition.",
+      "start": 89.777,
+      "end": 97.552,
+      "duration": 7.776,
+      "wav": "build/audio/segments/s10_not_net.wav",
+      "words": [
+        {
+          "word": "Attach",
+          "rel_start": 0.098,
+          "rel_end": 0.453,
+          "start": 89.875,
+          "end": 90.23
+        },
+        {
+          "word": "an",
+          "rel_start": 0.466,
+          "rel_end": 0.515,
+          "start": 90.242,
+          "end": 90.291
+        },
+        {
+          "word": "inhibitory",
+          "rel_start": 0.515,
+          "rel_end": 1.091,
+          "start": 90.291,
+          "end": 90.867
+        },
+        {
+          "word": "veto",
+          "rel_start": 1.103,
+          "rel_end": 1.618,
+          "start": 90.88,
+          "end": 91.394
+        },
+        {
+          "word": "and",
+          "rel_start": 1.863,
+          "rel_end": 1.998,
+          "start": 91.64,
+          "end": 91.774
+        },
+        {
+          "word": "you",
+          "rel_start": 1.998,
+          "rel_end": 2.096,
+          "start": 91.774,
+          "end": 91.872
+        },
+        {
+          "word": "get",
+          "rel_start": 2.096,
+          "rel_end": 2.255,
+          "start": 91.872,
+          "end": 92.032
+        },
+        {
+          "word": "NOT",
+          "rel_start": 2.255,
+          "rel_end": 2.647,
+          "start": 92.032,
+          "end": 92.424
+        },
+        {
+          "word": "Chain",
+          "rel_start": 3.039,
+          "rel_end": 3.309,
+          "start": 92.816,
+          "end": 93.086
+        },
+        {
+          "word": "these",
+          "rel_start": 3.309,
+          "rel_end": 3.529,
+          "start": 93.086,
+          "end": 93.306
+        },
+        {
+          "word": "cells",
+          "rel_start": 3.542,
+          "rel_end": 4.093,
+          "start": 93.318,
+          "end": 93.87
+        },
+        {
+          "word": "into",
+          "rel_start": 4.191,
+          "rel_end": 4.51,
+          "start": 93.968,
+          "end": 94.287
+        },
+        {
+          "word": "a",
+          "rel_start": 4.51,
+          "rel_end": 4.547,
+          "start": 94.287,
+          "end": 94.323
+        },
+        {
+          "word": "network",
+          "rel_start": 4.547,
+          "rel_end": 5.123,
+          "start": 94.323,
+          "end": 94.899
+        },
+        {
+          "word": "and",
+          "rel_start": 5.478,
+          "rel_end": 5.527,
+          "start": 95.255,
+          "end": 95.304
+        },
+        {
+          "word": "they",
+          "rel_start": 5.527,
+          "rel_end": 5.625,
+          "start": 95.304,
+          "end": 95.402
+        },
+        {
+          "word": "can",
+          "rel_start": 5.625,
+          "rel_end": 5.76,
+          "start": 95.402,
+          "end": 95.537
+        },
+        {
+          "word": "compute",
+          "rel_start": 5.76,
+          "rel_end": 6.287,
+          "start": 95.537,
+          "end": 96.063
+        },
+        {
+          "word": "any",
+          "rel_start": 6.434,
+          "rel_end": 6.605,
+          "start": 96.211,
+          "end": 96.382
+        },
+        {
+          "word": "logical",
+          "rel_start": 6.605,
+          "rel_end": 7.132,
+          "start": 96.382,
+          "end": 96.909
+        },
+        {
+          "word": "proposition",
+          "rel_start": 7.145,
+          "rel_end": 7.831,
+          "start": 96.921,
+          "end": 97.608
+        }
+      ]
+    },
+    {
+      "id": "s11_limits",
+      "act": 5,
+      "text": "Yet the model had a fatal flaw. Every input had equal strength, and every threshold had to be wired by hand. A McCulloch-Pitts neuron could compute, but it could never learn.",
+      "start": 98.352,
+      "end": 109.396,
+      "duration": 11.044,
+      "wav": "build/audio/segments/s11_limits.wav",
+      "words": [
+        {
+          "word": "Yet",
+          "rel_start": 0.086,
+          "rel_end": 0.184,
+          "start": 98.438,
+          "end": 98.536
+        },
+        {
+          "word": "the",
+          "rel_start": 0.184,
+          "rel_end": 0.245,
+          "start": 98.536,
+          "end": 98.598
+        },
+        {
+          "word": "model",
+          "rel_start": 0.245,
+          "rel_end": 0.6,
+          "start": 98.598,
+          "end": 98.953
+        },
+        {
+          "word": "had",
+          "rel_start": 0.601,
+          "rel_end": 0.76,
+          "start": 98.953,
+          "end": 99.112
+        },
+        {
+          "word": "a",
+          "rel_start": 0.76,
+          "rel_end": 0.797,
+          "start": 99.112,
+          "end": 99.149
+        },
+        {
+          "word": "fatal",
+          "rel_start": 0.797,
+          "rel_end": 1.225,
+          "start": 99.149,
+          "end": 99.578
+        },
+        {
+          "word": "flaw",
+          "rel_start": 1.226,
+          "rel_end": 1.679,
+          "start": 99.578,
+          "end": 100.031
+        },
+        {
+          "word": "Every",
+          "rel_start": 2.047,
+          "rel_end": 2.377,
+          "start": 100.399,
+          "end": 100.73
+        },
+        {
+          "word": "input",
+          "rel_start": 2.377,
+          "rel_end": 2.843,
+          "start": 100.73,
+          "end": 101.196
+        },
+        {
+          "word": "had",
+          "rel_start": 2.855,
+          "rel_end": 3.137,
+          "start": 101.208,
+          "end": 101.49
+        },
+        {
+          "word": "equal",
+          "rel_start": 3.309,
+          "rel_end": 3.591,
+          "start": 101.661,
+          "end": 101.943
+        },
+        {
+          "word": "strength",
+          "rel_start": 3.591,
+          "rel_end": 4.191,
+          "start": 101.943,
+          "end": 102.544
+        },
+        {
+          "word": "and",
+          "rel_start": 4.412,
+          "rel_end": 4.608,
+          "start": 102.764,
+          "end": 102.96
+        },
+        {
+          "word": "every",
+          "rel_start": 4.73,
+          "rel_end": 5.049,
+          "start": 103.083,
+          "end": 103.401
+        },
+        {
+          "word": "threshold",
+          "rel_start": 5.061,
+          "rel_end": 5.711,
+          "start": 103.414,
+          "end": 104.063
+        },
+        {
+          "word": "had",
+          "rel_start": 5.723,
+          "rel_end": 5.919,
+          "start": 104.075,
+          "end": 104.272
+        },
+        {
+          "word": "to",
+          "rel_start": 5.919,
+          "rel_end": 5.956,
+          "start": 104.272,
+          "end": 104.308
+        },
+        {
+          "word": "be",
+          "rel_start": 5.956,
+          "rel_end": 6.091,
+          "start": 104.308,
+          "end": 104.443
+        },
+        {
+          "word": "wired",
+          "rel_start": 6.091,
+          "rel_end": 6.532,
+          "start": 104.443,
+          "end": 104.884
+        },
+        {
+          "word": "by",
+          "rel_start": 6.532,
+          "rel_end": 6.679,
+          "start": 104.884,
+          "end": 105.031
+        },
+        {
+          "word": "hand",
+          "rel_start": 6.679,
+          "rel_end": 7.206,
+          "start": 105.031,
+          "end": 105.558
+        },
+        {
+          "word": "A",
+          "rel_start": 7.586,
+          "rel_end": 7.623,
+          "start": 105.938,
+          "end": 105.975
+        },
+        {
+          "word": "McCulloch-Pitts",
+          "rel_start": 7.635,
+          "rel_end": 8.382,
+          "start": 105.987,
+          "end": 106.735
+        },
+        {
+          "word": "neuron",
+          "rel_start": 8.395,
+          "rel_end": 8.909,
+          "start": 106.747,
+          "end": 107.262
+        },
+        {
+          "word": "could",
+          "rel_start": 8.909,
+          "rel_end": 9.093,
+          "start": 107.262,
+          "end": 107.446
+        },
+        {
+          "word": "compute",
+          "rel_start": 9.093,
+          "rel_end": 9.632,
+          "start": 107.446,
+          "end": 107.985
+        },
+        {
+          "word": "but",
+          "rel_start": 10.037,
+          "rel_end": 10.159,
+          "start": 108.389,
+          "end": 108.512
+        },
+        {
+          "word": "it",
+          "rel_start": 10.159,
+          "rel_end": 10.233,
+          "start": 108.512,
+          "end": 108.585
+        },
+        {
+          "word": "could",
+          "rel_start": 10.245,
+          "rel_end": 10.392,
+          "start": 108.598,
+          "end": 108.745
+        },
+        {
+          "word": "never",
+          "rel_start": 10.392,
+          "rel_end": 10.723,
+          "start": 108.745,
+          "end": 109.075
+        },
+        {
+          "word": "learn",
+          "rel_start": 10.723,
+          "rel_end": 11.103,
+          "start": 109.075,
+          "end": 109.455
+        }
+      ]
+    },
+    {
+      "id": "s12_outro",
+      "act": 5,
+      "text": "Still, by translating living cells into pure logic, McCulloch and Pitts laid the cornerstone for everything that followed: from the Perceptron to modern deep learning.",
+      "start": 109.996,
+      "end": 120.273,
+      "duration": 10.277,
+      "wav": "build/audio/segments/s12_outro.wav",
+      "words": [
+        {
+          "word": "Still",
+          "rel_start": 0.098,
+          "rel_end": 0.515,
+          "start": 110.094,
+          "end": 110.511
+        },
+        {
+          "word": "by",
+          "rel_start": 0.711,
+          "rel_end": 0.858,
+          "start": 110.707,
+          "end": 110.854
+        },
+        {
+          "word": "translating",
+          "rel_start": 0.944,
+          "rel_end": 1.691,
+          "start": 110.94,
+          "end": 111.687
+        },
+        {
+          "word": "living",
+          "rel_start": 1.703,
+          "rel_end": 2.01,
+          "start": 111.7,
+          "end": 112.006
+        },
+        {
+          "word": "cells",
+          "rel_start": 2.01,
+          "rel_end": 2.512,
+          "start": 112.006,
+          "end": 112.509
+        },
+        {
+          "word": "into",
+          "rel_start": 2.586,
+          "rel_end": 2.892,
+          "start": 112.582,
+          "end": 112.888
+        },
+        {
+          "word": "pure",
+          "rel_start": 2.904,
+          "rel_end": 3.297,
+          "start": 112.901,
+          "end": 113.293
+        },
+        {
+          "word": "logic",
+          "rel_start": 3.297,
+          "rel_end": 3.934,
+          "start": 113.293,
+          "end": 113.93
+        },
+        {
+          "word": "McCulloch",
+          "rel_start": 4.154,
+          "rel_end": 4.694,
+          "start": 114.151,
+          "end": 114.69
+        },
+        {
+          "word": "and",
+          "rel_start": 4.816,
+          "rel_end": 4.939,
+          "start": 114.812,
+          "end": 114.935
+        },
+        {
+          "word": "Pitts",
+          "rel_start": 4.951,
+          "rel_end": 5.576,
+          "start": 114.947,
+          "end": 115.572
+        },
+        {
+          "word": "laid",
+          "rel_start": 5.686,
+          "rel_end": 5.919,
+          "start": 115.683,
+          "end": 115.915
+        },
+        {
+          "word": "the",
+          "rel_start": 5.931,
+          "rel_end": 5.993,
+          "start": 115.928,
+          "end": 115.989
+        },
+        {
+          "word": "cornerstone",
+          "rel_start": 5.993,
+          "rel_end": 6.618,
+          "start": 115.989,
+          "end": 116.614
+        },
+        {
+          "word": "for",
+          "rel_start": 6.63,
+          "rel_end": 6.826,
+          "start": 116.626,
+          "end": 116.822
+        },
+        {
+          "word": "everything",
+          "rel_start": 6.936,
+          "rel_end": 7.451,
+          "start": 116.933,
+          "end": 117.447
+        },
+        {
+          "word": "that",
+          "rel_start": 7.463,
+          "rel_end": 7.598,
+          "start": 117.46,
+          "end": 117.594
+        },
+        {
+          "word": "followed",
+          "rel_start": 7.598,
+          "rel_end": 8.064,
+          "start": 117.594,
+          "end": 118.06
+        },
+        {
+          "word": "from",
+          "rel_start": 8.505,
+          "rel_end": 8.615,
+          "start": 118.501,
+          "end": 118.612
+        },
+        {
+          "word": "the",
+          "rel_start": 8.615,
+          "rel_end": 8.676,
+          "start": 118.612,
+          "end": 118.673
+        },
+        {
+          "word": "Perceptron",
+          "rel_start": 8.676,
+          "rel_end": 9.363,
+          "start": 118.673,
+          "end": 119.359
+        },
+        {
+          "word": "to",
+          "rel_start": 9.363,
+          "rel_end": 9.449,
+          "start": 119.359,
+          "end": 119.445
+        },
+        {
+          "word": "modern",
+          "rel_start": 9.449,
+          "rel_end": 9.841,
+          "start": 119.445,
+          "end": 119.837
+        },
+        {
+          "word": "deep",
+          "rel_start": 9.841,
+          "rel_end": 10.049,
+          "start": 119.837,
+          "end": 120.045
+        },
+        {
+          "word": "learning",
+          "rel_start": 10.049,
+          "rel_end": 10.404,
+          "start": 120.045,
+          "end": 120.401
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gsauce</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="studio-shell">
+    <!-- TOP STUDIO BAR -->
+    <header class="topbar">
+      <div class="brand-group">
+        <span class="brand-title">G<span class="brand-accent">SAUCE</span></span>
+      </div>
+
+      <div class="topbar-center">
+        <button id="btnModePrompt" class="tool-pill active" title="Start a new creation from a text prompt">
+          NEW PROMPT
+        </button>
+        <button id="btnModeCanvas" class="tool-pill" title="Inspect canvas, frame layers & transcript">
+          STAGE
+        </button>
+        <div class="divider-v"></div>
+        <button id="btnToolScrub" class="tool-pill subtle active" title="Scrub & play video/frames">
+          PLAY
+        </button>
+        <button id="btnToolMark" class="tool-pill subtle" title="Drag a box on a frame to mark what to fix">
+          MARK REGION
+        </button>
+      </div>
+
+      <div class="topbar-right">
+        <span id="activeStatusBadge" class="status-badge">READY</span>
+      </div>
+    </header>
+
+    <!-- MAIN WORKSPACE: MENU 1 (LEFT) + CENTRAL STAGE + MENU 2 (RIGHT) -->
+    <div class="workspace-grid">
+      <!-- MENU 1: CREATIONS SIDEBAR -->
+      <aside class="panel panel-left">
+        <div class="panel-header">
+          <span class="panel-title">CREATIONS</span>
+          <button id="btnNewCreation" class="btn-crayola-sm">NEW</button>
+        </div>
+        <div class="creations-list" id="creationsList">
+          <!-- Populated dynamically -->
+        </div>
+      </aside>
+
+      <!-- CENTRAL STAGE -->
+      <main class="stage-area">
+        <!-- VIEW A: NEW PROMPT COMPOSER -->
+        <section id="promptComposerView" class="prompt-composer">
+          <div class="poster-card">
+            <h1 class="poster-heading">WHAT SHOULD WE EXPLAIN?</h1>
+            <p class="poster-sub">
+              Give it a topic. You get a narrated 9:16 explainer, checked scene by scene.
+            </p>
+
+            <div class="prompt-box-wrap">
+              <textarea
+                id="topicInput"
+                class="prompt-textarea"
+                rows="2"
+                placeholder="Topic"
+              ></textarea>
+
+              <div class="prompt-controls">
+                <div class="control-group">
+                  <label>STYLE</label>
+                  <div class="pill-group" id="styleSelector">
+                    <button type="button" data-style="risograph" class="opt-pill active">Risograph</button>
+                    <button type="button" data-style="watercolor" class="opt-pill">Watercolor</button>
+                    <button type="button" data-style="line" class="opt-pill">Line Drawing</button>
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <label>DURATION</label>
+                  <div class="pill-group" id="durationSelector">
+                    <button type="button" data-duration="30" class="opt-pill">30s</button>
+                    <button type="button" data-duration="60" class="opt-pill">60s</button>
+                    <button type="button" data-duration="120" class="opt-pill active">120s</button>
+                    <button type="button" data-duration="180" class="opt-pill">180s</button>
+                  </div>
+                </div>
+
+                <button id="btnCreateTopic" class="btn-crayola-lg">
+                  CREATE
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- VIEW B: ACTIVE CREATION CANVAS + MARK-OUT OVERLAY -->
+        <section id="canvasStageView" class="canvas-stage hidden">
+          <div class="stage-toolbar">
+            <div class="stage-crumb">
+              <span id="stageCreationTitle" class="crumb-title"></span>
+              <span id="stageSceneBadge" class="crumb-scene">SCENE 1</span>
+              <span id="stageFrameCounter" class="crumb-mono"></span>
+            </div>
+            <div class="stage-view-modes">
+              <button id="btnViewVideo" class="mini-btn active">Video Player</button>
+              <button id="btnViewFrame" class="mini-btn">Frame Layer Still</button>
+              <button id="btnClearMark" class="mini-btn hidden">Clear Box</button>
+            </div>
+          </div>
+
+          <div class="viewport-container">
+            <div id="viewportFrameWrap" class="viewport-frame">
+              <video id="stageVideo" class="stage-media" controls playsinline></video>
+              <img id="stageImage" class="stage-media hidden" alt="Selected Frame Layer" />
+              <!-- Interactive Mark-Out Lasso / Box Layer -->
+              <div id="markOverlay" class="mark-overlay" title="Drag to mark a region to fix">
+                <div id="markSelectionBox" class="mark-box hidden">
+                  <span id="markCoordsLabel" class="mark-coords">x:0 y:0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SURGICAL ACTION BAR (FOR MARKED FRAME OR SELECTED AUDIO SEGMENT) -->
+          <div class="surgical-bar">
+            <div class="surgical-context" id="surgicalContextBadge">
+              <span class="target-dot"></span>
+              <span id="surgicalTargetText">FRAME @ 0.00s</span>
+            </div>
+            <input
+              id="surgicalPromptInput"
+              type="text"
+              class="surgical-input"
+              placeholder="Describe the fix"
+            />
+            <button id="btnApplyFrameFix" class="btn-crayola-sm">
+              FIX FRAME
+            </button>
+            <button id="btnApplyAudioFix" class="btn-gunmetal-sm hidden">
+              UPDATE VOICE &amp; TIMING
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <!-- MENU 2: SCENE, ANCHOR & FLASH INSPECTOR -->
+      <aside class="panel panel-right">
+        <div class="panel-header">
+          <span class="panel-title">INSPECTOR</span>
+          <div class="tab-strip">
+            <button id="tabBtnScenes" class="tab-btn active">Scenes</button>
+            <button id="tabBtnCode" class="tab-btn">scene.js</button>
+          </div>
+        </div>
+
+        <!-- TAB 1: SCENES, BOUNDARY STITCHES, FLASH FINDINGS & ANCHORS -->
+        <div id="inspectorScenesTab" class="inspector-body">
+          <div class="inspector-section">
+            <div class="sec-title">SCENES</div>
+            <div id="sceneCutList" class="scene-cut-list"></div>
+          </div>
+
+          <div class="inspector-section">
+            <div class="sec-title">HANDOFF ANCHORS</div>
+            <div id="anchorCard" class="anchor-card"></div>
+          </div>
+
+          <div class="inspector-section">
+            <div class="sec-title">REVIEW FINDINGS</div>
+            <div id="findingsList" class="findings-list"></div>
+          </div>
+        </div>
+
+        <!-- TAB 2: SCENE CODE VIEWER / SURGICAL EDITOR -->
+        <div id="inspectorCodeTab" class="inspector-body hidden">
+          <div class="code-toolbar">
+            <span id="codeSceneLabel" class="crumb-mono">scene.js</span>
+            <button id="btnSaveCode" class="btn-crayola-sm">Save &amp; Patch</button>
+          </div>
+          <textarea id="sceneCodeEditor" class="code-editor" spellcheck="false"></textarea>
+        </div>
+      </aside>
+    </div>
+
+    <!-- BOTTOM DOCK: HORIZONTAL FRAME LAYERS + AUDIO/TRANSCRIPT TIMELINE -->
+    <footer class="timeline-dock">
+      <div class="timeline-header">
+        <div class="tl-title-group">
+          <span class="panel-title">TIMELINE</span>
+          <span id="timelineStats" class="crumb-mono"></span>
+        </div>
+        <div class="tl-controls">
+          <label class="tl-filter-label">DENSITY</label>
+          <select id="frameStepSelect" class="tl-select">
+            <option value="24">Every 1.0s (24f)</option>
+            <option value="12" selected>Every 0.5s (12f)</option>
+            <option value="6">Every 0.25s (6f)</option>
+            <option value="1">All Individual Frames (1f)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="timeline-scroll-container" id="timelineScroll">
+        <!-- TRACK 1: INDIVIDUAL FRAME LAYERS -->
+        <div class="track-row">
+          <div class="track-label">
+            <span class="track-name">FRAMES</span>
+          </div>
+          <div id="frameTrackStrip" class="frame-track-strip"></div>
+        </div>
+
+        <!-- TRACK 2: AUDIO / TRANSCRIPT RIBBON -->
+        <div class="track-row track-audio">
+          <div class="track-label">
+            <span class="track-name">AUDIO</span>
+          </div>
+          <div id="audioTrackStrip" class="audio-track-strip"></div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
