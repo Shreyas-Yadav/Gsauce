@@ -45,8 +45,11 @@
       <!-- MENU 1: CREATIONS SIDEBAR -->
       <aside class="panel panel-left">
         <div class="panel-header">
-          <span class="panel-title">CREATIONS</span>
-          <button id="btnNewCreation" class="btn-crayola-sm">NEW</button>
+          <span id="creationsTitle" class="panel-title">CREATIONS</span>
+          <div class="panel-actions">
+            <button id="btnToggleArchived" class="text-btn-sm hidden">ARCHIVED</button>
+            <button id="btnNewCreation" class="btn-crayola-sm">NEW</button>
+          </div>
         </div>
         <div class="creations-list" id="creationsList">
           <!-- Populated dynamically -->
@@ -155,13 +158,43 @@
         <div class="panel-header">
           <span class="panel-title">INSPECTOR</span>
           <div class="tab-strip">
-            <button id="tabBtnScenes" class="tab-btn active">Scenes</button>
+            <button id="tabBtnProgress" class="tab-btn active">Progress</button>
+            <button id="tabBtnScenes" class="tab-btn">Scenes</button>
             <button id="tabBtnCode" class="tab-btn">scene.js</button>
           </div>
         </div>
 
+        <!-- TAB 0: GENERATION PROGRESS, AGENT ACTIVITY & RESUME -->
+        <div id="inspectorProgressTab" class="inspector-body">
+          <div id="progressSummary" class="progress-summary"></div>
+          <div id="progressStop" class="progress-stop hidden">
+            <div class="sec-title">STOPPED</div>
+            <div id="progressStopReason" class="progress-reason"></div>
+            <div class="control-group">
+              <label>ADD REQUESTS</label>
+              <div class="pill-group" id="extraCallsSelector">
+                <button type="button" data-calls="0" class="opt-pill active">None</button>
+                <button type="button" data-calls="10" class="opt-pill">+10</button>
+                <button type="button" data-calls="20" class="opt-pill">+20</button>
+              </div>
+            </div>
+            <label id="reviewRetryOption" class="check-option hidden">
+              <input id="reviewRetryCheck" type="checkbox" /> Approve one Flash review retry
+            </label>
+            <button id="btnResumeGeneration" class="btn-crayola-sm">RESUME</button>
+          </div>
+          <div class="inspector-section">
+            <div class="sec-title">PIPELINE</div>
+            <div id="progressPipeline" class="progress-list"></div>
+          </div>
+          <div class="inspector-section">
+            <div class="sec-title">AGENT ACTIVITY</div>
+            <div id="progressRequests" class="progress-list"></div>
+          </div>
+        </div>
+
         <!-- TAB 1: SCENES, BOUNDARY STITCHES, FLASH FINDINGS & ANCHORS -->
-        <div id="inspectorScenesTab" class="inspector-body">
+        <div id="inspectorScenesTab" class="inspector-body hidden">
           <div class="inspector-section">
             <div class="sec-title">SCENES</div>
             <div id="sceneCutList" class="scene-cut-list"></div>

@@ -938,10 +938,227 @@ html, body {
   color: var(--red);
 }
 
+.creation-card {
+  position: relative;
+  align-items: center;
+}
+
+.creation-action {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  padding: 4px 0 4px 10px;
+  background: var(--black);
+  box-shadow: -10px 0 10px var(--black);
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 0.8px;
+  color: var(--beige-dim);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease, color 0.12s ease;
+}
+
+.creation-card:hover .creation-action,
+.creation-action:focus-visible {
+  opacity: 1;
+}
+
+.creation-action:hover {
+  color: var(--beige);
+  border-bottom-color: var(--red);
+}
+
+.creations-empty {
+  padding: 10px 18px;
+  font-size: 13px;
+  color: var(--beige-dim);
+}
+
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.text-btn-sm {
+  padding: 2px 0;
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.8px;
+  color: var(--beige-dim);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.text-btn-sm:hover {
+  color: var(--beige);
+  border-bottom-color: var(--red);
+}
+
 .prompt-textarea:focus {
   border-bottom-color: var(--red);
 }
 
 .prompt-textarea::placeholder {
   color: var(--beige-dim);
+}
+
+/* GENERATION PROGRESS */
+.progress-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-headline {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.8px;
+  color: var(--beige);
+}
+
+.budget-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--beige-muted);
+}
+
+.budget-track {
+  height: 4px;
+  background: var(--black-border);
+}
+
+.budget-fill {
+  height: 100%;
+  background: var(--red);
+  transition: width 0.3s ease;
+}
+
+.progress-stop {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 12px;
+  border-left: 4px solid var(--red);
+}
+
+.progress-stop .sec-title {
+  margin-bottom: 0;
+  color: var(--red);
+}
+
+.progress-reason {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--beige);
+}
+
+.progress-stop .pill-group {
+  gap: 14px;
+}
+
+.progress-stop .opt-pill {
+  font-size: 13px;
+}
+
+.progress-stop .btn-crayola-sm {
+  align-self: flex-start;
+  padding: 8px 18px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.progress-stop .btn-crayola-sm:disabled {
+  background: var(--black-border);
+  color: var(--beige-dim);
+  cursor: default;
+}
+
+.check-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--beige);
+  cursor: pointer;
+}
+
+.check-option input {
+  accent-color: var(--red);
+}
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.progress-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--beige);
+}
+
+.progress-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.progress-detail {
+  font-weight: 600;
+  color: var(--beige-dim);
+}
+
+.progress-status {
+  flex-shrink: 0;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--beige-dim);
+}
+
+.progress-status.status-passed { color: var(--beige-muted); }
+.progress-status.status-running { color: var(--red); }
+.progress-status.status-invalid,
+.progress-status.status-failed,
+.progress-status.status-uncertain { color: var(--red); }
+
+.progress-scene {
+  margin-top: 10px;
+  padding-top: 8px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: 0.6px;
+  color: var(--beige);
+}
+
+.progress-note {
+  padding: 0 0 4px 12px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--beige-dim);
+}
+
+.request-failed .progress-label {
+  color: var(--red);
 }

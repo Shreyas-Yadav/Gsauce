@@ -35,3 +35,12 @@ Create in the studio runs the same `lit.js create` pipeline as a background
 process (at most two at once). The studio polls
 `GET /api/creations/:id/status` for the current stage and log, and Stop calls
 `POST /api/creations/:id/cancel`.
+
+The Progress tab (`GET /api/creations/:id/progress`) shows the request budget,
+each pipeline stage per scene, and every Argon and Flash request. When a run
+stops, Resume (`POST /api/creations/:id/resume`) restarts it from where it left
+off. It can raise the request budget by up to 50 (logged as an approved
+increase) and approve one uncertain Flash review retry.
+
+Archive hides a creation from the list without touching its run folder; the ids
+are kept in `build/runs/studio-archive.json`.

@@ -17,12 +17,13 @@ function createJobRunner({ spawn = childProcess.spawn, script = join(PROJECT, "t
   const projectRoot = (id) => noSymlinks(PROJECT, join(runs, "projects", id));
   const running = () => [...jobs.values()].filter((job) => job.running).length;
 
-  function start({ id, topic, duration, style }) {
+  function start({ id, topic, duration, style, approveReviewRetry = false }) {
     if (jobs.get(id)?.running) throw Object.assign(new Error("Generation is already running for this creation."), { status: 409 });
     if (running() >= maxConcurrent) throw Object.assign(new Error(`At most ${maxConcurrent} generations can run at once.`), { status: 429 });
 
     const args = [script, "create", topic, `--id=${id}`, `--duration=${duration}`];
     if (style) args.push(`--style=${style}`);
+    if (approveReviewRetry) args.push("--approve-review-retry");
     const child = spawn(process.execPath, args, { cwd: PROJECT, env: process.env, stdio: ["ignore", "pipe", "pipe"] });
 
     const logPath = join(projectRoot(id), LOG_FILE);
@@ -69,7 +70,7 @@ function createJobRunner({ spawn = childProcess.spawn, script = join(PROJECT, "t
     };
   }
 
-  return { start, cancel, status, isRunning: (id) => Boolean(jobs.get(id)?.running) };
+  return { start, cancel, status, job: (id) => (jobs.has(id) ? publicJob(jobs.get(id)) : null), isRunning: (id) => Boolean(jobs.get(id)?.running) };
 }
 
 function publicJob({ child, ...job }) {

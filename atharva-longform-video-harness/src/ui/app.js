@@ -1,5 +1,7 @@
 const state = {
   creations: [],
+  showArchived: false,
+  archivedCount: 0,
   activeCreation: null,
   activeSceneId: null,
   selectedFrame: null,
@@ -10,7 +12,9 @@ const state = {
   selectedStyle: "risograph",
   selectedDuration: 120,
   frameStep: 12,
-  poll: null // { id, timer, lastStatus }
+  poll: null, // { id, timer, lastStatus }
+  progress: null,
+  extraCalls: 0
 };
 
 const POLL_MS = 3000;
@@ -33,15 +37,35 @@ function fmtTime(sec) {
 }
 
 async function fetchCreations() {
-  const res = await fetch("/api/creations");
+  const res = await fetch(state.showArchived ? "/api/creations?archived=1" : "/api/creations");
   const data = await res.json();
   state.creations = data.creations || [];
+  state.archivedCount = data.archivedCount || 0;
   renderCreationsMenu();
+}
+
+async function setArchived(id, archived) {
+  const res = await fetch(`/api/creations/${encodeURIComponent(id)}/${archived ? "archive" : "restore"}`, { method: "POST" });
+  const data = await res.json();
+  if (!res.ok) return showToast(data.error || "Could not update the archive.");
+  await fetchCreations();
+  showToast(archived ? "Archived." : "Restored.");
+}
+
+function toggleArchivedView() {
+  state.showArchived = !state.showArchived;
+  fetchCreations();
 }
 
 function renderCreationsMenu() {
   const list = el("creationsList");
   list.innerHTML = "";
+  el("creationsTitle").textContent = state.showArchived ? "ARCHIVED" : "CREATIONS";
+  el("btnToggleArchived").textContent = state.showArchived ? "BACK" : `ARCHIVED ${state.archivedCount}`;
+  el("btnToggleArchived").classList.toggle("hidden", !state.showArchived && state.archivedCount === 0);
+  if (!state.creations.length) {
+    list.innerHTML = `<div class="creations-empty">${state.showArchived ? "Nothing archived." : "No creations yet."}</div>`;
+  }
   for (const item of state.creations) {
     const card = document.createElement("div");
     card.className = `creation-card ${state.activeCreation?.id === item.id ? "active" : ""}`;
@@ -58,8 +82,13 @@ function renderCreationsMenu() {
           <span>· ${item.sceneCount}sc</span>
         </div>
       </div>
+      <button class="creation-action" type="button">${state.showArchived ? "RESTORE" : "ARCHIVE"}</button>
     `;
     card.addEventListener("click", () => selectCreation(item.id));
+    card.querySelector(".creation-action").addEventListener("click", (event) => {
+      event.stopPropagation();
+      setArchived(item.id, !state.showArchived);
+    });
     list.appendChild(card);
   }
 }
@@ -101,7 +130,117 @@ async function selectCreation(id) {
   } else if (firstScene?.frames?.length) {
     selectFrameLayer(firstScene, firstScene.frames[0]);
   }
+  loadProgress(id);
   if (!state.poll) pollGeneration(id);
+}
+
+const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+const STAGE_TEXT = { passed: "DONE", running: "RUNNING", pending: "WAITING", invalid: "FAILED CHECK", failed: "ERROR", uncertain: "UNCERTAIN", complete: "DONE" };
+
+function stageRow(label, stage, detail = "") {
+  const status = stage?.status || "pending";
+  const tries = stage?.attempts > 1 ? ` · ${stage.attempts} tries` : "";
+  const notes = [...(stage?.warnings || []), stage?.error].filter(Boolean)
+    .map((note) => `<div class="progress-note">${esc(note)}</div>`).join("");
+  return `<div class="progress-row">
+    <span class="progress-label">${esc(label)}${detail ? ` <span class="progress-detail">${esc(detail)}</span>` : ""}</span>
+    <span class="progress-status status-${status}">${STAGE_TEXT[status] || esc(status.toUpperCase())}${tries}</span>
+  </div>${notes}`;
+}
+
+function fmtClock(iso) {
+  return iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "";
+}
+
+function renderProgress(progress) {
+  state.progress = progress;
+  if (!progress) {
+    el("progressSummary").innerHTML = `<div class="progress-note">Progress is tracked for creations started from a topic.</div>`;
+    el("progressStop").classList.add("hidden");
+    el("progressPipeline").innerHTML = "";
+    el("progressRequests").innerHTML = "";
+    return;
+  }
+  const { budget } = progress;
+  const pct = budget.limit ? Math.min(100, Math.round((budget.used / budget.limit) * 100)) : 0;
+  el("progressSummary").innerHTML = `
+    <div class="progress-headline">${progress.running ? "GENERATING" : statusLabel(progress.status)}</div>
+    <div class="budget-line"><span>Requests</span><span>${budget.used} / ${budget.limit}</span></div>
+    <div class="budget-track"><div class="budget-fill" style="width:${pct}%"></div></div>`;
+
+  const stop = progress.stop;
+  el("progressStop").classList.toggle("hidden", !stop);
+  if (stop) {
+    const hints = [];
+    if (stop.budgetExhausted) hints.push("The request budget is used up. Add requests to continue.");
+    if (!stop.resumable) hints.push("This creation was not started from a topic, so it can only be resumed from the CLI.");
+    el("progressStopReason").innerHTML = [stop.reason, ...hints].filter(Boolean).map((line) => `<div>${esc(line)}</div>`).join("");
+    el("reviewRetryOption").classList.toggle("hidden", !stop.reviewRetryEligible);
+    el("btnResumeGeneration").disabled = !stop.resumable;
+  }
+
+  const p = progress.phases;
+  const rows = [
+    stageRow("Research", p.research, "Argon"),
+    stageRow("Plan", p.planning, "Argon"),
+    stageRow("Narration", p.narration)
+  ];
+  for (const scene of progress.scenes) {
+    rows.push(`<div class="progress-scene">Scene ${scene.order + 1} <span class="progress-detail">${esc(scene.id)} · ${scene.duration}s</span></div>`);
+    rows.push(stageRow("Write", { status: scene.stages.write.status }, scene.stages.write.attempts ? `Argon · rev ${scene.stages.write.attempts}` : "Argon"));
+    rows.push(stageRow("Verify", scene.stages.verify, "local checks"));
+    rows.push(stageRow("Render", scene.stages.render));
+    rows.push(stageRow("Review", scene.stages.review, scene.stages.review.findings ? `Flash · ${scene.stages.review.findings} findings` : "Flash"));
+  }
+  rows.push(stageRow("Assemble", p.assembly));
+  el("progressPipeline").innerHTML = rows.join("");
+
+  el("progressRequests").innerHTML = progress.requests.length
+    ? progress.requests.map((req) => {
+      const time = req.elapsedMs != null ? `${Math.round(req.elapsedMs / 1000)}s` : "";
+      const tokens = req.tokens ? `${Math.round(req.tokens / 1000)}k tokens` : "";
+      const detail = req.status === "failed" ? `${req.error}${time ? ` after ${time}` : ""}` : req.status === "running" ? "running" : [time, tokens].filter(Boolean).join(" · ");
+      return `<div class="progress-row request-${req.status}">
+        <span class="progress-label">#${req.call} ${esc(req.agent.toUpperCase())} <span class="progress-detail">${fmtClock(req.startedAt)}</span></span>
+        <span class="progress-status status-${req.status === "done" ? "passed" : req.status}">${esc(detail)}</span>
+      </div>`;
+    }).join("")
+    : `<div class="progress-note">No model requests yet.</div>`;
+}
+
+async function loadProgress(id) {
+  const res = await fetch(`/api/creations/${encodeURIComponent(id)}/progress`);
+  if (state.activeCreation?.id !== id) return;
+  renderProgress(res.ok ? await res.json() : null);
+}
+
+async function resumeGeneration() {
+  const id = state.activeCreation?.id;
+  if (!id) return;
+  el("btnResumeGeneration").disabled = true;
+  const res = await fetch(`/api/creations/${encodeURIComponent(id)}/resume`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ extraCalls: state.extraCalls, approveReviewRetry: el("reviewRetryCheck").checked })
+  });
+  const data = await res.json();
+  el("btnResumeGeneration").disabled = false;
+  if (!res.ok) return showToast(data.error || "Could not resume.");
+  showToast(state.extraCalls ? `Resuming with ${state.extraCalls} more requests.` : "Resuming generation.");
+  state.extraCalls = 0;
+  el("reviewRetryCheck").checked = false;
+  el("extraCallsSelector").querySelectorAll(".opt-pill").forEach((b) => b.classList.toggle("active", b.dataset.calls === "0"));
+  stopPolling();
+  await pollGeneration(id);
+  loadProgress(id);
+}
+
+function showInspectorTab(name) {
+  for (const [tab, body] of [["Progress", "inspectorProgressTab"], ["Scenes", "inspectorScenesTab"], ["Code", "inspectorCodeTab"]]) {
+    el(`tabBtn${tab}`).classList.toggle("active", tab === name);
+    el(body).classList.toggle("hidden", tab !== name);
+  }
 }
 
 function statusLabel(status) {
@@ -127,6 +266,7 @@ async function pollGeneration(id) {
   if (!res.ok || state.activeCreation?.id !== id) return;
   const info = await res.json();
   renderGeneration(info);
+  loadProgress(id);
   if (!info.job?.running) {
     if (state.poll?.id === id) {
       stopPolling();
@@ -549,7 +689,9 @@ async function createNewTopicCreation() {
   const data = await res.json();
   if (!res.ok) return showToast(data.error || "Creation failed.");
 
+  state.showArchived = false;
   state.creations = data.creations;
+  state.archivedCount = data.archivedCount || 0;
   renderCreationsMenu();
   await selectCreation(data.id);
   showToast(`Generating ${data.id} (${state.selectedStyle}, ${state.selectedDuration}s).`);
@@ -558,6 +700,7 @@ async function createNewTopicCreation() {
 function wireEvents() {
   el("btnModePrompt").addEventListener("click", () => switchStageView("prompt"));
   el("btnModeCanvas").addEventListener("click", () => switchStageView("canvas"));
+  el("btnToggleArchived").addEventListener("click", toggleArchivedView);
   el("btnNewCreation").addEventListener("click", () => {
     switchStageView("prompt");
     el("topicInput").focus();
@@ -603,17 +746,15 @@ function wireEvents() {
     showToast(`Saved ${state.activeSceneId}/scene.js`);
   });
 
-  el("tabBtnScenes").addEventListener("click", () => {
-    el("tabBtnScenes").classList.add("active");
-    el("tabBtnCode").classList.remove("active");
-    el("inspectorScenesTab").classList.remove("hidden");
-    el("inspectorCodeTab").classList.add("hidden");
-  });
-  el("tabBtnCode").addEventListener("click", () => {
-    el("tabBtnCode").classList.add("active");
-    el("tabBtnScenes").classList.remove("active");
-    el("inspectorCodeTab").classList.remove("hidden");
-    el("inspectorScenesTab").classList.add("hidden");
+  el("tabBtnProgress").addEventListener("click", () => showInspectorTab("Progress"));
+  el("tabBtnScenes").addEventListener("click", () => showInspectorTab("Scenes"));
+  el("tabBtnCode").addEventListener("click", () => showInspectorTab("Code"));
+  el("btnResumeGeneration").addEventListener("click", resumeGeneration);
+  el("extraCallsSelector").querySelectorAll(".opt-pill").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.extraCalls = Number(btn.dataset.calls);
+      el("extraCallsSelector").querySelectorAll(".opt-pill").forEach((b) => b.classList.toggle("active", b === btn));
+    });
   });
 
   el("frameStepSelect").addEventListener("change", (e) => {

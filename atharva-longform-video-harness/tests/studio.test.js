@@ -127,3 +127,118 @@ test("creating from the studio without Gemini credentials fails before writing a
   assert.match((await res.json()).error, /credentials/);
   assert.equal(fs.existsSync(join(RUNS, "projects", id)), false);
 });
+
+test("archiving hides a creation from the studio list until it is restored", async (t) => {
+  // The studio list skips "test-" ids, so this fixture uses a different prefix.
+  const id = `archivetest-${randomUUID().slice(0, 8)}`;
+  const root = join(RUNS, "projects", id);
+  fs.mkdirSync(root, { recursive: true });
+  fs.writeFileSync(join(root, "topic.json"), JSON.stringify({ topic: "Archive fixture", duration: 30, style: "line" }));
+  const archiveDir = fs.mkdtempSync(join(os.tmpdir(), "studio-archive-"));
+  t.after(() => {
+    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(archiveDir, { recursive: true, force: true });
+  });
+  let running = false;
+  const jobs = { start() {}, cancel: () => false, status: () => null, isRunning: () => running };
+  const base = await listen(t, { jobs, hasCredentials: () => true, archivePath: join(archiveDir, "archive.json") });
+  const ids = async (query = "") => (await (await fetch(`${base}/api/creations${query}`)).json()).creations.map((item) => item.id);
+
+  assert.ok((await ids()).includes(id));
+  running = true;
+  assert.equal((await fetch(`${base}/api/creations/${id}/archive`, { method: "POST" })).status, 409);
+  running = false;
+
+  const archived = await fetch(`${base}/api/creations/${id}/archive`, { method: "POST" });
+  assert.equal(archived.status, 200);
+  assert.ok((await archived.json()).archivedCount >= 1);
+  assert.ok(!(await ids()).includes(id));
+  assert.ok((await ids("?archived=1")).includes(id));
+  assert.ok(fs.existsSync(join(root, "topic.json")));
+
+  assert.equal((await fetch(`${base}/api/creations/${id}/restore`, { method: "POST" })).status, 200);
+  assert.ok((await ids()).includes(id));
+  assert.ok(!(await ids("?archived=1")).includes(id));
+  assert.equal((await fetch(`${base}/api/creations/archivetest-missing/archive`, { method: "POST" })).status, 404);
+});
+
+function progressFixture(t, { topic = true } = {}) {
+  const { id, root } = projectDir(t);
+  const scene = join(root, "scenes", "scene-a");
+  fs.mkdirSync(scene, { recursive: true });
+  if (topic) fs.writeFileSync(join(root, "topic.json"), JSON.stringify({ topic: "How tides work", duration: 30, style: "line" }));
+  fs.writeFileSync(join(root, "research.json"), "{}");
+  fs.writeFileSync(join(root, "project.json"), JSON.stringify({ scenes: [{ id: "scene-a", order: 0, duration: 10 }] }));
+  fs.writeFileSync(join(root, "state.json"), JSON.stringify({ version: 1, id, status: "paused", api_calls: 22, limits: { maxCalls: 22 }, audio_pregenerated: true,
+    bootstrap: { research: { attempts: 1, status: "validated" }, planning: { attempts: 1, status: "validated" } },
+    review_attempts: { "scene-a:abc": { attempts: 1, approved_retry: false, status: "uncertain" } } }));
+  fs.writeFileSync(join(scene, "state.json"), JSON.stringify({ status: "scene_written", revisions: 2, project_pipeline: {
+    verification: { status: "invalid", attempts: 1, result: { samples: [{ warnings: ["Overlapping text bounds."] }, { warnings: ["Overlapping text bounds."] }] } },
+    rendering: { status: "pending", attempts: 0 }, review: { status: "pending", attempts: 0 } } }));
+  fs.writeFileSync(join(root, "events.jsonl"), [
+    { type: "request_started", call: 1, model: "gemini-4-argon", at: "2026-10-26T00:00:00Z" },
+    { type: "request_completed", call: 1, model: "gemini-4-argon", elapsed_ms: 4000, usage: { total_tokens: 1200 } },
+    { type: "request_started", call: 2, model: "gemini-3.8-flash", at: "2026-10-26T00:00:05Z" },
+    { type: "request_failed", call: 2, model: "gemini-3.8-flash", elapsed_ms: 900, http_status: 400 }
+  ].map((event) => JSON.stringify(event)).join("\n") + "\n");
+  fs.writeFileSync(join(root, "generation.log"), "Request 2: gemini-3.8-flash.\nGemini request failed (HTTP 400).\n");
+  return { id, root };
+}
+
+test("progress shows each pipeline stage, agent requests and why a run stopped", (t) => {
+  const { buildProgress } = require("../src/server/progress");
+  const { id } = progressFixture(t);
+  const progress = buildProgress(id);
+
+  assert.deepEqual(progress.budget, { used: 22, limit: 22, remaining: 0 });
+  assert.equal(progress.phases.research.status, "passed");
+  assert.equal(progress.phases.narration.status, "passed");
+  assert.deepEqual(progress.scenes[0].stages.write, { status: "passed", attempts: 2 });
+  assert.deepEqual(progress.scenes[0].stages.verify, { status: "invalid", attempts: 1, warnings: ["Overlapping text bounds."] });
+  assert.deepEqual(progress.requests.map((req) => [req.call, req.agent, req.status]), [[2, "Flash", "failed"], [1, "Argon", "done"]]);
+  assert.equal(progress.requests[0].error, "HTTP 400");
+  assert.deepEqual(progress.stop, { reason: "Gemini request failed (HTTP 400).", budgetExhausted: true, reviewRetryEligible: true, resumable: true });
+  assert.equal(buildProgress(id, { job: { running: true } }).stop, null);
+});
+
+test("resuming from the studio can add requests and approve a review retry", async (t) => {
+  const { id, root } = progressFixture(t);
+  const started = [];
+  let running = false;
+  const jobs = { start(spec) { started.push(spec); return { id: spec.id, running: true }; }, cancel: () => false, status: () => null,
+    job: () => null, isRunning: () => running };
+  const base = await listen(t, { jobs, hasCredentials: () => true });
+  const resume = (body) => fetch(`${base}/api/creations/${id}/resume`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+
+  assert.equal((await resume({ extraCalls: 51 })).status, 400);
+  assert.equal((await resume({ extraCalls: 2.5 })).status, 400);
+  running = true;
+  assert.equal((await resume({})).status, 409);
+  running = false;
+
+  assert.equal((await resume({ extraCalls: 10, approveReviewRetry: true })).status, 202);
+  assert.deepEqual(started, [{ id, topic: "How tides work", duration: 30, style: "line", approveReviewRetry: true }]);
+  assert.equal(JSON.parse(fs.readFileSync(join(root, "state.json"), "utf8")).limits.maxCalls, 32);
+  assert.match(fs.readFileSync(join(root, "events.jsonl"), "utf8"), /"approved_limits_increased","source":"studio","max_calls":\{"from":22,"to":32\}/);
+
+  const progress = await (await fetch(`${base}/api/creations/${id}/progress`)).json();
+  assert.equal(progress.budget.limit, 32);
+});
+
+test("resuming refuses creations that were not started from a topic", async (t) => {
+  const { id } = progressFixture(t, { topic: false });
+  const jobs = { start() { throw new Error("must not start"); }, cancel: () => false, status: () => null, job: () => null, isRunning: () => false };
+  const base = await listen(t, { jobs, hasCredentials: () => true });
+  const res = await fetch(`${base}/api/creations/${id}/resume`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /CLI/);
+});
+
+test("a resumed generation forwards the review retry approval to the CLI", async (t) => {
+  const { id } = projectDir(t);
+  const script = fakeScript(t, "console.log(JSON.stringify(process.argv.slice(2)));");
+  const jobs = createJobRunner({ script });
+  jobs.start({ id, topic: "How tides work", duration: 30, approveReviewRetry: true });
+  const done = await waitFor(() => { const s = jobs.status(id); return s.job.running ? null : s; });
+  assert.ok(JSON.parse(done.log[0]).includes("--approve-review-retry"));
+});

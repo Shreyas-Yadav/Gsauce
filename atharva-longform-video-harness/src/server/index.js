@@ -9,8 +9,35 @@ const { generateSceneAudio } = require("../harness/audio");
 const { openTopic, createProject } = require("../harness/create");
 const { credentials, GeminiSession, MODELS, outputText } = require("../harness/gemini");
 const { createJobRunner } = require("./jobs");
+const { buildProgress } = require("./progress");
+const { Workspace } = require("../harness/workspace");
 
 const UI_DIR = join(PROJECT, "src/ui");
+const ARCHIVE_FILE = join(RUNS, "studio-archive.json");
+const MAX_EXTRA_CALLS = 50;
+
+// Raising the request budget is an explicit studio action, recorded like the CLI's approved increases.
+function addRequestBudget(id, extraCalls) {
+  const workspace = new Workspace(id, { base: join(RUNS, "projects") });
+  const previous = workspace.state.limits?.maxCalls || 0;
+  workspace.state.limits = { ...workspace.state.limits, maxCalls: previous + extraCalls };
+  workspace.save();
+  workspace.event({ type: "approved_limits_increased", source: "studio", max_calls: { from: previous, to: previous + extraCalls } });
+}
+
+// Archiving only hides a creation from the studio list; its run folder is untouched.
+function readArchive(path = ARCHIVE_FILE) {
+  const archive = readJsonSafe(path, {});
+  return archive && typeof archive === "object" && !Array.isArray(archive) ? archive : {};
+}
+
+function setArchived(id, archived, path = ARCHIVE_FILE) {
+  const archive = readArchive(path);
+  if (archived) archive[id] = new Date().toISOString();
+  else delete archive[id];
+  fs.mkdirSync(dirname(path), { recursive: true });
+  atomicWrite(path, JSON.stringify(archive, null, 2));
+}
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -339,7 +366,16 @@ function listAllCreations() {
       }
     }
   }
-  return items.sort((a, b) => (Number(b.hasVideo) - Number(a.hasVideo)) || (b.updatedAt - a.updatedAt));
+  return items.sort((a, b) => b.updatedAt - a.updatedAt);
+}
+
+function listCreations({ archived = false, archivePath = ARCHIVE_FILE } = {}) {
+  const archive = readArchive(archivePath);
+  const all = listAllCreations();
+  return {
+    creations: all.filter((item) => Boolean(archive[item.id]) === archived),
+    archivedCount: all.filter((item) => archive[item.id]).length
+  };
 }
 
 function readBody(req) {
@@ -414,14 +450,14 @@ function applySurgicalCodeNote(existingCode, { timestamp, box, prompt }) {
   return header + existingCode;
 }
 
-function createStudioServer({ jobs = createJobRunner(), hasCredentials = () => Boolean(credentials(process.env, join(PROJECT, ".env"))) } = {}) {
+function createStudioServer({ jobs = createJobRunner(), hasCredentials = () => Boolean(credentials(process.env, join(PROJECT, ".env"))), archivePath = ARCHIVE_FILE } = {}) {
   return http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
       const pathname = url.pathname;
 
       if (req.method === "GET" && pathname === "/api/creations") {
-        return sendJson(res, 200, { creations: listAllCreations() });
+        return sendJson(res, 200, listCreations({ archived: url.searchParams.get("archived") === "1", archivePath }));
       }
 
       if (req.method === "GET" && /^\/api\/creations\/[^/]+\/status$/.test(pathname)) {
@@ -429,6 +465,44 @@ function createStudioServer({ jobs = createJobRunner(), hasCredentials = () => B
         const status = jobs.status(id);
         if (!status) return sendJson(res, 404, { error: "Creation not found." });
         return sendJson(res, 200, status);
+      }
+
+      if (req.method === "POST" && /^\/api\/creations\/[^/]+\/(archive|restore)$/.test(pathname)) {
+        const [, , , rawId, action] = pathname.split("/");
+        const id = decodeURIComponent(rawId);
+        if (!loadProjectDetails(id) && !loadSingleRunDetails(id)) return sendJson(res, 404, { error: "Creation not found." });
+        if (action === "archive" && jobs.isRunning(id)) return sendJson(res, 409, { error: "Stop the generation before archiving it." });
+        setArchived(id, action === "archive", archivePath);
+        return sendJson(res, 200, { ok: true, id, ...listCreations({ archivePath }) });
+      }
+
+      if (req.method === "GET" && /^\/api\/creations\/[^/]+\/progress$/.test(pathname)) {
+        const id = decodeURIComponent(pathname.split("/")[3]);
+        const progress = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(id) ? buildProgress(id, { job: jobs.job(id) }) : null;
+        if (!progress) return sendJson(res, 404, { error: "Progress is only tracked for project creations." });
+        return sendJson(res, 200, progress);
+      }
+
+      if (req.method === "POST" && /^\/api\/creations\/[^/]+\/resume$/.test(pathname)) {
+        const id = decodeURIComponent(pathname.split("/")[3]);
+        const body = await readBody(req);
+        const extraCalls = Number(body.extraCalls || 0);
+        if (!Number.isInteger(extraCalls) || extraCalls < 0 || extraCalls > MAX_EXTRA_CALLS) {
+          return sendJson(res, 400, { error: `Extra requests must be a whole number from 0 to ${MAX_EXTRA_CALLS}.` });
+        }
+        if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(id)) return sendJson(res, 404, { error: "Creation not found." });
+        if (jobs.isRunning(id)) return sendJson(res, 409, { error: "Generation is already running for this creation." });
+        const topic = readJsonSafe(join(RUNS, "projects", id, "topic.json"));
+        if (!topic?.topic) return sendJson(res, 400, { error: "This creation was not started from a topic. Resume it from the CLI." });
+        if (!hasCredentials()) return sendJson(res, 400, { error: "Gemini credentials are not configured. Set GEMINI_API_KEY before resuming." });
+        if (extraCalls) addRequestBudget(id, extraCalls);
+        let job;
+        try {
+          job = jobs.start({ id, topic: topic.topic, duration: topic.duration, style: topic.style, approveReviewRetry: Boolean(body.approveReviewRetry) });
+        } catch (error) {
+          return sendJson(res, error.status || 500, { error: error.message });
+        }
+        return sendJson(res, 202, { ok: true, id, job });
       }
 
       if (req.method === "POST" && /^\/api\/creations\/[^/]+\/cancel$/.test(pathname)) {
@@ -611,7 +685,7 @@ Current scene.js:\n${currentCode}\nReturn ONLY the valid JavaScript function bod
           ok: true,
           id: ws.id,
           job,
-          creations: listAllCreations()
+          ...listCreations({ archivePath })
         });
       }
 
@@ -648,4 +722,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { createStudioServer, listAllCreations, loadProjectDetails, loadSingleRunDetails };
+module.exports = { createStudioServer, listAllCreations, listCreations, loadProjectDetails, loadSingleRunDetails };
