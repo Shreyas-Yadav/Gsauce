@@ -15,6 +15,7 @@ audio:
   takes: 2
   genre: "boom-bap hip-hop"
   mood: "confident, rhythmic, educational, crisp drums, warm bassline"
+  intro_keep_sec: 2.0     # Trim instrumental intro to this many seconds before the first vocal
 
 video:
   width: 1080
@@ -22,11 +23,14 @@ video:
   fps: 30
   duration_min_sec: 30
   duration_max_sec: 60
+  render_quality: "looks" # hyperframes render --quality: draft | looks (CRF 16) | delivery
 
 pipeline:
   max_fix_retries: 2
   max_render_retries: 2
   max_critique_rounds: 2
+  max_preflight_fixes: 2  # Fast-model scene fixes driven by `hyperframes check` before each render
+  critique_pass_score: 88.0
   runs_dir: "runs"
   cache_enabled: true
 

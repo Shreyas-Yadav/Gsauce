@@ -126,6 +126,13 @@ class TreatmentArtifact(BaseModel):
     bars: list[BarDirection]
 
 
+# 9. scene.json — the LLM-authored part of `index.html` (the shell around it is built in Python)
+class SceneParts(BaseModel):
+    style: str = ""
+    markup: str
+    script: str
+
+
 # 11. critique_<n>.json
 GridCell = Literal[
     "A1", "A2", "A3", "A4", "A5", "A6",

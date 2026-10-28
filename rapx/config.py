@@ -29,6 +29,7 @@ class AudioConfig(BaseModel):
     takes: int = 3
     genre: str = "boom-bap hip-hop"
     mood: str = "confident, rhythmic, educational, crisp drums, warm bassline"
+    intro_keep_sec: float = 2.0  # Instrumental lead-in kept before the first vocal word
 
 
 class VideoConfig(BaseModel):
@@ -37,12 +38,15 @@ class VideoConfig(BaseModel):
     fps: int = 30
     duration_min_sec: int = 30
     duration_max_sec: int = 60
+    render_quality: str = "looks"  # hyperframes render --quality (draft | looks | delivery)
 
 
 class PipelineConfig(BaseModel):
     max_fix_retries: int = 3
     max_render_retries: int = 3
     max_critique_rounds: int = 3
+    max_preflight_fixes: int = 2  # Scene fix passes driven by `hyperframes check` before rendering
+    critique_pass_score: float = 88.0
     runs_dir: str = "runs"
     cache_enabled: bool = True
 

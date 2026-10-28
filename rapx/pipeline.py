@@ -169,7 +169,7 @@ def run_full_pipeline(
     # Stage 6: audio
     if start_idx <= 5:
         t_s = time.perf_counter()
-        console.print("[bold cyan][6/11] Stage: audio (Lyria 3 Pro — 3 takes)[/bold cyan]")
+        console.print(f"[bold cyan][6/11] Stage: audio (Lyria 3 Pro — {cfg.audio.takes} takes in parallel)[/bold cyan]")
         run_audio(run_dir, cfg, force=_should_force(5))
         console.print(f"  [dim]⏱ audio finished in {format_elapsed(time.perf_counter() - t_s)}[/dim]")
 
@@ -194,14 +194,14 @@ def run_full_pipeline(
     # Stage 9: code
     if start_idx <= 8:
         t_s = time.perf_counter()
-        console.print("[bold cyan][9/11] Stage: code (HyperFrames GSAP index.html)[/bold cyan]")
+        console.print("[bold cyan][9/11] Stage: code (LLM scene + deterministic HyperFrames shell)[/bold cyan]")
         run_code(run_dir, cfg, force=_should_force(8))
         console.print(f"  [dim]⏱ code finished in {format_elapsed(time.perf_counter() - t_s)}[/dim]")
 
     # Stage 10: render
     if start_idx <= 9:
         t_s = time.perf_counter()
-        console.print("[bold cyan][10/11] Stage: render (npx hyperframes render -> final.mp4)[/bold cyan]")
+        console.print("[bold cyan][10/11] Stage: render (hyperframes check gate -> hyperframes render -> final.mp4)[/bold cyan]")
         run_render(run_dir, cfg, force=_should_force(9))
         console.print(f"  [dim]⏱ render finished in {format_elapsed(time.perf_counter() - t_s)}[/dim]")
 

@@ -17,12 +17,18 @@ You have been provided:
 3. **Word-Level Visual Hit (`visual_hit_word` & `visual_hit_time_sec`)**:
    - For every bar, choose the single most important technical or punchline word from that bar's lyrics (`visual_hit_word`) and copy its exact `start` timestamp (`visual_hit_time_sec`) from the per-bar word list above so the visual climax of that bar lands on that exact spoken word.
 4. **Camera & Transitions (`camera_move`, `transition_to_next`)**:
-   - Specify dynamic camera moves (`zoom-in on active node`, `pan across ring arc`, `pull back to full cluster view`) and smooth beat-locked transitions.
+   - Specify a camera move that frames that bar's focal element (`push in on node B`, `pull back to the full ring`, `pan to the new replica`). The camera may zoom between 1.0× and 1.35×.
+   - A section wipe and title change are added automatically when the outline point changes, so `transition_to_next` should describe how the diagram itself morphs into the next bar.
 5. **Selective Kinetic Typography (`kinetic_typography_punchline`)**:
-   - Set `kinetic_typography_punchline: true` on **at most 4–6 punchline/key-term bars** across the song so kinetic callout banners feel impactful rather than cluttered.
+   - Set `kinetic_typography_punchline: true` on **4–6 punchline bars only**. On those bars the scene cuts away for ~1s and the hit word is slammed full-screen, so pick a short, punchy `visual_hit_word` (one word, ≤ 12 letters) and keep that bar's diagram action simple.
 6. **Always-Alive Frame (`background_motion`, `secondary_offbeat_element`, `protagonist_state`)**:
-   - Every bar must specify continuous background motion (e.g., subtle grid drift, data packet particles, rotating coordinate ticks), a secondary element pulsing on the offbeats (beats 2 & 4), and the exact state of the central metaphor diagram (`protagonist_state`).
-7. **High-Contrast Color Palette & Typography (`palette`, `typography`)**:
-   - Choose a dark, rich background hex (e.g. `#070B14`) with high-contrast primary, secondary, and accent neon/vibrant hex colors and crisp readable text hex (`#F8FAFC`).
+   - Every bar must specify a continuous slow motion inside the diagram (rotating ring, drifting particles, flowing dashed connectors), one small element that pulses on the beat, and the exact state of the central diagram (`protagonist_state`).
+7. **Visual Budget (keeps every frame clean and readable on a phone)**:
+   - Use a small cast of **at most 6 persistent entities** for the whole song and evolve them; never pile new objects on top of old ones.
+   - At most **8 short text labels** on screen at once (1–3 words or a number each, rendered ≥ 32px). No paragraphs, formula strips, meters, dashboards, or title banners: the HUD and karaoke captions are handled separately.
+   - One focal action per bar; everything else stays calm.
+8. **High-Contrast Color Palette & Typography (`palette`, `typography`)**:
+   - Choose a dark, rich background hex (e.g. `#070B14`) with high-contrast primary, secondary, and accent hex colors (the accent is used for the punchline slams and active caption words, so make it bright) and crisp readable text hex (`#F8FAFC`).
+   - Pick Google Fonts: a bold display `heading_font` (e.g. `Space Grotesk`, `Sora`, `Outfit`, `Archivo`), a clean `body_font`, and a `mono_font`.
 
 Return a JSON object matching the `TreatmentArtifact` schema.

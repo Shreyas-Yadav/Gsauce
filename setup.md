@@ -99,6 +99,11 @@ uv run rapx make "explain how convolution works" --run-id convolution
 uv run rapx make "explain consistent hashing" --run-id hashing --force
 ```
 
+#### How a video gets right in one render
+1. **`code`**: the flagship model writes only the central scene (`scene.json`). Python builds everything else (captions, HUD, slams, timing data), so those parts can't regress.
+2. **`render`**: before rendering, a gate runs static contract checks plus `npx hyperframes check` (lint, runtime errors, text occlusion, text below the 28px phone floor, contrast, rotation pivots). It takes about 8s. Scene-owned findings get up to `pipeline.max_preflight_fixes` surgical scene fixes on the fast model, and the best version is kept. The render then runs at `video.render_quality` (`looks`, CRF 16).
+3. **`critique`**: a multimodal review of a 720p proxy. If it scores below `critique_pass_score`, the scene is fixed once and re-rendered. The best-scoring reviewed render is delivered.
+
 ### Rerun From a Specific Stage (`rapx rerun`)
 Reuses cached upstream artifacts and re-runs from `--from <stage>` onward:
 
@@ -133,7 +138,10 @@ Every run produces inspectable, Pydantic-validated artifacts inside `runs/<run_i
 - `take_1.mp3`, `take_2.mp3`, `selected_take.mp3` & `audio_takes.json` — Lyria 3 Pro tracks
 - `timeline.json` & `align_candidates.json` — WhisperX word timestamps + `librosa` beats & downbeats
 - `treatment.json` — Multimodal visual direction & per-bar choreography
-- `hf_project/index.html` — Self-contained HyperFrames HTML5 + SVG + GSAP composition
-- `critique_<n>.json` — 6×6 grid (`A1`–`F6`) visual & sync QA reports
+- `scene.json` — The LLM-authored central scene (scoped CSS, SVG markup, GSAP script)
+- `hf_project/index.html` — HyperFrames composition: deterministic Python shell (HUD, karaoke captions, punchline slams, section wipes, beat/energy-reactive background) wrapped around `scene.json`
+- `preflight_<n>.json` — `hyperframes check` findings (blocking / scene quality / shell-owned) for each pre-render fix round
+- `critique_<n>.json` — 6×6 grid (`A1`–`F6`) visual & sync QA reports (critiqued on a 720p proxy; pass requires `critique_pass_score`)
+- `render_round_<n>.mp4` & `scene_round_<n>.json` — Snapshot of each critiqued render; the best-scoring one is kept as `final.mp4`
 - `metrics.json` — Per-stage model, cache status, latency, token usage, and estimated USD cost
 - **`final.mp4`** — Final rendered `1080×1920` (`30fps`) vertical MP4 video

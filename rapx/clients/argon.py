@@ -13,6 +13,7 @@ from typing import TypeVar
 
 import google.auth
 from google import genai
+from google.genai import errors as genai_errors
 from google.genai import types
 from pydantic import BaseModel
 
@@ -103,6 +104,24 @@ def _estimate_llm_cost(cfg: AppConfig, model_id: str, in_tok: int, out_tok: int)
     ) * cfg.pricing.argon_output_per_1m
 
 
+RETRYABLE_STATUS = {429, 500, 502, 503, 504}
+RETRY_DELAYS_SEC = (8.0, 20.0, 45.0)
+
+
+def _generate_with_retry(client: genai.Client, **kwargs: object) -> types.GenerateContentResponse:
+    """`generate_content` with backoff on quota (429) and transient server errors, so one rate-limit blip
+    late in the pipeline doesn't throw away minutes of finished work."""
+    for attempt, delay in enumerate((*RETRY_DELAYS_SEC, None), start=1):
+        try:
+            return client.models.generate_content(**kwargs)  # type: ignore[arg-type]
+        except genai_errors.APIError as e:
+            if delay is None or getattr(e, "code", None) not in RETRYABLE_STATUS:
+                raise
+            print(f"[rapx] {kwargs.get('model')} returned {e.code}; retry {attempt}/{len(RETRY_DELAYS_SEC)} in {delay:.0f}s")
+            time.sleep(delay)
+    raise RuntimeError("unreachable")
+
+
 def call_argon_json(
     client: genai.Client,
     cfg: AppConfig,
@@ -123,7 +142,8 @@ def call_argon_json(
     contents.append(prompt_text)
 
     t0 = time.perf_counter()
-    response = client.models.generate_content(
+    response = _generate_with_retry(
+        client,
         model=active_model,
         contents=contents,
         config=types.GenerateContentConfig(
@@ -185,6 +205,7 @@ def call_argon_text(
     multimodal_parts: list[types.Part] | None = None,
     input_hash: str | None = None,
     model_override: str | None = None,
+    extract_html: bool = True,
 ) -> tuple[str, StageMetric]:
     """Call Gemini (`model_override` or `cfg.models.llm`) for raw text/HTML output and return (text, StageMetric)."""
     active_model = model_override or cfg.models.llm
@@ -194,7 +215,8 @@ def call_argon_text(
     contents.append(prompt_text)
 
     t0 = time.perf_counter()
-    response = client.models.generate_content(
+    response = _generate_with_retry(
+        client,
         model=active_model,
         contents=contents,
         config=types.GenerateContentConfig(
@@ -222,4 +244,4 @@ def call_argon_text(
         estimated_cost_usd=round(cost, 6),
         input_hash=input_hash,
     )
-    return _extract_html_str(raw), metric
+    return (_extract_html_str(raw) if extract_html else raw), metric

@@ -3,7 +3,8 @@
 1. Transcribes each take with WhisperX (`faster-whisper`) to measure true acoustic lyric drift against known lyrics.
 2. Runs WhisperX (`wav2vec2`) CTC forced alignment against the known lyrics for exact word timestamps `{w, start, end, confidence}`.
 3. Evaluates per-bar confidence (Worst-Bar Gate: penalizes any take that rushes or drops a bar).
-4. Smart Intro/Outro Trimming: if a 16-bar take exceeds 60s due to long instrumental intro/outro, trims the silent/instrumental padding around the vocals so all 16 bars stay intact within 30-60s.
+4. Smart Intro/Outro Trimming: always trims the instrumental intro to `audio.intro_keep_sec` before the first vocal word
+   (no dead air before bar 1) and trims long outros, keeping all bars intact within 30-60s.
 5. Extracts `bpm`, `beats[]`, and vocal-anchored `downbeats[]` with `librosa` -> `timeline.json`.
 """
 
@@ -180,30 +181,42 @@ def extract_beats_and_downbeats(
     return round(detected_bpm, 2), beats, downbeats
 
 
-def smart_trim_audio_around_vocals(
-    src_path: Path,
-    dst_path: Path,
+OUTRO_KEEP_SEC = 2.5
+
+
+def compute_trim_window(
     first_word_start: float,
     last_word_end: float,
     raw_duration: float,
     min_dur: float,
     max_dur: float,
+    intro_keep: float = 2.0,
 ) -> tuple[float, float]:
-    """Trim excess instrumental intro/outro around the vocals so all 16 bars stay intact inside [min_dur, max_dur].
+    """Return (trim_start, target_duration) keeping `intro_keep`s before the vocals and ~2.5s after them.
 
-    Returns (trim_start_offset_sec, final_duration_sec).
+    The intro is never trimmed so far that the remaining audio drops below `min_dur`.
     """
-    # Keep up to 2.5s of drum intro before the first vocal word if we need to trim
     trim_start = 0.0
-    if last_word_end + 2.0 > max_dur and first_word_start > 3.0:
-        trim_start = round(max(0.0, min(first_word_start - 2.5, last_word_end + 2.5 - max_dur)), 3)
+    if first_word_start > intro_keep + 0.5:
+        trim_start = first_word_start - intro_keep
+    trim_start = round(max(0.0, min(trim_start, raw_duration - min_dur)), 3)
 
     remaining_after_start = raw_duration - trim_start
     vocal_end_shifted = last_word_end - trim_start
     target_duration = min(
         max_dur,
-        min(remaining_after_start, max(min_dur, vocal_end_shifted + 2.5)),
+        min(remaining_after_start, max(min_dur, vocal_end_shifted + OUTRO_KEEP_SEC)),
     )
+    return trim_start, round(target_duration, 3)
+
+
+def smart_trim_audio_around_vocals(
+    src_path: Path,
+    dst_path: Path,
+    trim_start: float,
+    target_duration: float,
+) -> tuple[float, float]:
+    """Cut `[trim_start, trim_start + target_duration]` from the take with short fades. Returns (offset, duration)."""
     fade_start = max(0.0, target_duration - 1.5)
     af_filters = [f"afade=t=out:st={fade_start:.3f}:d=1.5"]
     if trim_start > 0:
@@ -265,9 +278,9 @@ def run_align(
     out_path = run_dir / "timeline.json"
     hash_path = run_dir / ".align.hash"
     stage_hash = compute_stage_hash(
-        "whisperx_hybrid_v2",
+        "whisperx_hybrid_v3_intro_trim",
         lyrics.model_dump_json(),
-        [json.dumps(takes_meta, sort_keys=True)],
+        [json.dumps(takes_meta, sort_keys=True), str(cfg.audio.intro_keep_sec)],
     )
 
     if (
@@ -392,16 +405,18 @@ def run_align(
     trim_offset = 0.0
     final_duration = raw_dur
 
-    if raw_dur > cfg.video.duration_max_sec or (raw_dur - last_word_end) > 4.0:
+    trim_start, target_duration = compute_trim_window(
+        first_word_start,
+        last_word_end,
+        raw_dur,
+        min_dur=float(cfg.video.duration_min_sec),
+        max_dur=float(cfg.video.duration_max_sec),
+        intro_keep=cfg.audio.intro_keep_sec,
+    )
+    if trim_start > 0.0 or target_duration < raw_dur - 0.05:
         trimmed_path = run_dir / "selected_take.mp3"
         trim_offset, final_duration = smart_trim_audio_around_vocals(
-            selected_src,
-            trimmed_path,
-            first_word_start=first_word_start,
-            last_word_end=last_word_end,
-            raw_duration=raw_dur,
-            min_dur=float(cfg.video.duration_min_sec),
-            max_dur=float(cfg.video.duration_max_sec),
+            selected_src, trimmed_path, trim_start, target_duration
         )
         selected_audio_name = trimmed_path.name
 
